@@ -1,0 +1,20 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_BASE_URL=http://host.docker.internal:11434
+      - GRANITE_MODEL=granite3.3:8b
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+      - LOG_LEVEL=INFO
+    volumes:
+      - ./RAG:/app/RAG
+      - ./Informacion_docling_rag:/app/Informacion_docling_rag
+      - ./logs:/app/logs
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped

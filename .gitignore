@@ -1,0 +1,33 @@
+# Python & Entornos Virtuales
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+ENV/
+
+# Tests & Coverage
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
+# Logs del Sistema
+logs/*.log
+!logs/.gitkeep
+
+# Variables de Entorno y Claves Privadas
+.env
+
+# IDEs & Editores
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Sistema Operativo
+.DS_Store
+Thumbs.db
