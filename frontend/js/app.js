@@ -9,8 +9,9 @@ import { checkSystemHealth, setGraniteVisualStatus } from "./modules/health-chec
 import { initDoclingHandler } from "./modules/docling-handler.js";
 import { initScraperHandler } from "./modules/scraper-handler.js";
 import { renderArticle } from "./modules/markdown-renderer.js";
-import { updateSeoAudit } from "./modules/seo-audit.js";
+import { updateSeoAudit, runBackendSeoAudit } from "./modules/seo-audit.js";
 import { initWordPressExporter } from "./modules/wordpress-exporter.js";
+import { initSitejetExporter } from "./modules/sitejet-exporter.js";
 import { initArticleHistory } from "./modules/article-history.js";
 import { initKeyboardShortcuts } from "./modules/keyboard-shortcuts.js";
 import { initArticleGenerator } from "./modules/article-generator.js";
@@ -18,7 +19,7 @@ import { initArticleGenerator } from "./modules/article-generator.js";
 document.addEventListener("DOMContentLoaded", () => {
   // Estado global compartido
   const state = {
-    selectedTheme: "cybersecurity",
+    selectedTheme: "legal_tech",
     currentRawMarkdown: "",
     currentBannerUrl: "",
     scraperMetadata: {
@@ -61,11 +62,23 @@ document.addEventListener("DOMContentLoaded", () => {
   const tempValueLabel = document.getElementById("tempValueLabel");
 
   const THEME_DEFAULTS = {
-    cybersecurity: 0.5,
-    ai_data: 0.6,
-    legal_tech: 0.4,
-    science_tech: 0.7
+    legal_tech: 0.2,
+    cybersecurity: 0.25,
+    ai_data: 0.3,
+    science_tech: 0.3
   };
+
+  function formatTempLabel(val) {
+    if (val <= 0.3) return `${val} (Rigor Factual)`;
+    if (val <= 0.5) return `${val} (Moderado)`;
+    return `${val} (Creativo / Riesgo)`;
+  }
+
+  function formatTempColor(val) {
+    if (val <= 0.3) return "var(--color-secondary)";
+    if (val <= 0.5) return "var(--color-gold)";
+    return "var(--color-error)";
+  }
 
   function selectTheme(themeKey) {
     themePills.forEach((p) => {
@@ -77,9 +90,13 @@ document.addEventListener("DOMContentLoaded", () => {
     });
     state.selectedTheme = themeKey;
 
-    if (tempSlider && THEME_DEFAULTS[themeKey]) {
-      tempSlider.value = THEME_DEFAULTS[themeKey];
-      if (tempValueLabel) tempValueLabel.innerText = `${THEME_DEFAULTS[themeKey]} (Óptimo)`;
+    if (tempSlider && THEME_DEFAULTS[themeKey] !== undefined) {
+      const val = THEME_DEFAULTS[themeKey];
+      tempSlider.value = val;
+      if (tempValueLabel) {
+        tempValueLabel.innerText = formatTempLabel(val);
+        tempValueLabel.style.color = formatTempColor(val);
+      }
     }
   }
 
@@ -89,9 +106,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
+  // Inicializar tema y temperatura por defecto (LegalTech 0.2 Rigor Factual para máxima puntuación SEO & Deontología)
+  selectTheme("legal_tech");
+
   if (tempSlider && tempValueLabel) {
     tempSlider.addEventListener("input", (e) => {
-      tempValueLabel.innerText = `${e.target.value}`;
+      const val = parseFloat(e.target.value);
+      tempValueLabel.innerText = formatTempLabel(val);
+      tempValueLabel.style.color = formatTempColor(val);
     });
   }
 
@@ -105,6 +127,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 6. Inicializar Exportador de WordPress, Markdown, HTML
   initWordPressExporter(state);
+
+  // 6.1 Inicializar Exportador Especializado para Sitejet Builder (Namecheap)
+  initSitejetExporter(state);
 
   // 7. Inicializar Historial de Artículos
   const historyModule = initArticleHistory(state);
@@ -124,7 +149,28 @@ document.addEventListener("DOMContentLoaded", () => {
     onStop: () => generatorModule.stop()
   });
 
-  // 10. Botón de Limpieza
+  // 10. Auditoría Profunda 2026 y Sincronización Jurisdiccional
+  const btnDeepAudit = document.getElementById("btnDeepAudit");
+  const jurisdictionSelect = document.getElementById("jurisdictionSelect");
+  const terminalJurisdiction = document.getElementById("terminalJurisdiction");
+
+  if (jurisdictionSelect && terminalJurisdiction) {
+    jurisdictionSelect.addEventListener("change", () => {
+      const jur = jurisdictionSelect.value;
+      if (jur === "co") terminalJurisdiction.innerText = "COLOMBIA 🇨🇴";
+      else if (jur === "ve") terminalJurisdiction.innerText = "VENEZUELA 🇻🇪";
+      else terminalJurisdiction.innerText = "AUTO (VE/CO) ⚖️";
+    });
+  }
+
+  if (btnDeepAudit) {
+    btnDeepAudit.addEventListener("click", () => {
+      const jur = (jurisdictionSelect && jurisdictionSelect.value) || "auto";
+      runBackendSeoAudit(state.currentRawMarkdown, jur);
+    });
+  }
+
+  // 11. Botón de Limpieza
   const btnClear = document.getElementById("btnClear");
   if (btnClear) {
     btnClear.addEventListener("click", () => {

@@ -18,8 +18,18 @@ export function initKeyboardShortcuts(callbacks) {
       return;
     }
 
-    // Escape: Detener generación
+    // Escape: Cerrar modales o detener generación
     if (e.key === "Escape") {
+      const sitejetModal = document.getElementById("sitejetSeoKitModal");
+      if (sitejetModal && sitejetModal.classList.contains("modal-show")) {
+        sitejetModal.classList.remove("modal-show");
+        return;
+      }
+      const shortcutsModal = document.getElementById("shortcutsModal");
+      if (shortcutsModal && shortcutsModal.classList.contains("modal-show")) {
+        shortcutsModal.classList.remove("modal-show");
+        return;
+      }
       if (callbacks && callbacks.onStop) {
         callbacks.onStop();
       }
@@ -28,6 +38,18 @@ export function initKeyboardShortcuts(callbacks) {
 
     // Atajos globales con Ctrl+Shift
     if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
+      if (e.key === "S" || e.key === "s") {
+        e.preventDefault();
+        const btnCopySj = document.getElementById("btnCopySitejet");
+        if (btnCopySj) btnCopySj.click();
+        return;
+      }
+      if (e.key === "K" || e.key === "k") {
+        e.preventDefault();
+        const btnSjKit = document.getElementById("btnSitejetKit");
+        if (btnSjKit) btnSjKit.click();
+        return;
+      }
       if (e.key === "C" || e.key === "c") {
         e.preventDefault();
         const btnCopyWp = document.getElementById("btnCopyWordPress");
@@ -69,6 +91,8 @@ export function initKeyboardShortcuts(callbacks) {
           <table style="width:100%; font-size:0.85rem;">
             <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Redactar Artículo</td></tr>
             <tr><td><kbd>Escape</kbd></td><td>Detener Inferencia</td></tr>
+            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td>Copiar para Sitejet Builder</td></tr>
+            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd></td><td>Abrir Kit SEO Sitejet</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td>Copiar para WordPress</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></td><td>Copiar Markdown</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd></td><td>Imprimir formato pericial</td></tr>

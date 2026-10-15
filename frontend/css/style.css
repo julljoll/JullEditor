@@ -1649,6 +1649,94 @@ body {
   color: var(--color-primary);
 }
 
+/* Badge de Índice Combinado SEO */
+.seo-score-badge {
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(138, 104, 0, 0.12);
+  color: var(--color-gold);
+  border: 1px solid rgba(138, 104, 0, 0.3);
+  letter-spacing: 0.3px;
+  transition: all 0.3s ease;
+}
+
+.seo-score-badge.badge-passed {
+  background: rgba(0, 135, 38, 0.15);
+  color: var(--color-secondary);
+  border-color: rgba(0, 135, 38, 0.4);
+}
+
+.seo-score-badge.badge-warn {
+  background: rgba(138, 104, 0, 0.15);
+  color: var(--color-gold);
+  border-color: rgba(138, 104, 0, 0.4);
+}
+
+.seo-score-badge.badge-error {
+  background: rgba(214, 63, 63, 0.15);
+  color: var(--color-error);
+  border-color: rgba(214, 63, 63, 0.4);
+}
+
+/* Contenedor de Incidencias de Auditoría Profunda */
+.seo-audit-issues {
+  background: var(--bg-paper);
+  border: 1px solid rgba(138, 104, 0, 0.25);
+  border-radius: var(--radius-card);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-height: 220px;
+  overflow-y: auto;
+  font-size: 0.78rem;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.seo-audit-issues::-webkit-scrollbar {
+  width: 5px;
+}
+.seo-audit-issues::-webkit-scrollbar-thumb {
+  background: rgba(138, 104, 0, 0.25);
+  border-radius: 3px;
+}
+
+.seo-issue-chip {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 6px 8px;
+  border-radius: 4px;
+  line-height: 1.35;
+}
+
+.seo-issue-chip.chip-error {
+  background: #fff5f5;
+  color: #9b1c1c;
+  border-left: 3px solid var(--color-error);
+}
+
+.seo-issue-chip.chip-warning {
+  background: #fffdf5;
+  color: #723b13;
+  border-left: 3px solid var(--color-gold);
+}
+
+.seo-issue-chip.chip-info {
+  background: #f0f7ff;
+  color: #1e429f;
+  border-left: 3px solid var(--color-info);
+}
+
+.seo-issue-chip.chip-success {
+  background: #f3faf7;
+  color: #03543f;
+  border-left: 3px solid var(--color-secondary);
+}
+
 /* Card Metadatos Google Preview */
 .google-preview-card {
   background: var(--bg-paper);

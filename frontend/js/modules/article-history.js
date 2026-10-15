@@ -50,6 +50,31 @@ export function initArticleHistory(state) {
             updateSeoAudit(state.currentRawMarkdown);
 
             if (sourceTitle) sourceTitle.value = art.title;
+
+            // Generar o asignar banner procedural para el artículo cargado del historial
+            try {
+              const bannerRes = await fetch("/api/generate-header-image", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  title: art.title,
+                  theme: art.theme || state.selectedTheme || "cybersecurity"
+                })
+              });
+              if (bannerRes.ok) {
+                const bannerData = await bannerRes.json();
+                state.currentBannerUrl = bannerData.url;
+                const headerBannerImg = document.getElementById("headerBannerImg");
+                const headerBannerWrapper = document.getElementById("headerBannerWrapper");
+                const headerBannerBadgeText = document.getElementById("headerBannerBadgeText");
+                const btnDownloadSelectedImage = document.getElementById("btnDownloadSelectedImage");
+                if (headerBannerImg) headerBannerImg.src = bannerData.url;
+                if (headerBannerBadgeText) headerBannerBadgeText.innerText = "CABECERA PROCEDURAL 16:9";
+                if (headerBannerWrapper) headerBannerWrapper.style.display = "block";
+                if (btnDownloadSelectedImage) btnDownloadSelectedImage.style.display = "inline-flex";
+              }
+            } catch (_) {}
+
             toast.info(`Artículo "${art.title}" cargado en el visor.`);
           } catch (e) {
             toast.error(`Error cargando artículo: ${e.message}`);

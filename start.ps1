@@ -20,6 +20,7 @@ if (-not (Test-Path ".env")) {
 # 1. Localizar Python
 $candidatePaths = @(
     (Get-Command py.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1),
+    "$env:LOCALAPPDATA\Python\bin\python.exe",
     (Get-Command python.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1),
     "$env:LOCALAPPDATA\Programs\Python\Python312\python.exe",
     "$env:LOCALAPPDATA\Programs\Python\Python311\python.exe",
@@ -30,7 +31,7 @@ $candidatePaths = @(
 
 $pythonCmd = $null
 foreach ($p in $candidatePaths) {
-    if ($p -and (Test-Path $p)) {
+    if ($p -and (Test-Path $p) -and ($p -notlike "*WindowsApps\python.exe*")) {
         $pythonCmd = $p
         break
     }
@@ -74,9 +75,16 @@ if ($ollamaCmd) {
         $hasGranite = $tags.models | Where-Object { $_.name -like "*granite*" }
         if (-not $hasGranite) {
             Write-Host "[AVISO] Modelo IBM Granite no detectado en Ollama." -ForegroundColor Yellow
-            Write-Host "Puedes descargarlo ejecutando: ollama pull granite3.3:8b" -ForegroundColor Yellow
+            Write-Host "Puedes descargarlo ejecutando: ollama pull granite3.3:8b (o granite3.3:2b)" -ForegroundColor Yellow
         } else {
-            Write-Host "[OK] Modelo IBM Granite disponible en Ollama." -ForegroundColor Green
+            $modelName = $hasGranite[0].name
+            Write-Host "[OK] Modelo IBM Granite detectado: $modelName" -ForegroundColor Green
+            # Warm-up rápido para precargar el modelo en memoria RAM
+            try {
+                $warmPayload = '{"model":"' + $modelName + '","keep_alive":"30m"}'
+                Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method POST -Body $warmPayload -ContentType "application/json" -TimeoutSec 3 -ErrorAction SilentlyContinue | Out-Null
+                Write-Host "[OK] Modelo precargado en memoria RAM (keep_alive: 30m)." -ForegroundColor Green
+            } catch {}
         }
     } catch {}
 } else {

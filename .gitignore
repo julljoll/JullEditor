@@ -1,33 +1,25 @@
-# Python & Entornos Virtuales
+# Entornos y configuración
+.env
+venv/
+.venv/
+env/
+*.env
+
+# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
-.Python
-env/
-venv/
-.venv/
-ENV/
-
-# Tests & Coverage
 .pytest_cache/
 .coverage
 htmlcov/
-.tox/
 
-# Logs del Sistema
+# Logs y temporales
 logs/*.log
-!logs/.gitkeep
+*.log
+scratch/
 
-# Variables de Entorno y Claves Privadas
-.env
-
-# IDEs & Editores
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# Sistema Operativo
-.DS_Store
-Thumbs.db
+# Artefactos generados de prueba
+frontend/images/headers/header_banner_*.svg
+!frontend/images/headers/.gitkeep
+RAG/inputs/test_endpoint_*.md

@@ -2,7 +2,7 @@
 Módulo Gestor de RAG Local y Persistencia de Archivos para IBM Granite.
 Gestiona el almacenamiento de fuentes de entrada (.md y .json de Docling) en RAG/inputs/
 y el auto-guardado de artículos finalizados en RAG/articulos/.
-Carga corpus legal desde backend/data/legal_corpus_ve.json e indexa Informacion_docling_rag/.
+Carga corpus legal desde backend/data/legal_corpus_ve.json e indexa con caché Informacion_docling_rag/.
 """
 
 import os
@@ -26,6 +26,7 @@ LEGAL_CORPUS_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "da
 
 # Caché en memoria
 _CACHED_LEGAL_CORPUS: Optional[List[Dict[str, Any]]] = None
+_CACHED_DOCLING_FILES: Optional[List[Dict[str, Any]]] = None
 
 def ensure_rag_directories():
     """Garantiza la existencia de las carpetas RAG/inputs y RAG/articulos."""
@@ -90,6 +91,7 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
     """
     Guarda automáticamente el artículo generado en RAG/articulos/ en formato .md
     con Frontmatter YAML de metadatos para auditoría y publicación en CMS/WordPress.
+    Aplica el scrubber anti-alucinaciones legales.
     """
     ensure_rag_directories()
     
@@ -97,13 +99,14 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
         logger.warning("Intento de guardar artículo final vacío.")
         return {"status": "error", "message": "El artículo generado está vacío."}
     
+    cleaned_content = clean_legal_hallucinations(markdown_content)
     meta = metadata or {}
     now = datetime.now()
     date_str = now.strftime("%Y-%m-%d")
     
     article_title = title.strip() if title else ""
     if not article_title:
-        h1_match = re.search(r"^#\s+(.+)$", markdown_content, re.MULTILINE)
+        h1_match = re.search(r"^#\s+(.+)$", cleaned_content, re.MULTILINE)
         if h1_match:
             article_title = h1_match.group(1).replace("*", "").strip()
         else:
@@ -113,12 +116,12 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
     target_filename = f"{date_str}_{slug}.md"
     target_path = os.path.join(RAG_ARTICLES_DIR, target_filename)
     
-    words = markdown_content.split()
+    words = cleaned_content.split()
     word_count = len(words)
     reading_time = max(1, round(word_count / 200))
     
     yaml_frontmatter = ""
-    if not markdown_content.startswith("---"):
+    if not cleaned_content.startswith("---"):
         yaml_frontmatter = (
             f"---\n"
             f"title: \"{article_title.replace('\"', '\\\"')}\"\n"
@@ -133,9 +136,9 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
             f"generator: \"Granite Blog Writer & LegalTech RAG System\"\n"
             f"---\n\n"
         )
-        full_content = yaml_frontmatter + markdown_content
+        full_content = yaml_frontmatter + cleaned_content
     else:
-        full_content = markdown_content
+        full_content = cleaned_content
 
     try:
         with open(target_path, "w", encoding="utf-8") as f:
@@ -166,18 +169,16 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
     """
     ensure_rag_directories()
     md_files = glob.glob(os.path.join(RAG_ARTICLES_DIR, "*.md"))
-    # Ordenar por fecha de modificación descendente
     md_files.sort(key=os.path.getmtime, reverse=True)
     
-    total = len(md_files)
     paginated_files = md_files[offset:offset + limit]
-    
     articles = []
+    
     for filepath in paginated_files:
         filename = os.path.basename(filepath)
         try:
             with open(filepath, "r", encoding="utf-8") as f:
-                content = f.read(2048)  # Solo los primeros bytes para el frontmatter
+                content = f.read(2048)
                 
             title = filename
             theme = "cybersecurity"
@@ -257,57 +258,141 @@ def load_legal_corpus() -> List[Dict[str, Any]]:
     _CACHED_LEGAL_CORPUS = []
     return _CACHED_LEGAL_CORPUS
 
+def _get_docling_files_cache() -> List[Dict[str, Any]]:
+    """Carga e indexa en memoria una sola vez los archivos de Informacion_docling_rag/."""
+    global _CACHED_DOCLING_FILES
+    if _CACHED_DOCLING_FILES is not None:
+        return _CACHED_DOCLING_FILES
+
+    if not os.path.exists(DOCLING_RAG_DIR):
+        _CACHED_DOCLING_FILES = []
+        return _CACHED_DOCLING_FILES
+
+    cached = []
+    try:
+        for root, _, files in os.walk(DOCLING_RAG_DIR):
+            for file in files:
+                if file.endswith(('.md', '.txt')):
+                    filepath = os.path.join(root, file)
+                    try:
+                        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                            text = f.read()
+                        rel_path = os.path.relpath(filepath, WORKSPACE_ROOT).replace('\\', '/')
+                        cached.append({
+                            "file": file,
+                            "rel_path": rel_path,
+                            "text": text,
+                            "text_lower": text.lower()
+                        })
+                    except Exception as e:
+                        logger.debug(f"Error indexando {file}: {e}")
+        logger.info(f"Índice RAG Docling precargado: {len(cached)} documentos en memoria.")
+    except Exception as e:
+        logger.error(f"Error escaneando {DOCLING_RAG_DIR}: {e}")
+
+    _CACHED_DOCLING_FILES = cached
+    return _CACHED_DOCLING_FILES
+
 def search_docling_rag_files(query_text: str, top_k: int = 2) -> List[Dict[str, str]]:
     """
-    Busca fragmentos relevantes en los archivos Markdown reales dentro de Informacion_docling_rag/.
+    Busca fragmentos relevantes en los archivos Markdown reales dentro de Informacion_docling_rag/
+    usando el índice en caché y extrayendo un fragmento contextualizado alrededor de la coincidencia.
     """
-    if not os.path.exists(DOCLING_RAG_DIR) or not query_text:
+    if not query_text:
         return []
         
     query_tokens = set(re.findall(r'\b[a-záéíóúñ]{4,}\b', query_text.lower()))
     if not query_tokens:
         return []
-        
+
+    docs = _get_docling_files_cache()
     results = []
-    for root, _, files in os.walk(DOCLING_RAG_DIR):
-        for file in files:
-            if file.endswith(('.md', '.txt')):
-                filepath = os.path.join(root, file)
-                try:
-                    with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-                        text = f.read()
-                    
-                    # Calcular coincidencia
-                    text_lower = text.lower()
-                    matches = sum(1 for tok in query_tokens if tok in text_lower)
-                    if matches > 0:
-                        # Extraer un extracto representativo
-                        extract = text[:600].replace('\n', ' ').strip()
-                        rel_path = os.path.relpath(filepath, WORKSPACE_ROOT).replace('\\', '/')
-                        results.append({
-                            "source": f"{file} ({rel_path})",
-                            "score": matches,
-                            "extract": extract
-                        })
-                except Exception as e:
-                    logger.debug(f"No se pudo leer {file}: {e}")
-                    
+
+    for item in docs:
+        text_lower = item["text_lower"]
+        first_pos = -1
+        matches = 0
+        for tok in query_tokens:
+            pos = text_lower.find(tok)
+            if pos != -1:
+                matches += 1
+                if first_pos == -1 or pos < first_pos:
+                    first_pos = pos
+
+        if matches > 0:
+            raw_text = item["text"]
+            if first_pos != -1:
+                start = max(0, first_pos - 120)
+                end = min(len(raw_text), first_pos + 380)
+                extract = raw_text[start:end].replace('\n', ' ').strip()
+                if start > 0:
+                    extract = "..." + extract
+                if end < len(raw_text):
+                    extract = extract + "..."
+            else:
+                extract = raw_text[:400].replace('\n', ' ').strip()
+
+            results.append({
+                "source": f"{item['file']} ({item['rel_path']})",
+                "score": matches,
+                "extract": extract
+            })
+
     results.sort(key=lambda x: x["score"], reverse=True)
     return results[:top_k]
 
-def retrieve_legal_context(query_text: str, theme: str = "cybersecurity", top_k: int = 3) -> str:
+def clean_legal_hallucinations(markdown: str) -> str:
     """
-    Motor RAG Local que recupera los artículos y normativas venezolanas exactas desde
-    la base de conocimiento JSON y Informacion_docling_rag/ según temática y palabras clave.
+    Scrubber determinista que previene la mención errónea de leyes inexistentes
+    en Venezuela, sustituyéndolas por el marco constitucional y legal verificado.
+    """
+    if not markdown:
+        return ""
+    
+    pattern = re.compile(
+        r'(?:la\s+)?Ley\s+Org[aá]nica\s+de\s+Protecci[oó]n\s+de\s+Datos\s+Personales(?:\s+de\s+Venezuela)?',
+        re.IGNORECASE
+    )
+    replacement = "la tutela de datos personales en Venezuela (fundamentada en los Arts. 28 y 60 de la CRBV y la Ley Especial contra los Delitos Informáticos)"
+    return pattern.sub(replacement, markdown)
+
+def retrieve_legal_context(query_text: str, theme: str = "cybersecurity", top_k: int = 3, jurisdiction: str = "ve") -> str:
+    """
+    Motor RAG Local que recupera los artículos y normativas exactas desde
+    la base de conocimiento JSON e Informacion_docling_rag/ según temática, palabras clave y jurisdicción (ve | co).
     Garantiza CERO ALUCINACIÓN de leyes inexistentes.
     """
-    corpus = load_legal_corpus()
     if not query_text:
         query_text = ""
         
     query_lower = query_text.lower()
-    
-    # Calcular relevancia de cada bloque canónico
+
+    # Si la jurisdicción es Colombia, recuperar desde Informacion_docling_rag/Colombia
+    if jurisdiction == "co":
+        rag_output = []
+        rag_output.append("================================================================================")
+        rag_output.append("📚 CORPUS JURÍDICO COLOMBIANO AUTORIZADO (RAG OFFLINE DESDE Informacion_docling_rag/Colombia/)")
+        rag_output.append("================================================================================")
+        rag_output.append("IMPORTANTE: Para fundamentar jurídicamente el artículo en Colombia, DEBES utilizar")
+        rag_output.append("EXCLUSIVAMENTE las siguientes normas reales de Colombia recuperadas de la base local:\n")
+
+        docling_matches = search_docling_rag_files(f"colombia {query_text}", top_k=top_k + 2)
+        co_matches = [d for d in docling_matches if "colombia" in d["source"].lower()] or docling_matches
+        for i, doc in enumerate(co_matches[:top_k], 1):
+            rag_output.append(f"### Fuente Legal Colombiana #{i}: {doc['source']}")
+            rag_output.append(f"  • {doc['extract']}")
+            rag_output.append("")
+
+        rag_output.append("--------------------------------------------------------------------------------")
+        rag_output.append("🛡️ REGLAS ESTRICTAS DE CERO ALUCINACIÓN (COLOMBIA):")
+        rag_output.append("1. Las normas primarias autorizadas son la Ley 1273 de 2009 (delitos informáticos),")
+        rag_output.append("   Ley 1581 de 2012 (datos personales), Ley 527 de 1999 (mensajes de datos) y C.P. de 1991 (Arts 15 y 86).")
+        rag_output.append("2. Cita sentencias de la Corte Constitucional (C-, T-, SU-) ÚNICAMENTE si constan en la fuente o contexto.")
+        rag_output.append("   No inventes números de radicado ni fechas ficticias.")
+        rag_output.append("================================================================================\n")
+        return "\n".join(rag_output)
+
+    corpus = load_legal_corpus()
     scored_blocks = []
     for block in corpus:
         score = 0

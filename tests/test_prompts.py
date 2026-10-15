@@ -29,3 +29,16 @@ def test_build_generation_prompt_with_legal_context():
     )
     assert "Corpus Legal Inyectado: Art. 28 CRBV" in prompt
     assert "Mensajes de Datos" in prompt or "DERECHO DIGITAL" in prompt
+
+def test_build_generation_prompt_optimal_seo_rules():
+    """Verifica que el prompt base incorpore mandatos para SEO 2026, Answer-First y descargo ético."""
+    prompt = build_generation_prompt(
+        article_source_text="Prueba de redacción legaltech.",
+        theme="legal_tech",
+        tone="abogado_ve_doctrinal",
+        target_words=1000
+    )
+    assert "40 a 60 palabras" in prompt
+    assert "no constituye asesoría legal" in prompt
+    assert "AL MENOS EL 50% DE LOS ENCABEZADOS H2 DEBEN ESTAR FORMULADOS COMO PREGUNTAS" in prompt
+    assert "PERFIL DE VOZ PROFESIONAL: Abogado Venezolano — Doctrinal" in prompt

@@ -1,33 +1,39 @@
 """
 Servidor Backend FastAPI para el Creador de Artículos de Blog con IBM Granite.
-Integra Ollama local, Scraper de URLs, Generador de Imágenes de Cabecera 16:9,
-Gestor RAG Local, Historial de Artículos y Streaming SSE.
+Integra Ollama local optimizado para CPU, Scraper de URLs con protección SSRF,
+Generador de Imágenes de Cabecera 16:9, Gestor RAG Local con caché,
+Validador SEO Backend, Concurrencia controlada y Streaming SSE.
 """
 
 import os
 import json
 import time
+import asyncio
 import httpx
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
-from pydantic import BaseModel, Field, HttpUrl
+from pydantic import BaseModel, Field
 from typing import Optional, List, Dict, Any
 from dotenv import load_dotenv
 
 from backend.logger_config import get_logger
 from backend.prompts import build_generation_prompt
-from backend.scraper import extract_article_from_url
+from backend.scraper import extract_article_from_url, is_safe_url
 from backend.docling_parser import parse_docling_markdown
 from backend.image_generator import generate_header_image
+from backend.seo_validator import audit_article_seo
+from backend.legal_validator import audit_legal_quality
+from backend.legal_profiles import resolve_jurisdiction
 from backend.rag_manager import (
     save_rag_source,
     save_final_article,
     retrieve_legal_context,
     list_articles_history,
-    get_article_content
+    get_article_content,
+    clean_legal_hallucinations
 )
 
 logger = get_logger("app")
@@ -37,22 +43,30 @@ load_dotenv()
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 DEFAULT_GRANITE_MODEL = os.getenv("GRANITE_MODEL", "granite3.3:8b")
+FAST_MODEL = os.getenv("FAST_MODEL", "granite3.3:2b")
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "4096"))
-DEFAULT_TEMPERATURE = float(os.getenv("TEMPERATURE", "0.7"))
+NUM_CTX = int(os.getenv("NUM_CTX", "8192"))
+KEEP_ALIVE = os.getenv("KEEP_ALIVE", "30m")
+NUM_THREAD = int(os.getenv("NUM_THREAD", "4"))
+DEFAULT_TEMPERATURE = float(os.getenv("TEMPERATURE", "0.2"))
+DEFAULT_JURISDICTION = os.getenv("DEFAULT_JURISDICTION", "auto")
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://127.0.0.1:8000,http://localhost:8000").split(",")
 
-# Temperaturas predeterminadas por especialidad temática
+# Semáforo de concurrencia: 1 inferencia activa a la vez para no saturar CPU
+generation_semaphore = asyncio.Semaphore(1)
+
+# Temperaturas predeterminadas por especialidad temática (Anti-alucinación y rigor fáctico 0.2 - 0.3)
 THEME_TEMPERATURES = {
-    "legal_tech": 0.4,
-    "cybersecurity": 0.5,
-    "ai_data": 0.6,
-    "science_tech": 0.7
+    "legal_tech": 0.2,
+    "cybersecurity": 0.25,
+    "ai_data": 0.3,
+    "science_tech": 0.3
 }
 
 app = FastAPI(
     title="Granite Blog Article Generator API",
-    description="Motor local de redacción de artículos con IBM Granite y diseño Cyber-Legal con soporte de Legislación Venezolana y Generador de Cabeceras 16:9",
-    version="2.1.0"
+    description="Motor local de redacción de artículos con IBM Granite y diseño Cyber-Legal optimizado para CPU, SEO estricto y RAG verificado",
+    version="2.2.0"
 )
 
 # Configurar CORS restrictivo y seguro
@@ -115,6 +129,7 @@ class GenerateRequest(BaseModel):
     custom_instructions: Optional[str] = Field("", max_length=1000)
     model: Optional[str] = Field(None, max_length=100)
     temperature: Optional[float] = Field(None, ge=0.1, le=1.5)
+    jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | international")
 
 class DoclingParseRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=1000000)
@@ -127,11 +142,16 @@ class SaveArticleRequest(BaseModel):
     model: Optional[str] = Field("granite3.3:8b", max_length=100)
     tone: Optional[str] = Field("conversational", max_length=50)
     source_url: Optional[str] = Field("", max_length=2048)
+    jurisdiction: Optional[str] = Field("auto", max_length=50)
 
 class GenerateHeaderImageRequest(BaseModel):
     title: str = Field(..., min_length=3, max_length=300)
     theme: Optional[str] = Field("cybersecurity", max_length=50)
     custom_prompt: Optional[str] = Field(None, max_length=500)
+
+class SeoAuditRequest(BaseModel):
+    markdown: str = Field(..., max_length=2000000, description="Contenido Markdown del artículo")
+    jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | colombia | international")
 
 # ==============================================================================
 # ENDPOINTS API
@@ -140,8 +160,9 @@ class GenerateHeaderImageRequest(BaseModel):
 @app.get("/api/health")
 async def health_check():
     """
-    Verifica el estado de conexión con Ollama y lista los modelos locales disponibles.
+    Verifica el estado de conexión con Ollama, parámetros de CPU y modelos disponibles.
     """
+    queue_busy = generation_semaphore.locked()
     try:
         async with httpx.AsyncClient(timeout=4.0) as client:
             resp = await client.get(f"{OLLAMA_BASE_URL}/api/tags")
@@ -155,7 +176,12 @@ async def health_check():
                     "models": models,
                     "granite_installed": granite_available,
                     "default_model": DEFAULT_GRANITE_MODEL,
-                    "jurisdiction": "Venezuela (CRBV / Delitos Informáticos / Infogobierno)"
+                    "fast_model": FAST_MODEL,
+                    "num_ctx": NUM_CTX,
+                    "num_thread": NUM_THREAD,
+                    "keep_alive": KEEP_ALIVE,
+                    "queue_busy": queue_busy,
+                    "jurisdiction": DEFAULT_JURISDICTION
                 }
     except Exception as e:
         logger.warning(f"Health check: no se pudo conectar a Ollama: {e}")
@@ -165,7 +191,12 @@ async def health_check():
             "details": str(e),
             "granite_installed": False,
             "default_model": DEFAULT_GRANITE_MODEL,
-            "jurisdiction": "Venezuela (CRBV / Delitos Informáticos / Infogobierno)",
+            "fast_model": FAST_MODEL,
+            "num_ctx": NUM_CTX,
+            "num_thread": NUM_THREAD,
+            "keep_alive": KEEP_ALIVE,
+            "queue_busy": queue_busy,
+            "jurisdiction": DEFAULT_JURISDICTION,
             "models": []
         }
 
@@ -182,15 +213,42 @@ async def list_models():
         logger.error(f"Error consultando modelos en Ollama: {e}")
         raise HTTPException(status_code=503, detail=f"Error consultando Ollama: {str(e)}")
 
+@app.post("/api/seo-audit")
+async def seo_audit_endpoint(req: SeoAuditRequest):
+    """
+    Auditoría SEO backend determinista para evaluar estructura, headings,
+    palabras clave, metadatos, Schema.org JSON-LD y calidad jurídica / GEO 2026.
+    """
+    try:
+        report = audit_article_seo(req.markdown)
+        jcode = resolve_jurisdiction(req.jurisdiction or "auto", text=req.markdown[:4000])
+        legal_report = audit_legal_quality(req.markdown, jurisdiction=jcode)
+        combined_score = round(report["score"] * 0.6 + legal_report["score"] * 0.4)
+        return {
+            "status": "success",
+            "report": report,
+            "legal_report": legal_report,
+            "combined_score": combined_score,
+            "jurisdiction": jcode
+        }
+    except Exception as e:
+        logger.error(f"Error en auditoría SEO: {e}")
+        raise HTTPException(status_code=500, detail=f"Error evaluando SEO: {str(e)}")
+
 @app.post("/api/scrape")
 async def scrape_url_endpoint(req: ScrapeRequest):
-    """Extrae y limpia el contenido textual de una URL externa."""
+    """Extrae y limpia el contenido textual de una URL externa con validación anti-SSRF."""
     if not req.url or not req.url.startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="Por favor proporciona una URL válida que empiece con http:// o https://")
     
+    if not is_safe_url(req.url):
+        raise HTTPException(status_code=400, detail="URL no permitida por razones de seguridad (protección anti-SSRF).")
+
     try:
         article_data = await extract_article_from_url(req.url)
         return article_data
+    except ValueError as ve:
+        raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         logger.error(f"Error procesando URL {req.url}: {e}")
         raise HTTPException(status_code=500, detail=f"Error al procesar la URL: {str(e)}")
@@ -222,7 +280,8 @@ async def save_generated_article_endpoint(req: SaveArticleRequest):
             "theme": req.theme,
             "model": req.model,
             "tone": req.tone,
-            "source_url": req.source_url
+            "source_url": req.source_url,
+            "jurisdiction": req.jurisdiction
         }
         res = save_final_article(
             title=req.title,
@@ -279,10 +338,14 @@ async def generate_header_image_endpoint(req: GenerateHeaderImageRequest):
 @app.get("/api/download-proxy-image")
 async def download_proxy_image(image_url: str):
     """
-    Descarga una imagen remota y la entrega como archivo descargable para evitar bloqueos CORS.
+    Descarga una imagen remota y la entrega como archivo descargable para evitar bloqueos CORS
+    con verificación anti-SSRF.
     """
     if not image_url.startswith(("http://", "https://")):
         raise HTTPException(status_code=400, detail="URL de imagen inválida")
+
+    if not is_safe_url(image_url):
+        raise HTTPException(status_code=400, detail="URL de imagen rechazada por razones de seguridad (SSRF).")
         
     try:
         headers = {
@@ -314,30 +377,48 @@ async def download_proxy_image(image_url: str):
 async def generate_article_stream(req: GenerateRequest):
     """
     Genera el artículo en tiempo real mediante Server-Sent Events (SSE) desde Ollama
-    con adaptación a legislación venezolana, SEO estricto y keywords resaltadas.
+    con control de concurrencia en CPU, ventana de contexto extendida (num_ctx),
+    parámetros de inferencia de alto rendimiento y adaptación jurisdiccional.
     """
+    if generation_semaphore.locked():
+        raise HTTPException(
+            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+            detail="El motor Granite local está procesando otra redacción en CPU. Por favor espera unos momentos a que finalice."
+        )
+
     selected_model = req.model or DEFAULT_GRANITE_MODEL
     selected_temp = req.temperature if req.temperature is not None else THEME_TEMPERATURES.get(req.theme, DEFAULT_TEMPERATURE)
-    
-    # 1. Recuperar contexto jurídico venezolano RAG offline SOLO si aplica
-    wants_venezuela = (
-        "venezuela" in (req.custom_instructions or "").lower() or
-        "venezuela" in (req.source_text or "").lower() or
-        "venezuela" in (req.source_title or "").lower() or
-        req.theme == "legal_tech"
+    selected_jurisdiction = req.jurisdiction or DEFAULT_JURISDICTION
+
+    # 1. Determinar jurisdicción efectiva y recuperar RAG offline si aplica
+    eff_jurisdiction = resolve_jurisdiction(
+        jurisdiction=selected_jurisdiction,
+        text=f"{req.source_title} {req.source_text} {req.custom_instructions}",
+        theme=req.theme,
+        persona=req.tone,
+        has_ve_rag=False
     )
+    wants_venezuela = (eff_jurisdiction == "ve")
     
     rag_legal_context = ""
-    if wants_venezuela:
+    if eff_jurisdiction in ("ve", "co"):
         rag_legal_context = retrieve_legal_context(
             query_text=f"{req.source_title} {req.source_text} {req.custom_instructions}",
             theme=req.theme or "cybersecurity",
-            top_k=3
+            top_k=3,
+            jurisdiction=eff_jurisdiction
         )
 
-    # 2. Construir el prompt optimizado
+    # 2. Control de truncado seguro según num_ctx disponible
+    source_text_processed = req.source_text
+    max_safe_source_chars = (NUM_CTX - MAX_TOKENS - 1200) * 3
+    if len(source_text_processed) > max_safe_source_chars:
+        logger.warning(f"Texto fuente excede presupuesto de contexto ({len(source_text_processed)} chars). Truncando a {max_safe_source_chars} chars.")
+        source_text_processed = source_text_processed[:max_safe_source_chars] + "\n\n[...Texto original truncado para respetar la ventana de contexto de inferencia...]"
+
+    # 3. Construir el prompt optimizado
     full_prompt = build_generation_prompt(
-        article_source_text=req.source_text,
+        article_source_text=source_text_processed,
         source_title=req.source_title or "",
         source_url=req.source_url or "",
         source_lang=req.source_lang or "",
@@ -348,59 +429,72 @@ async def generate_article_stream(req: GenerateRequest):
         tone=req.tone,
         target_words=req.target_words,
         custom_instructions=req.custom_instructions or "",
-        legal_rag_context=rag_legal_context
+        legal_rag_context=rag_legal_context,
+        jurisdiction=selected_jurisdiction
     )
 
     ollama_payload = {
         "model": selected_model,
         "prompt": full_prompt,
         "stream": True,
+        "keep_alive": KEEP_ALIVE,
         "options": {
             "temperature": selected_temp,
             "num_predict": MAX_TOKENS,
+            "num_ctx": NUM_CTX,
+            "num_thread": NUM_THREAD,
+            "repeat_penalty": 1.1,
+            "top_p": 0.9,
         }
     }
 
-    logger.info(f"Iniciando generación SSE con modelo {selected_model} (temp={selected_temp}, tema={req.theme})")
+    logger.info(
+        f"Iniciando generación SSE con modelo {selected_model} "
+        f"(ctx={NUM_CTX}, threads={NUM_THREAD}, temp={selected_temp}, tema={req.theme}, jur={selected_jurisdiction})"
+    )
 
     async def event_generator():
-        async with httpx.AsyncClient(timeout=httpx.Timeout(300.0, connect=10.0)) as client:
-            try:
-                async with client.stream(
-                    "POST",
-                    f"{OLLAMA_BASE_URL}/api/generate",
-                    json=ollama_payload,
-                    headers={"Content-Type": "application/json"}
-                ) as response:
-                    if response.status_code != 200:
-                        err_msg = f"Ollama error {response.status_code}: {response.reason_phrase}"
-                        logger.error(err_msg)
-                        yield f"data: {json.dumps({'error': err_msg})}\n\n"
-                        return
+        async with generation_semaphore:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(400.0, connect=10.0)) as client:
+                try:
+                    async with client.stream(
+                        "POST",
+                        f"{OLLAMA_BASE_URL}/api/generate",
+                        json=ollama_payload,
+                        headers={"Content-Type": "application/json"}
+                    ) as response:
+                        if response.status_code != 200:
+                            err_msg = f"Ollama error {response.status_code}: {response.reason_phrase}"
+                            logger.error(err_msg)
+                            yield f"data: {json.dumps({'error': err_msg})}\n\n"
+                            return
 
-                    async for chunk in response.aiter_lines():
-                        if chunk:
-                            try:
-                                parsed = json.loads(chunk)
-                                response_token = parsed.get("response", "")
-                                is_done = parsed.get("done", False)
-                                
-                                payload = {
-                                    "token": response_token,
-                                    "done": is_done,
-                                    "total_duration": parsed.get("total_duration", 0),
-                                    "eval_count": parsed.get("eval_count", 0)
-                                }
-                                yield f"data: {json.dumps(payload)}\n\n"
-                                
-                                if is_done:
-                                    logger.info(f"Generación SSE finalizada con éxito. Tokens: {parsed.get('eval_count', 0)}")
-                                    break
-                            except json.JSONDecodeError:
-                                continue
-            except Exception as e:
-                logger.error(f"Error en streaming SSE: {e}", exc_info=True)
-                yield f"data: {json.dumps({'error': str(e)})}\n\n"
+                        async for chunk in response.aiter_lines():
+                            if chunk:
+                                try:
+                                    parsed = json.loads(chunk)
+                                    response_token = parsed.get("response", "")
+                                    is_done = parsed.get("done", False)
+                                    
+                                    payload = {
+                                        "token": response_token,
+                                        "done": is_done,
+                                        "total_duration": parsed.get("total_duration", 0),
+                                        "eval_count": parsed.get("eval_count", 0)
+                                    }
+                                    yield f"data: {json.dumps(payload)}\n\n"
+                                    
+                                    if is_done:
+                                        logger.info(f"Generación SSE finalizada con éxito. Tokens generados: {parsed.get('eval_count', 0)}")
+                                        break
+                                except json.JSONDecodeError:
+                                    continue
+                except Exception as e:
+                    logger.error(f"Error en streaming SSE: {e}", exc_info=True)
+                    err_text = str(e)
+                    if "connection" in err_text.lower() or "connect" in err_text.lower():
+                        err_text = f"No se pudo conectar a Ollama en {OLLAMA_BASE_URL}. Inicia el servicio ejecutando 'ollama serve' en una terminal."
+                    yield f"data: {json.dumps({'error': err_text})}\n\n"
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
@@ -437,3 +531,31 @@ if os.path.exists(frontend_path):
                 }
             )
         return {"message": "Frontend index.html no encontrado"}
+
+    @app.get("/sitejet-lab.html")
+    async def serve_sitejet_lab():
+        lab_file = os.path.join(frontend_path, "sitejet-lab.html")
+        if os.path.exists(lab_file):
+            return FileResponse(
+                lab_file,
+                headers={
+                    "Cache-Control": "no-cache, no-store, must-revalidate",
+                    "Pragma": "no-cache",
+                    "Expires": "0"
+                }
+            )
+        return {"message": "Laboratorio sitejet-lab.html no encontrado"}
+
+    @app.get("/favicon.svg")
+    async def serve_favicon():
+        fav_file = os.path.join(frontend_path, "favicon.svg")
+        if os.path.exists(fav_file):
+            return FileResponse(fav_file)
+        return {"message": "favicon not found"}
+
+    @app.get("/manifest.json")
+    async def serve_manifest():
+        m_file = os.path.join(frontend_path, "manifest.json")
+        if os.path.exists(m_file):
+            return FileResponse(m_file)
+        return {"message": "manifest not found"}

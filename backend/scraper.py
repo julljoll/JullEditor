@@ -5,20 +5,59 @@ con fallback opcional para Playwright.
 """
 
 import re
+import socket
+import ipaddress
+from urllib.parse import urlparse, urljoin
 import httpx
 from bs4 import BeautifulSoup
 from typing import Dict, Any
-from urllib.parse import urljoin
 from backend.logger_config import get_logger
 
 logger = get_logger("scraper")
 
 USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36"
 
+def is_safe_url(url: str) -> bool:
+    """
+    Valida que una URL use http/https y no apunte a localhost, loopback,
+    rangos privados o link-local (SSRF protection).
+    """
+    try:
+        parsed = urlparse(url)
+        if parsed.scheme not in ("http", "https"):
+            return False
+        hostname = parsed.hostname
+        if not hostname:
+            return False
+        hostname_clean = hostname.strip().lower()
+        if hostname_clean in ("localhost", "127.0.0.1", "::1", "0.0.0.0"):
+            return False
+            
+        addr_info = socket.getaddrinfo(hostname, None)
+        for _, _, _, _, sockaddr in addr_info:
+            ip_str = sockaddr[0]
+            ip_obj = ipaddress.ip_address(ip_str)
+            if (
+                ip_obj.is_loopback
+                or ip_obj.is_private
+                or ip_obj.is_link_local
+                or ip_obj.is_multicast
+                or ip_obj.is_reserved
+                or ip_obj.is_unspecified
+            ):
+                return False
+        return True
+    except Exception as e:
+        logger.warning(f"Validación SSRF falló para '{url}': {e}")
+        return False
+
 async def extract_article_from_url(url: str) -> Dict[str, Any]:
     """
     Descarga una página web y extrae el texto central, título y metadatos relevantes.
     """
+    if not is_safe_url(url):
+        logger.warning(f"URL rechazada por seguridad SSRF: {url}")
+        raise ValueError("La URL proporcionada no es segura o apunta a una dirección interna o no permitida.")
     headers = {
         "User-Agent": USER_AGENT,
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
@@ -191,14 +230,26 @@ def parse_html_to_clean_article(html: str, url: str) -> Dict[str, Any]:
         for element in soup.find_all(attrs={"class": re.compile(cls, re.I)}):
             element.decompose()
 
-    # 5. Buscar contenedor principal
-    content_container = (
-        soup.find("article") or
-        soup.find("main") or
-        soup.find(attrs={"role": "main"}) or
-        soup.find(attrs={"class": re.compile(r"post-content|article-body|entry-content|story-body|content-body", re.I)}) or
-        soup.body
-    )
+    # 5. Buscar contenedor principal con mayor densidad de texto (heurística de legibilidad)
+    candidates = []
+    main_elem = soup.find("main") or soup.find(attrs={"role": "main"})
+    if main_elem:
+        candidates.append(main_elem)
+        
+    candidates.extend(soup.find_all("article"))
+    for elem in soup.find_all(attrs={"class": re.compile(r"post-content|article-body|entry-content|story-body|content-body|c-article-body|blog-post", re.I)}):
+        candidates.append(elem)
+        
+    if soup.body:
+        candidates.append(soup.body)
+
+    def score_container(container) -> int:
+        if not container:
+            return 0
+        p_elems = container.find_all("p")
+        return sum(len(p.get_text().strip()) for p in p_elems if len(p.get_text().strip()) > 20)
+
+    content_container = max(candidates, key=score_container) if candidates else (soup.body or soup)
 
     extracted_paragraphs = []
     if content_container:
