@@ -183,14 +183,63 @@ export function renderArticle(markdown, isStreaming = false) {
     finalHtml = finalHtml.replace(`%%CODE_BLOCK_${idx}%%`, blockHtml);
   });
 
+  // 14. Envolver en estructura de Revista Digital si no está en modo 'single'
+  const articleContainer = document.getElementById("articleContainer");
+  const isSingle = articleContainer && articleContainer.dataset.layout === "single";
+  if (!isSingle) {
+    finalHtml = wrapMagazine(finalHtml);
+  }
+
   if (isStreaming) {
-    finalHtml += '<span class="streaming-cursor"></span>';
+    if (finalHtml.includes('</footer>')) {
+      finalHtml = finalHtml.replace('</footer>', '<span class="streaming-cursor"></span></footer>');
+    } else if (finalHtml.includes('</div>')) {
+      finalHtml = finalHtml.replace(/<\/div>$/, '<span class="streaming-cursor"></span></div>');
+    } else {
+      finalHtml += '<span class="streaming-cursor"></span>';
+    }
   }
 
   articleView.innerHTML = finalHtml;
 
-  const articleContainer = document.getElementById("articleContainer");
   if (articleContainer && isStreaming) {
     articleContainer.scrollTop = articleContainer.scrollHeight;
   }
 }
+
+/**
+ * Envuelve el HTML plano en 3 zonas semánticas de Revista Digital:
+ * - mag-head: Título, meta descripción, badges SEO y párrafo Answer-First
+ * - mag-body: Secciones de contenido estructurado en 3 columnas
+ * - mag-foot: FAQ, Derechos de Autor, Sobre el Autor y Schema.org JSON-LD
+ */
+export function wrapMagazine(html) {
+  const firstH2 = html.search(/<h2[\s>]/);
+  if (firstH2 === -1) return html; // Durante el streaming inicial sin H2 se mantiene plano
+
+  const faqIdx = html.indexOf('<div class="faq-section-card"');
+  const footStart = faqIdx !== -1 && faqIdx > firstH2 ? faqIdx : html.length;
+
+  const head = html.slice(0, firstH2);
+  const body = html.slice(firstH2, footStart);
+  const foot = html.slice(footStart);
+
+  return `<header class="mag-head">${head}</header>` +
+         `<div class="mag-body">${body}</div>` +
+         (foot ? `<footer class="mag-foot">${foot}</footer>` : '');
+}
+
+/**
+ * Deshace el envoltorio de revista en un elemento DOM (útil para exportadores a CMS)
+ */
+export function unwrapMagazine(containerOrEl) {
+  if (!containerOrEl) return;
+  const wrappers = containerOrEl.querySelectorAll(".mag-head, .mag-body, .mag-foot");
+  wrappers.forEach(wrapper => {
+    while (wrapper.firstChild) {
+      wrapper.parentNode.insertBefore(wrapper.firstChild, wrapper);
+    }
+    wrapper.remove();
+  });
+}
+

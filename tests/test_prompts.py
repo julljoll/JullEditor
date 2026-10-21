@@ -42,3 +42,22 @@ def test_build_generation_prompt_optimal_seo_rules():
     assert "no constituye asesoría legal" in prompt
     assert "AL MENOS EL 50% DE LOS ENCABEZADOS H2 DEBEN ESTAR FORMULADOS COMO PREGUNTAS" in prompt
     assert "PERFIL DE VOZ PROFESIONAL: Abogado Venezolano — Doctrinal" in prompt
+
+def test_build_generation_prompt_magazine_mode():
+    """Verifica que el modo revista inyecte el bloque interpretativo y la sección de lectura editorial."""
+    prompt = build_generation_prompt(
+        article_source_text="Estudio sobre amenazas en la nube.",
+        editorial_mode="magazine"
+    )
+    assert "ENFOQUE EDITORIAL INTERPRETATIVO-EXPLICATIVO (MODO REVISTA DIGITAL 2026)" in prompt
+    assert "## 🔎 Nuestra Lectura del Artículo {#nuestra-lectura}" in prompt
+    assert "PULL-QUOTE / CITA DESTACADA DE REVISTA" in prompt
+
+def test_build_generation_prompt_classic_mode():
+    """Verifica que el modo clásico omita el bloque interpretativo de revista."""
+    prompt = build_generation_prompt(
+        article_source_text="Estudio sobre amenazas en la nube.",
+        editorial_mode="classic"
+    )
+    assert "ENFOQUE EDITORIAL INTERPRETATIVO-EXPLICATIVO (MODO REVISTA DIGITAL 2026)" not in prompt
+    assert "7b. (MODO REVISTA OBLIGATORIO)" not in prompt

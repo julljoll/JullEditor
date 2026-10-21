@@ -143,7 +143,27 @@ def test_frontend_index_default_seo_ux_configuration():
     # Temperatura anti-alucinación: 0.2
     assert 'value="0.2"' in response.text
     assert '0.2 (Rigor Factual)' in response.text
-    # Versión de script con cache-busting v=9.4
-    assert 'js/app.js?v=9.4' in response.text
+    # Versión de script con cache-busting v=9.5
+    assert 'js/app.js?v=9.5' in response.text
+
+def test_frontend_index_has_magazine_mode_elements():
+    """Verifica que index.html contenga los controles del modo revista y lectura."""
+    response = client.get("/")
+    assert response.status_code == 200
+    assert "btnToggleColumns" in response.text
+    assert "btnReadingMode" in response.text
+    assert "editorialMode" in response.text
+    assert 'value="magazine"' in response.text
+
+def test_generate_request_editorial_mode_validation():
+    """Verifica que el schema Pydantic de GenerateRequest valide editorial_mode."""
+    # editorial_mode inválido debe arrojar error de validación 422
+    invalid_payload = {
+        "source_text": "Texto suficientemente largo para pasar validación mínima de diez caracteres.",
+        "editorial_mode": "invalid_mode_not_supported"
+    }
+    response = client.post("/api/generate-stream", json=invalid_payload)
+    assert response.status_code == 422
+
 
 

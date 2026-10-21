@@ -46,49 +46,112 @@ if (-not $pythonCmd) {
 
 Write-Host "[OK] Python detectado: $pythonCmd" -ForegroundColor Green
 
-# 2. Localizar Ollama e iniciar servicio
+# 2. Localizar Ollama, iniciar servicio (Paso 1) y asegurar modelo granite3.3:8b (Paso 2)
 $ollamaCmd = (Get-Command ollama.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1)
 if (-not $ollamaCmd) {
-    $ollamaCandidate = "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe"
-    if (Test-Path $ollamaCandidate) {
-        $ollamaCmd = $ollamaCandidate
-        $env:PATH = "$env:LOCALAPPDATA\Programs\Ollama;$env:PATH"
+    $candidateOllamaPaths = @(
+        "$env:LOCALAPPDATA\Programs\Ollama\ollama.exe",
+        "$env:ProgramFiles\Ollama\ollama.exe",
+        "$env:ProgramFiles(x86)\Ollama\ollama.exe"
+    )
+    foreach ($cand in $candidateOllamaPaths) {
+        if (Test-Path $cand) {
+            $ollamaCmd = $cand
+            $ollamaDir = Split-Path $cand
+            $env:PATH = "$ollamaDir;$env:PATH"
+            break
+        }
     }
 }
 
 if ($ollamaCmd) {
     Write-Host "[OK] Ollama detectado: $ollamaCmd" -ForegroundColor Green
+
+    # =========================================================================
+    # PASO 1: Iniciar automáticamente el servicio de Ollama (ollama serve)
+    # =========================================================================
+    $isOllamaRunning = $false
     try {
         $health = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 2 -ErrorAction SilentlyContinue
+        if ($health) { $isOllamaRunning = $true }
     } catch {
-        $health = $null
-    }
-    if (-not $health) {
-        Write-Host "[INFO] Iniciando servicio de Ollama en segundo plano..." -ForegroundColor Cyan
-        Start-Process -FilePath $ollamaCmd -ArgumentList "serve" -WindowStyle Hidden
-        Start-Sleep -Seconds 2
+        $isOllamaRunning = $false
     }
 
-    # Verificar presencia del modelo Granite
-    try {
-        $tags = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 3 -ErrorAction SilentlyContinue
-        $hasGranite = $tags.models | Where-Object { $_.name -like "*granite*" }
-        if (-not $hasGranite) {
-            Write-Host "[AVISO] Modelo IBM Granite no detectado en Ollama." -ForegroundColor Yellow
-            Write-Host "Puedes descargarlo ejecutando: ollama pull granite3.3:8b (o granite3.3:2b)" -ForegroundColor Yellow
-        } else {
-            $modelName = $hasGranite[0].name
-            Write-Host "[OK] Modelo IBM Granite detectado: $modelName" -ForegroundColor Green
-            # Warm-up rápido para precargar el modelo en memoria RAM
+    if (-not $isOllamaRunning) {
+        Write-Host ""
+        Write-Host "[PASO 1] Iniciando servicio de Ollama en segundo plano (ollama serve)..." -ForegroundColor Cyan
+        Start-Process -FilePath $ollamaCmd -ArgumentList "serve" -WindowStyle Hidden
+        
+        # Esperar hasta que el servicio responda (máximo 15 segundos)
+        $attempts = 0
+        while (-not $isOllamaRunning -and $attempts -lt 15) {
+            Start-Sleep -Seconds 1
+            $attempts++
             try {
-                $warmPayload = '{"model":"' + $modelName + '","keep_alive":"30m"}'
-                Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method POST -Body $warmPayload -ContentType "application/json" -TimeoutSec 3 -ErrorAction SilentlyContinue | Out-Null
-                Write-Host "[OK] Modelo precargado en memoria RAM (keep_alive: 30m)." -ForegroundColor Green
+                $testTags = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 2 -ErrorAction SilentlyContinue
+                if ($testTags) { $isOllamaRunning = $true }
             } catch {}
         }
-    } catch {}
+
+        if ($isOllamaRunning) {
+            Write-Host "[OK] Servicio de Ollama iniciado correctamente (localhost:11434)." -ForegroundColor Green
+        } else {
+            Write-Host "[AVISO] Ollama se inicio pero tardo en responder. Continuando..." -ForegroundColor Yellow
+        }
+    } else {
+        Write-Host "[OK] Servicio de Ollama ya se encuentra activo (localhost:11434)." -ForegroundColor Green
+    }
+
+    # =========================================================================
+    # PASO 2: Asegurar que el modelo 'granite3.3:8b' este descargado (ollama pull)
+    # =========================================================================
+    try {
+        $tags = Invoke-RestMethod -Uri "http://localhost:11434/api/tags" -TimeoutSec 3 -ErrorAction SilentlyContinue
+        $installedModels = @($tags.models | ForEach-Object { $_.name })
+        
+        $has8b = $installedModels | Where-Object { $_ -like "granite3.3:8b*" -or $_ -like "*granite*8b*" }
+        $hasAnyGranite = $installedModels | Where-Object { $_ -like "*granite*" }
+
+        if (-not $has8b) {
+            Write-Host ""
+            Write-Host "=========================================================================" -ForegroundColor Yellow
+            Write-Host "[PASO 2] Descargando modelo recomendado: ollama pull granite3.3:8b" -ForegroundColor Yellow
+            Write-Host "   (Esto solo se realiza una vez; la descarga se visualizara en esta terminal)" -ForegroundColor Gray
+            Write-Host "=========================================================================" -ForegroundColor Yellow
+            
+            & $ollamaCmd pull granite3.3:8b
+            
+            if ($LASTEXITCODE -eq 0) {
+                Write-Host "[OK] Modelo IBM Granite 3.3 8B descargado exitosamente." -ForegroundColor Green
+                $targetModel = "granite3.3:8b"
+            } else {
+                Write-Host "[AVISO] La descarga de granite3.3:8b no finalizo con codigo 0." -ForegroundColor Yellow
+                if ($hasAnyGranite) {
+                    $targetModel = $hasAnyGranite[0]
+                    Write-Host "[INFO] Se utilizara el modelo Granite existente: $targetModel" -ForegroundColor Cyan
+                } else {
+                    $targetModel = "granite3.3:8b"
+                }
+            }
+        } else {
+            $targetModel = $has8b[0]
+            Write-Host "[OK] Modelo IBM Granite verificado y listo: $targetModel" -ForegroundColor Green
+        }
+
+        # Warm-up rápido para precargar el modelo en memoria RAM (keep_alive: 30m)
+        if ($targetModel) {
+            try {
+                $warmPayload = '{"model":"' + $targetModel + '","keep_alive":"30m"}'
+                Invoke-RestMethod -Uri "http://localhost:11434/api/generate" -Method POST -Body $warmPayload -ContentType "application/json" -TimeoutSec 3 -ErrorAction SilentlyContinue | Out-Null
+                Write-Host "[OK] Modelo precargado en memoria RAM ($targetModel · keep_alive: 30m)." -ForegroundColor Green
+            } catch {}
+        }
+    } catch {
+        Write-Host "[AVISO] No se pudo verificar la lista de modelos de Ollama: $_" -ForegroundColor Yellow
+    }
 } else {
-    Write-Host "[ADVERTENCIA] Ollama no encontrado. Asegurate de que este corriendo en localhost:11434" -ForegroundColor DarkYellow
+    Write-Host "[ADVERTENCIA] Ollama no encontrado. Asegurate de instalarlo desde https://ollama.com" -ForegroundColor DarkYellow
 }
 
 # 3. Abrir navegador

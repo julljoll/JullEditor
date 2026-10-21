@@ -298,6 +298,23 @@ ENFOQUE TEMÁTICO: TECNOLOGÍA, TELECOMUNICACIONES E INNOVACIÓN.
 """
 }
 
+MAGAZINE_INTERPRETATIVE_BLOCK: str = """
+ENFOQUE EDITORIAL INTERPRETATIVO-EXPLICATIVO (MODO REVISTA DIGITAL 2026):
+- **INTERPRETACIÓN Y EXPLICACIÓN ACTIVA:** No te limites a traducir ni a resumir de forma literal o mecánica. Tu misión editorial es INTERPRETAR la fuente original y EXPLICAR su alcance, fondo e implicaciones para el lector profesional y general.
+- **RITMO NARRATIVO EDITORIAL EN 4 MOVIMIENTOS:** Cada sección H2 debe desarrollarse siguiendo una secuencia analítica clara (manteniendo párrafos controlados de 3 a 4 oraciones / 45 a 65 palabras):
+  1. *Contexto y Relevancia:* Por qué este punto importa hoy.
+  2. *Tesis y Datos de la Fuente:* Qué plantea textualmente el documento (emplea fórmulas como: «Según expone la fuente original...», «El estudio sostiene que...»).
+  3. *Interpretación Editorial:* Qué significa esto en la práctica (emplea fórmulas como: «En términos prácticos, esto significa que...», «Nuestra lectura pericial revela que...», «Dicho de otro modo...»).
+  4. *Implicación y Acción:* Qué impacto directo tiene sobre organizaciones, peritos o ciudadanos.
+- **DIFERENCIACIÓN ESTRICTA Y CERO ALUCINACIÓN (AGENTS.md §1.2):** Distingue nítidamente entre lo que es un hecho/cifra de la fuente original y lo que constituye tu interpretación analítica. Está TERMINANTEMENTE PROHIBIDO inventar cifras, fechas, leyes, instituciones, personas o conclusiones que la fuente no contenga.
+- **PULL-QUOTE / CITA DESTACADA DE REVISTA:** Identifica una idea fuerza crucial de la fuente e insértala en una sección central como cita destacada usando el formato Markdown:
+  > "[Cita textual o síntesis contundente de la fuente original de máximo 25 palabras]"
+- **INTERTÍTULOS REVISTA:** Subtítulos H2 concisos de 5 a 9 palabras, manteniendo al menos el 50% redactados como preguntas directas.
+- **SECCIÓN ESPECIAL DE ANÁLISIS EDITORIAL:** Inmediatamente tras el bloque de resumen ejecutivo, incluye una sección dedicada:
+  ## 🔎 Nuestra Lectura del Artículo {#nuestra-lectura}
+  con 2 párrafos explicativos que desentrañen el trasfondo del artículo, qué aporta de nuevo y cuáles son sus puntos ciegos o retos prácticos.
+"""
+
 def build_generation_prompt(
     article_source_text: str,
     source_title: str = "",
@@ -311,7 +328,8 @@ def build_generation_prompt(
     target_words: int = 1000,
     custom_instructions: str = "",
     legal_rag_context: str = "",
-    jurisdiction: str = "auto"
+    jurisdiction: str = "auto",
+    editorial_mode: str = "magazine"
 ) -> str:
     """
     Construye el prompt completo en español para alimentar al modelo IBM Granite,
@@ -421,10 +439,18 @@ DIRECTRICES ESPECÍFICAS DE ESTRUCTURA Y TONO JULL (WIREFRAME EDITORIAL EXACTO):
     if (wants_ve or wants_co) and legal_rag_context:
         legal_rag_section = f"\n{legal_rag_context}\n"
 
+    magazine_block = MAGAZINE_INTERPRETATIVE_BLOCK if editorial_mode == "magazine" else ""
+    magazine_closing_directive = (
+        "\n7b. (MODO REVISTA OBLIGATORIO) Inmediatamente tras el resumen ejecutivo, inserta la sección interpretativa: `## 🔎 Nuestra Lectura del Artículo {#nuestra-lectura}` con 2 párrafos explicativos analizando el alcance y la trascendencia práctica de la fuente original."
+        if editorial_mode == "magazine" else ""
+    )
+
     prompt = f"""
 {SYSTEM_BASE_PROMPT}
 
 {theme_instruction}
+
+{magazine_block}
 
 {jull_specific_structure}
 
@@ -467,7 +493,7 @@ Genera el artículo completo en ESPAÑOL respetando estrictamente el formato MAR
 4. Redacta inmediatamente el párrafo introductorio GEO ANSWER-FIRST (OBLIGATORIO): redacta exactamente 40 a 60 palabras respondiendo DIRECTAMENTE a la consulta central. Comienza con "En resumen," seguido de la respuesta directa con la keyword en negrita.
 5. Inserta la sección `## 📑 Tabla de Contenidos` con enlaces ancla a cada sección H2 del artículo (al menos 50% de los H2 redactados como preguntas directas).
 6. Añade la caja `> **📌 Resumen Práctico de la Fuente Original:**` resumiendo con tus propias palabras en español la esencia y tesis del artículo de origen, sin desviar su sentido.
-7. Inserta el resumen ejecutivo en 30 segundos (`> **⚡ Resumen Ejecutivo en 30 Segundos:**`).
+7. Inserta el resumen ejecutivo en 30 segundos (`> **⚡ Resumen Ejecutivo en 30 Segundos:**`).{magazine_closing_directive}
 8. Desarrolla cada sección con subtítulos H2 (`## ` de 5-9 palabras; NUNCA uses `###` para las secciones principales; mínimo 50% de los H2 redactados como preguntas directas que un usuario busca en Google: ¿Qué es...?, ¿Cómo funciona...?, etc.) y párrafos breves de 3-4 oraciones (45-65 palabras), manteniendo la cadencia rítmica del PDF. Incluye anclas {{#seccion-slug}} en cada H2.
 9. Repite y resalta en **negrita** la palabra clave primaria y secundarias a lo largo de cada sección (`**palabra clave**`).
 10. Incluye la `**Conclusión del párrafo:**` al cierre de las secciones clave e inserta al menos 2 enlaces autoritativos oficiales en formato Markdown.

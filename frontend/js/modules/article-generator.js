@@ -19,6 +19,7 @@ export function initArticleGenerator(state, callbacks) {
   const modelSelect = document.getElementById("modelSelect");
   const customInstructions = document.getElementById("customInstructions");
   const jurisdictionSelect = document.getElementById("jurisdictionSelect");
+  const editorialModeSelect = document.getElementById("editorialMode");
   const articleView = document.getElementById("articleView");
   const tempSlider = document.getElementById("tempSlider");
 
@@ -71,7 +72,8 @@ export function initArticleGenerator(state, callbacks) {
       custom_instructions: (customInstructions && customInstructions.value.trim()) || "",
       model: (modelSelect && modelSelect.value) || "granite3.3:8b",
       temperature: tempSlider ? parseFloat(tempSlider.value) : undefined,
-      jurisdiction: (jurisdictionSelect && jurisdictionSelect.value) || "auto"
+      jurisdiction: (jurisdictionSelect && jurisdictionSelect.value) || "auto",
+      editorial_mode: (editorialModeSelect && editorialModeSelect.value) || "magazine"
     };
 
     abortController = new AbortController();
@@ -214,7 +216,8 @@ export function initArticleGenerator(state, callbacks) {
             model: (modelSelect && modelSelect.value) || "granite3.3:8b",
             tone: (toneSelect && toneSelect.value) || "conversational",
             source_url: (urlInput && urlInput.value) || "",
-            jurisdiction: (jurisdictionSelect && jurisdictionSelect.value) || "auto"
+            jurisdiction: (jurisdictionSelect && jurisdictionSelect.value) || "auto",
+            editorial_mode: (editorialModeSelect && editorialModeSelect.value) || "magazine"
           })
         });
         if (saveRes.ok) {

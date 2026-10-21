@@ -3,6 +3,7 @@
  */
 
 import { toast } from "./toast-notifications.js";
+import { unwrapMagazine } from "./markdown-renderer.js";
 
 export function generateWordPressHtml(state) {
   const articleView = document.getElementById("articleView");
@@ -20,6 +21,7 @@ export function generateWordPressHtml(state) {
 
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = articleView.innerHTML;
+  unwrapMagazine(tempDiv);
 
   tempDiv.querySelectorAll(".streaming-cursor").forEach(el => el.remove());
 
@@ -230,15 +232,25 @@ export function initWordPressExporter(state) {
   <title>${(previewTitle && previewTitle.innerText) || "Artículo de Blog Optimizado"}</title>
   <meta name="description" content="${(previewSnippet && previewSnippet.innerText) || ""}">
   <style>
-    body { font-family: 'Arial', sans-serif; line-height: 1.6; max-width: 900px; margin: 40px auto; padding: 0 24px; color: #1A1A1A; background: #FFFFFF; }
+    body { font-family: 'Arial', sans-serif; line-height: 1.6; max-width: 1200px; margin: 40px auto; padding: 0 24px; color: #1A1A1A; background: #FFFFFF; }
     h1 { color: #1A6B1A; font-size: 1.85rem; font-weight: 700; border-bottom: 2px solid #1A6B1A; padding-bottom: 10px; text-transform: uppercase; margin-top: 10px; }
-    h2 { color: #8A6800; font-size: 1.40rem; font-weight: 600; margin-top: 30px; border-bottom: 1px solid #EEE; padding-bottom: 6px; }
+    h2 { color: #8A6800; font-size: 1.35rem; font-weight: 600; margin-top: 24px; border-bottom: 1px solid #EEE; padding-bottom: 6px; }
     h3, h4 { color: #8A6800; font-size: 1.15rem; font-weight: 600; border-left: 3px solid #FECF06; background: #FFFBE6; padding: 8px 14px; border-radius: 0 6px 6px 0; margin-top: 20px; }
     p { color: #222; font-size: 1.02rem; margin-bottom: 14px; text-align: justify; }
     strong { color: #000; font-weight: 700; background: #FFF9DB; padding: 1px 4px; border-radius: 3px; }
     em { color: #444; font-style: italic; }
     a { color: #1A6B1A; font-weight: bold; text-decoration: underline; }
     blockquote { border-left: 4px solid #1A6B1A; margin: 16px 0; padding: 12px 18px; background: #F8F9FA; border-radius: 0 8px 8px 0; }
+    
+    /* Maquetación Revista Digital (3 Columnas) */
+    .mag-head { margin-bottom: 24px; }
+    .mag-body { column-count: 3; column-gap: 32px; column-rule: 1px solid #E0E0E0; text-align: justify; }
+    .mag-body p { font-family: Georgia, serif; font-size: 0.98rem; line-height: 1.65; break-inside: avoid; }
+    .mag-body > p:first-of-type::first-letter { float: left; font-size: 3.2em; line-height: 0.85; padding-right: 8px; color: #8A6800; font-weight: bold; }
+    .mag-body h2 { break-after: avoid; font-size: 1.18rem; }
+    .mag-body blockquote { column-span: all; font-size: 1.25rem; font-style: italic; text-align: center; border: none; border-top: 2px solid #8A6800; border-bottom: 2px solid #8A6800; background: #FFFDF0; padding: 14px 20px; border-radius: 4px; }
+    .mag-foot { margin-top: 30px; padding-top: 20px; border-top: 1px dashed #DDD; }
+    @media (max-width: 960px) { .mag-body { column-count: 1; } }
   </style>
 </head>
 <body>

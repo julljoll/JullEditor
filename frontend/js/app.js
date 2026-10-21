@@ -15,6 +15,7 @@ import { initSitejetExporter } from "./modules/sitejet-exporter.js";
 import { initArticleHistory } from "./modules/article-history.js";
 import { initKeyboardShortcuts } from "./modules/keyboard-shortcuts.js";
 import { initArticleGenerator } from "./modules/article-generator.js";
+import { initLayoutToggle } from "./modules/layout-toggle.js";
 
 document.addEventListener("DOMContentLoaded", () => {
   // Estado global compartido
@@ -148,6 +149,9 @@ document.addEventListener("DOMContentLoaded", () => {
     onGenerate: () => generatorModule.generate(),
     onStop: () => generatorModule.stop()
   });
+
+  // 9.1 Inicializar Alternador de Revista 3 Columnas y Modo Lectura
+  initLayoutToggle(state);
 
   // 10. Auditoría Profunda 2026 y Sincronización Jurisdiccional
   const btnDeepAudit = document.getElementById("btnDeepAudit");

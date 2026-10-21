@@ -130,6 +130,7 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
             f"theme: \"{meta.get('theme', 'cybersecurity')}\"\n"
             f"model: \"{meta.get('model', 'granite3.3:8b')}\"\n"
             f"tone: \"{meta.get('tone', 'conversational')}\"\n"
+            f"editorial_mode: \"{meta.get('editorial_mode', 'magazine')}\"\n"
             f"word_count: {word_count}\n"
             f"reading_time_min: {reading_time}\n"
             f"source_url: \"{meta.get('source_url', '')}\"\n"

@@ -400,6 +400,16 @@ body {
   height: calc(100vh - 105px);
   min-height: 0;
   overflow: hidden;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Modo Lectura Revista Digital: Maximiza el panel central a ancho completo */
+.app-container.reading-mode {
+  grid-template-columns: minmax(0, 1fr) !important;
+  max-width: 1480px;
+}
+.app-container.reading-mode > aside.panel {
+  display: none !important;
 }
 
 @media (max-width: 1400px) {
@@ -1279,6 +1289,131 @@ body {
 }
 
 /* ==========================================================================
+   MAQUETACIÓN EDITORIAL: MODO REVISTA DIGITAL (3 COLUMNAS)
+   ========================================================================== */
+.article-rendered .mag-head {
+  margin-bottom: 1.4rem;
+}
+
+.article-rendered .mag-body {
+  column-count: 3;
+  column-gap: 2.2rem;
+  column-rule: 1px solid rgba(138, 104, 0, 0.25);
+  column-fill: balance;
+  text-align: justify;
+  hyphens: auto;
+  -webkit-hyphens: auto;
+}
+
+.article-rendered .mag-body p {
+  font-family: Georgia, 'Merriweather', 'Times New Roman', serif;
+  font-size: 0.98rem;
+  line-height: 1.68;
+  margin-bottom: 14px;
+  break-inside: avoid;
+}
+
+/* Letra Capitular (Drop Cap) elegante de primer párrafo editorial */
+.article-rendered .mag-body > p:first-of-type::first-letter {
+  float: left;
+  font-size: 3.4em;
+  line-height: 0.82;
+  padding: 0.04em 0.1em 0 0;
+  color: var(--color-primary);
+  font-weight: 700;
+  font-family: var(--font-main);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.15);
+}
+
+.article-rendered .mag-body h2 {
+  break-after: avoid;
+  break-inside: avoid;
+  margin-top: 18px;
+  margin-bottom: 10px;
+  font-size: 1.18rem;
+  line-height: 1.32;
+  letter-spacing: -0.2px;
+}
+
+.article-rendered .mag-body h3,
+.article-rendered .mag-body h4 {
+  break-after: avoid;
+  break-inside: avoid;
+  font-size: 1.05rem;
+  margin-top: 14px;
+  margin-bottom: 8px;
+}
+
+.article-rendered .mag-body ul,
+.article-rendered .mag-body ol,
+.article-rendered .mag-body .paragraph-takeaway,
+.article-rendered .mag-body table,
+.article-rendered .mag-body .source-summary-callout {
+  break-inside: avoid;
+  margin-bottom: 14px;
+}
+
+/* Cita Destacada / Pull-quote en Revista Digital (Cruza todas las columnas) */
+.article-rendered .mag-body blockquote {
+  column-span: all;
+  font-family: Georgia, 'Merriweather', serif;
+  font-size: 1.25rem;
+  font-style: italic;
+  font-weight: 600;
+  line-height: 1.45;
+  text-align: center;
+  color: var(--color-primary);
+  background: rgba(254, 207, 6, 0.07);
+  border-left: none;
+  border-top: 2px solid var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+  border-radius: 4px;
+  padding: 16px 24px;
+  margin: 22px 0;
+}
+
+.article-rendered .mag-foot {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px dashed var(--divider);
+}
+
+/* Adaptación responsive para pantallas más estrechas */
+@media (max-width: 1300px) {
+  .article-rendered .mag-body {
+    column-count: 2;
+    column-gap: 1.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .article-rendered .mag-body {
+    column-count: 1;
+    column-gap: 0;
+    column-rule: none;
+  }
+}
+
+/* Anulación explícita para modo de 1 sola columna estándar */
+.article-view-container[data-layout="single"] .article-rendered .mag-body {
+  column-count: 1 !important;
+  column-rule: none !important;
+}
+
+.article-view-container[data-layout="single"] .article-rendered .mag-body > p:first-of-type::first-letter {
+  float: none !important;
+  font-size: inherit !important;
+  line-height: inherit !important;
+  padding: 0 !important;
+  color: inherit !important;
+}
+
+.article-view-container[data-layout="single"] .article-rendered .mag-body blockquote {
+  column-span: none !important;
+  text-align: left !important;
+}
+
+/* ==========================================================================
    COMPONENTES ESPECIALES DEL ARTÍCULO (FORMATO SEO BLOG PDF)
    ========================================================================== */
 
@@ -1883,6 +2018,15 @@ body {
     border-left: 3px solid #666666 !important;
     background: #f8f8f8 !important;
     color: #333333 !important;
+  }
+
+  .article-rendered .mag-body {
+    column-count: 3 !important;
+    column-gap: 18px !important;
+    column-rule: 1px solid #CCCCCC !important;
+    font-size: 9.5pt !important;
+    orphans: 3 !important;
+    widows: 3 !important;
   }
 
   .streaming-cursor {

@@ -130,6 +130,7 @@ class GenerateRequest(BaseModel):
     model: Optional[str] = Field(None, max_length=100)
     temperature: Optional[float] = Field(None, ge=0.1, le=1.5)
     jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | international")
+    editorial_mode: Optional[str] = Field("magazine", pattern="^(magazine|classic)$", description="magazine | classic")
 
 class DoclingParseRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=1000000)
@@ -143,6 +144,7 @@ class SaveArticleRequest(BaseModel):
     tone: Optional[str] = Field("conversational", max_length=50)
     source_url: Optional[str] = Field("", max_length=2048)
     jurisdiction: Optional[str] = Field("auto", max_length=50)
+    editorial_mode: Optional[str] = Field("magazine", max_length=50)
 
 class GenerateHeaderImageRequest(BaseModel):
     title: str = Field(..., min_length=3, max_length=300)
@@ -281,7 +283,8 @@ async def save_generated_article_endpoint(req: SaveArticleRequest):
             "model": req.model,
             "tone": req.tone,
             "source_url": req.source_url,
-            "jurisdiction": req.jurisdiction
+            "jurisdiction": req.jurisdiction,
+            "editorial_mode": req.editorial_mode or "magazine"
         }
         res = save_final_article(
             title=req.title,
@@ -430,7 +433,8 @@ async def generate_article_stream(req: GenerateRequest):
         target_words=req.target_words,
         custom_instructions=req.custom_instructions or "",
         legal_rag_context=rag_legal_context,
-        jurisdiction=selected_jurisdiction
+        jurisdiction=selected_jurisdiction,
+        editorial_mode=req.editorial_mode or "magazine"
     )
 
     ollama_payload = {

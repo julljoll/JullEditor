@@ -21,8 +21,8 @@
   <!-- Bootstrap 5.3 Framework (Local Offline-First) -->
   <link rel="stylesheet" href="css/bootstrap.min.css">
 
-  <!-- USWDS Cyber-Legal Stylesheet Light Mode — Cache-Busting v9.0 -->
-  <link rel="stylesheet" href="css/style.css?v=9.0">
+  <!-- USWDS Cyber-Legal Stylesheet Light Mode — Cache-Busting v9.1 -->
+  <link rel="stylesheet" href="css/style.css?v=9.1">
 </head>
 <body>
 
@@ -221,6 +221,15 @@
         </div>
       </div>
 
+      <!-- Selector de Modo Editorial: Revista Digital vs Resumen Clásico -->
+      <div class="form-group">
+        <label class="form-label" for="editorialMode">Estilo de Enfoque Editorial</label>
+        <select id="editorialMode" class="select-custom">
+          <option value="magazine" selected>📰 Revista Digital (Interpretativo-Explicativo 2026)</option>
+          <option value="classic">📝 Resumen Clásico Fiel (Síntesis Directa)</option>
+        </select>
+      </div>
+
       <!-- Selector de Jurisdicción / Enfoque Normativo -->
       <div class="form-group">
         <label class="form-label" for="jurisdictionSelect">Jurisdicción / Enfoque Normativo</label>
@@ -287,6 +296,12 @@
         </span>
         
         <div class="action-group" style="flex-wrap: wrap;">
+          <button id="btnToggleColumns" class="btn btn-outline btn-sm" title="Alternar formato: Revista 3 Columnas / Estándar 1 Columna">
+            <span class="material-symbols-outlined">view_column</span> <span id="btnToggleColumnsText">Revista 3 Col</span>
+          </button>
+          <button id="btnReadingMode" class="btn btn-outline btn-sm" title="Alternar Modo Lectura (Oculta paneles laterales)">
+            <span class="material-symbols-outlined">fullscreen</span> <span id="btnReadingModeText">Modo Lectura</span>
+          </button>
           <button id="btnCopySitejet" class="btn btn-primary btn-sm" title="Copiar optimizado para Sitejet Builder de Namecheap (Ctrl+Shift+S)">
             <span class="material-symbols-outlined">content_paste_go</span> Copiar p/ Sitejet
           </button>
@@ -523,6 +538,6 @@
   </footer>
 
   <!-- Script JS Modularizado ES6 con Cache-Busting -->
-  <script type="module" src="js/app.js?v=9.4"></script>
+  <script type="module" src="js/app.js?v=9.5"></script>
 </body>
 </html>

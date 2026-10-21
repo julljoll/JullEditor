@@ -13,6 +13,7 @@
  */
 
 import { toast } from "./toast-notifications.js";
+import { unwrapMagazine } from "./markdown-renderer.js";
 
 // Caché en memoria para evitar conversiones redundantes de imagen
 const pngDataUriCache = new Map();
@@ -312,6 +313,7 @@ export function generateSitejetRichTextHtml(state, options = {}) {
   const seoData = extractSeoKitData(state);
   const tempDiv = document.createElement("div");
   tempDiv.innerHTML = articleView.innerHTML;
+  unwrapMagazine(tempDiv);
 
   // 1. Eliminar cursores de streaming y elementos auxiliares
   tempDiv.querySelectorAll(".streaming-cursor").forEach(el => el.remove());
