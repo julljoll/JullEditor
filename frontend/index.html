@@ -120,7 +120,7 @@
                   </span>
                   <span id="doclingProgressPercent" class="progress-percent font-monospace">0%</span>
                 </div>
-                <div class="progress" style="height: 6px; background-color: rgba(242, 194, 48, 0.15);">
+                <div class="progress progress-track-gold">
                   <div id="doclingProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%"></div>
                 </div>
               </div>
@@ -132,7 +132,7 @@
                   <div>
                     <div class="d-flex align-items-center gap-2 flex-wrap">
                       <span id="doclingFileName" class="file-chip-name">archivo.md + archivo.json</span>
-                      <span class="badge bg-success text-white" style="font-size: 0.65rem;">✓ IMPORTADO EN RAG</span>
+                      <span class="badge bg-success badge-on-accent badge-xs">✓ IMPORTADO EN RAG</span>
                     </div>
                     <span id="doclingFileMeta" class="file-chip-meta">0 palabras · Listo para Granite</span>
                   </div>
@@ -295,9 +295,9 @@
             <div class="form-group mb-2">
               <div class="d-flex justify-content-between align-items-center mb-1">
                 <label class="form-label mb-0" for="tempSlider">Temperatura (Fidelidad / Anti-Alucinación)</label>
-                <span id="tempValueLabel" class="font-monospace" style="font-size:0.75rem; color:var(--color-secondary); font-weight:700;">0.2 (Rigor Factual)</span>
+                <span id="tempValueLabel" class="font-monospace temp-value-label">0.2 (Rigor Factual)</span>
               </div>
-              <input type="range" id="tempSlider" min="0.05" max="1.0" step="0.05" value="0.2" class="form-range" style="width: 100%; accent-color: var(--color-primary);" />
+              <input type="range" id="tempSlider" min="0.05" max="1.0" step="0.05" value="0.2" class="form-range temp-slider" />
             </div>
 
             <div class="form-group mb-1">
@@ -317,9 +317,9 @@
 
           <div class="step-body" id="step4Body">
             <div class="d-flex justify-content-between align-items-center mb-2">
-              <span style="font-size: 0.78rem; color: var(--text-secondary);">Artículos en RAG/articulos/</span>
-              <button type="button" id="btnRefreshHistory" class="btn btn-sm btn-outline py-0 px-2" title="Refrescar historial" style="font-size:0.75rem;">
-                <span class="material-symbols-outlined" style="font-size:0.9rem;">refresh</span>
+              <span class="text-secondary-sm">Artículos en RAG/articulos/</span>
+              <button type="button" id="btnRefreshHistory" class="btn btn-sm btn-outline btn-icon-xs py-0 px-2" title="Refrescar historial">
+                <span class="material-symbols-outlined">refresh</span>
               </button>
             </div>
             <div id="articlesHistoryList" class="history-list-container">
@@ -477,16 +477,16 @@
             <div id="seoProgressFill" class="progress-bar-fill"></div>
           </div>
 
-          <div class="gauge-header" style="margin-top: 8px;">
+          <div class="gauge-header mt-2">
             <span class="metric-label">Calidad Jurídica & GEO 2026</span>
-            <span id="legalQualityScore" class="gauge-score" style="color: var(--color-gold);">0%</span>
+            <span id="legalQualityScore" class="gauge-score gauge-score-gold">0%</span>
           </div>
           <div class="progress-bar-bg">
-            <div id="legalProgressFill" class="progress-bar-fill" style="background: linear-gradient(90deg, var(--color-gold), var(--color-secondary));"></div>
+            <div id="legalProgressFill" class="progress-bar-fill progress-bar-fill-gradient"></div>
           </div>
 
-          <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px dashed rgba(242, 194, 48, 0.25); font-size: 0.75rem;">
-            <span style="font-weight: 600; color: var(--text-secondary);">ÍNDICE YMYL 2026:</span>
+          <div class="ymyl-row">
+            <span class="ymyl-label">ÍNDICE YMYL 2026:</span>
             <span id="combinedScoreBadge" class="seo-score-badge">0% · STANDBY</span>
           </div>
         </div>
@@ -495,7 +495,7 @@
         <div class="form-group mb-3">
           <div class="d-flex justify-content-between align-items-center mb-1">
             <label class="form-label mb-0">Estructura en Vivo</label>
-            <span class="badge bg-secondary text-white" style="font-size: 0.65rem;">12 BLOQUES CANÓNICOS</span>
+            <span class="badge bg-secondary badge-on-accent badge-xs">12 BLOQUES CANÓNICOS</span>
           </div>
           <ul id="liveStructureList">
             <li id="struct-h1" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>Título H1 Optimizado</span></li>
@@ -625,14 +625,14 @@
         <!-- Reglas del Formato SEO Blog PDF Activas -->
         <details class="quality-details">
           <summary>Reglas Formato SEO Blog PDF (2026)</summary>
-          <ul style="font-size: 0.78rem; color: var(--text-secondary); margin-left: 18px; margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
-            <li><span style="color: var(--color-secondary);">✔</span> <strong>H1 con Keyword:</strong> 8-12 palabras (50-65 chars).</li>
-            <li><span style="color: var(--color-secondary);">✔</span> <strong>Meta Descripción:</strong> 145-160 chars contigua bajo H1.</li>
-            <li><span style="color: var(--color-secondary);">✔</span> <strong>Respuesta Directa GEO:</strong> 40-60 palabras concisas para IA.</li>
-            <li><span style="color: var(--color-secondary);">✔</span> <strong>Subtítulos H2/H3:</strong> ≥50% formulados como preguntas.</li>
-            <li><span style="color: var(--color-secondary);">✔</span> <strong>Léxico Jurídico VE / CO:</strong> Glosarios normativos y sin calcos.</li>
-            <li><span style="color: var(--color-secondary);">✔</span> <strong>Ética Jurídica:</strong> Descargo legal y cero promesas de resultado.</li>
-            <li><span style="color: var(--color-secondary);">✔</span> <strong>E-E-A-T & Fuentes:</strong> Bio del autor y enlaces a fuentes oficiales.</li>
+          <ul class="seo-tips-list">
+            <li><span class="seo-tips-bullet">✔</span> <strong>H1 con Keyword:</strong> 8-12 palabras (50-65 chars).</li>
+            <li><span class="seo-tips-bullet">✔</span> <strong>Meta Descripción:</strong> 145-160 chars contigua bajo H1.</li>
+            <li><span class="seo-tips-bullet">✔</span> <strong>Respuesta Directa GEO:</strong> 40-60 palabras concisas para IA.</li>
+            <li><span class="seo-tips-bullet">✔</span> <strong>Subtítulos H2/H3:</strong> ≥50% formulados como preguntas.</li>
+            <li><span class="seo-tips-bullet">✔</span> <strong>Léxico Jurídico VE / CO:</strong> Glosarios normativos y sin calcos.</li>
+            <li><span class="seo-tips-bullet">✔</span> <strong>Ética Jurídica:</strong> Descargo legal y cero promesas de resultado.</li>
+            <li><span class="seo-tips-bullet">✔</span> <strong>E-E-A-T & Fuentes:</strong> Bio del autor y enlaces a fuentes oficiales.</li>
           </ul>
         </details>
 

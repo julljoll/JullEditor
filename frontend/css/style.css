@@ -14,6 +14,9 @@
   --bg-hover:      #1F2530;
   --bg-reading:    #0F1318;   /* lienzo del artículo */
   --bg-overlay:    rgba(5, 7, 10, 0.72);
+  --bg-media:      #000000;   /* fondo de previsualización de medios/tarjetas */
+  --bg-code:       #0A0D11;   /* bloques <pre> */
+  --bg-kbd:        var(--bg-hover);
 
   /* Texto (contraste medido sobre --bg-panel) */
   --text-primary:   #E9ECF1;  /* ≈15:1 */
@@ -24,6 +27,7 @@
   /* Marca (oro y verde técnicos sin azules genéricos) */
   --color-primary:        #F2C230;  /* oro: CTA, H2, foco */
   --color-primary-strong: #FFD54A;
+  --color-primary-hover:  #FFE566;  /* oro vibrante para hover CTA */
   --color-primary-soft:   rgba(242, 194, 48, 0.12);
   --color-secondary:      #3DD68C;  /* verde: éxito, H1, online */
   --color-secondary-soft: rgba(61, 214, 140, 0.12);
@@ -33,6 +37,11 @@
   --color-warning-soft:   rgba(255, 178, 63, 0.12);
   --color-error:          #FF6B5E;
   --color-error-soft:     rgba(255, 107, 94, 0.12);
+
+  /* Abstract académico (semántica editorial en lima pericial, sin azules) */
+  --color-abstract:       var(--color-info);
+  --color-abstract-soft:  var(--color-info-soft);
+  --border-abstract:      var(--border-info);
 
   /* Alias de compatibilidad con código JS y CSS existente */
   --color-gold:           var(--color-primary);
@@ -181,9 +190,9 @@ body {
 }
 
 .usa-banner-badge {
-  background: rgba(138, 104, 0, 0.12);
+  background: var(--color-primary-soft);
   color: var(--color-primary);
-  border: 1px solid rgba(138, 104, 0, 0.40);
+  border: var(--border-gold);
   padding: 1px 6px;
   border-radius: 3px;
   font-size: 0.65rem;
@@ -835,7 +844,7 @@ body {
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, #FFE566, var(--color-primary-strong));
+  background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary-strong));
   transform: translateY(-1px);
   box-shadow: 0 0 20px rgba(242, 194, 48, 0.5);
 }
@@ -880,6 +889,76 @@ body {
   transform: none !important;
 }
 
+/* Clases utilitarias basadas en tokens (reemplazo de estilos inline) */
+.progress-track-gold {
+  height: 6px;
+  background-color: var(--color-primary-soft) !important;
+}
+
+.temp-value-label {
+  font-size: 0.75rem;
+  color: var(--color-secondary);
+  font-weight: 700;
+}
+
+.temp-slider {
+  width: 100%;
+  accent-color: var(--color-primary);
+}
+
+.text-secondary-sm {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+}
+
+.btn-icon-xs {
+  font-size: 0.75rem !important;
+}
+
+.btn-icon-xs .material-symbols-outlined {
+  font-size: 0.9rem !important;
+}
+
+.badge-xs {
+  font-size: 0.65rem !important;
+}
+
+.gauge-score-gold {
+  color: var(--color-primary) !important;
+}
+
+.progress-bar-fill-gradient {
+  background: linear-gradient(90deg, var(--color-primary), var(--color-secondary)) !important;
+}
+
+.ymyl-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 6px;
+  border-top: 1px dashed rgba(242, 194, 48, 0.25);
+  font-size: 0.75rem;
+}
+
+.ymyl-label {
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.seo-tips-list {
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  margin-left: 18px;
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.seo-tips-bullet {
+  color: var(--color-secondary);
+}
+
 /* ==========================================================================
    COLUMNA 2: VISOR PERICIAL & ÁREA DE LECTURA (USWDS High Contrast)
    ========================================================================== */
@@ -921,7 +1000,7 @@ body {
   justify-content: space-between;
   align-items: center;
   margin-bottom: 10px;
-  border-bottom: 1px solid rgba(254, 207, 6, 0.15);
+  border-bottom: var(--border-gold);
   padding-bottom: 6px;
 }
 
@@ -976,7 +1055,7 @@ body {
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 9;
-  background: #000;
+  background: var(--bg-media);
   overflow: hidden;
 }
 
@@ -1149,7 +1228,7 @@ body {
   word-wrap: break-word;
 }
 
-/* H3/H4 USWDS: Oro Técnico (#FECF06), 1.15rem / 1.00rem, borde izquierdo 3px */
+/* H3/H4 USWDS: Oro Técnico (var(--color-primary)), 1.15rem / 1.00rem, borde izquierdo 3px */
 .article-rendered h3, .article-rendered h4 {
   color: var(--color-primary);
   font-size: 1.15rem;
@@ -1165,7 +1244,7 @@ body {
   word-wrap: break-word;
 }
 
-/* Párrafos USWDS: Blanco pericial (#f0f0f2), 1.02rem, line-height 1.65 */
+/* Párrafos USWDS: Texto principal (var(--text-primary)), 1.02rem, line-height 1.65 */
 .article-rendered p {
   color: var(--text-primary);
   font-size: 1.02rem;
@@ -1215,7 +1294,7 @@ body {
 
 /* Citas (blockquote): Borde izquierdo en Lima Neón */
 .article-rendered blockquote {
-  background: rgba(138, 104, 0, 0.06);
+  background: var(--color-primary-soft);
   border-left: 4px solid var(--color-info);
   padding: 12px 18px;
   margin: 16px 0;
@@ -1295,7 +1374,7 @@ body {
 }
 
 .article-rendered pre {
-  background: #0A0D11;
+  background: var(--bg-code);
   border: var(--border-subtle);
   border-radius: 6px;
   padding: 14px;
@@ -1425,6 +1504,14 @@ body {
     column-gap: 0;
     column-rule: none;
   }
+
+  /* Objetivos táctiles mínimos para dispositivos móviles (WCAG 2.5.5) */
+  .btn,
+  .btn-sm,
+  .preview-tab-btn,
+  .step-header-btn {
+    min-height: 40px;
+  }
 }
 
 /* Anulación explícita para modo de 1 sola columna estándar */
@@ -1538,9 +1625,9 @@ body {
 
 /* Tarjeta de Resumen Estructurado / Abstract Científico Universitario */
 .academic-abstract-card {
-  background: rgba(56, 189, 248, 0.05);
-  border: 1px solid rgba(56, 189, 248, 0.25);
-  border-left: 4px solid var(--color-info, #38bdf8);
+  background: var(--color-abstract-soft);
+  border: var(--border-abstract);
+  border-left: 4px solid var(--color-abstract);
   border-radius: 0 8px 8px 0;
   padding: 16px 20px;
   margin: 18px 0 24px 0;
@@ -1555,12 +1642,12 @@ body {
   font-family: var(--font-mono, monospace);
   font-size: 0.80rem;
   font-weight: 700;
-  color: #38bdf8;
+  color: var(--color-abstract);
   text-transform: uppercase;
   letter-spacing: 0.8px;
   margin-bottom: 10px;
   padding-bottom: 6px;
-  border-bottom: 1px dashed rgba(56, 189, 248, 0.2);
+  border-bottom: 1px dashed rgba(163, 217, 79, 0.25);
 }
 
 .academic-abstract-text {
@@ -1571,7 +1658,7 @@ body {
 }
 
 .academic-abstract-text strong {
-  color: #7dd3fc;
+  color: var(--color-abstract);
   font-weight: 600;
 }
 
@@ -2670,112 +2757,7 @@ body {
   border: var(--border-subtle);
 }
 
-.image-selector-header {
-  border-bottom: 1px solid rgba(242, 194, 48, 0.10);
-}
 
-/* History list */
-.history-list-container {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  max-height: 180px;
-  overflow-y: auto;
-}
-
-/* ==========================================================================
-   FORMATO IMPRIMIBLE / PERICIAL DE PLANILLAS OFICIALES (OFICIO VENEZOLANO)
-   Conforme a token 7 de docs/design_tokens.md
-
-   ========================================================================== */
-@media print {
-  @page {
-    size: 216mm 330mm; /* Tamaño Oficio Venezolano */
-    margin: 20mm 15mm 20mm 38mm; /* Margen reglamentario de costura/encuadernación */
-  }
-
-  body {
-    background: #FFFFFF !important;
-    color: #000000 !important;
-    font-family: Arial, sans-serif !important;
-  }
-
-  .no-print, .usa-banner, .top-header, .panel:not(.editor-panel), .editor-actions, .seo-sidebar, .terminal-footer {
-    display: none !important;
-  }
-
-  .app-container {
-    display: block !important;
-    padding: 0 !important;
-    margin: 0 !important;
-    max-width: 100% !important;
-  }
-
-  .editor-panel {
-    background: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    padding: 0 !important;
-  }
-
-  .article-view-container {
-    background: #FFFFFF !important;
-    border: none !important;
-    box-shadow: none !important;
-    color: #1D1D1F !important;
-    max-height: none !important;
-    padding: 0 !important;
-  }
-
-  .header-banner-wrapper {
-    border: 1px solid #999999 !important;
-    margin-bottom: 20px !important;
-  }
-
-  .article-rendered h1 {
-    color: #000000 !important;
-    border-bottom: 2px solid #000000 !important;
-  }
-
-  .article-rendered h2, .article-rendered h3, .article-rendered h4 {
-    color: #1D1D1F !important;
-    background: transparent !important;
-    border-left: 3px solid #000000 !important;
-  }
-
-  .article-rendered p, .article-rendered li {
-    color: #1D1D1F !important;
-  }
-
-  .article-rendered strong {
-    color: #000000 !important;
-    background: transparent !important;
-  }
-
-  .article-rendered a {
-    color: #000000 !important;
-    text-decoration: underline !important;
-  }
-
-  .article-rendered blockquote {
-    border-left: 3px solid #666666 !important;
-    background: #f8f8f8 !important;
-    color: #333333 !important;
-  }
-
-  .article-rendered .mag-body {
-    column-count: 3 !important;
-    column-gap: 18px !important;
-    column-rule: 1px solid #CCCCCC !important;
-    font-size: 9.5pt !important;
-    orphans: 3 !important;
-    widows: 3 !important;
-  }
-
-  .streaming-cursor {
-    display: none !important;
-  }
-}
 
 /* ==========================================================================
    SISTEMA DE NOTIFICACIONES TOAST ANIMADAS (USWDS & Cyber-Legal)
@@ -2887,14 +2869,14 @@ body {
 .history-item {
   padding: 8px 10px;
   background: var(--bg-default);
-  border: 1px solid rgba(138, 104, 0, 0.15);
+  border: var(--border-subtle);
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: all 0.15s ease;
 }
 
 .history-item:hover {
-  background: #FFFFFF;
+  background: var(--bg-hover);
   border-color: var(--color-primary);
   transform: translateX(2px);
   box-shadow: var(--co-shadow-1);
@@ -2961,30 +2943,56 @@ body {
 }
 
 kbd {
-  background: #EFEFEA;
-  border: 1px solid #D0D0C8;
+  background: var(--bg-kbd);
+  border: var(--border-strong);
   border-radius: 4px;
   padding: 2px 6px;
   font-family: var(--font-mono);
   font-size: 0.78rem;
-  box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  box-shadow: inset 0 -1px 0 rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
+}
+
+/* Badges accesibles sobre fondos de acento (oro, verde, lima, advertencia) */
+.badge-on-accent,
+.badge.bg-success,
+.badge.bg-secondary,
+.badge.bg-primary,
+.badge.bg-info,
+.badge.bg-warning {
+  color: var(--text-inverse) !important;
+  font-weight: 700;
 }
 
 /* ==========================================================================
    FORMATO IMPRESO / OFICIO / REVISTA UNIVERSITARIA CIENTÍFICA (@media print)
    ========================================================================== */
 @media print {
+  :root {
+    --print-paper:         #ffffff;
+    --print-ink:           #111827;
+    --print-ink-subtle:    #1f2937;
+    --print-ink-heading:   #0f172a;
+    --print-border:        #cbd5e1;
+    --print-border-strong: #334155;
+    --print-surface:       #f8fafc;
+    --print-surface-alt:   #f1f5f9;
+  }
+
   @page {
-    size: letter portrait;
-    margin: 20mm 15mm 20mm 15mm;
+    size: 216mm 330mm; /* Tamaño Oficio Venezolano Pericial */
+    margin: 20mm 15mm 20mm 30mm; /* Margen reglamentario de encuadernación */
   }
 
   /* Ocultar elementos de UI, navegación, botones, etc. */
   .no-print,
+  .usa-banner,
   .top-header,
   .panel:not(.editor-panel),
   .preview-toolbar,
+  .editor-actions,
+  .seo-sidebar,
+  .terminal-footer,
   .stepper-footer-sticky,
   .live-progress-bar-wrap,
   .shortcuts-modal-overlay,
@@ -2992,14 +3000,15 @@ kbd {
   .toast,
   .toast-container,
   details.schema-block,
-  .seo-audit-floating-pill {
+  .seo-audit-floating-pill,
+  .streaming-cursor {
     display: none !important;
   }
 
   /* Resetear lienzo para impresión */
   html, body {
-    background: #ffffff !important;
-    color: #111827 !important;
+    background: var(--print-paper) !important;
+    color: var(--print-ink) !important;
     font-size: 11pt !important;
     line-height: 1.5 !important;
     height: auto !important;
@@ -3030,17 +3039,22 @@ kbd {
   }
 
   .article-rendered {
-    color: #111827 !important;
+    color: var(--print-ink) !important;
     background: transparent !important;
     box-shadow: none !important;
     padding: 0 !important;
+  }
+
+  .header-banner-wrapper {
+    border: 1pt solid var(--print-border) !important;
+    margin-bottom: 16pt !important;
   }
 
   /* Formato de revista académica impresa */
   .article-rendered h1 {
     font-family: Georgia, 'Times New Roman', serif !important;
     font-size: 20pt !important;
-    color: #0f172a !important;
+    color: var(--print-ink-heading) !important;
     text-align: center !important;
     margin-bottom: 12pt !important;
     page-break-after: avoid;
@@ -3050,8 +3064,8 @@ kbd {
   .article-rendered h2 {
     font-family: Georgia, 'Times New Roman', serif !important;
     font-size: 14pt !important;
-    color: #1e293b !important;
-    border-bottom: 1pt solid #cbd5e1 !important;
+    color: var(--print-ink-heading) !important;
+    border-bottom: 1pt solid var(--print-border) !important;
     padding-bottom: 4pt !important;
     margin-top: 18pt !important;
     margin-bottom: 8pt !important;
@@ -3062,7 +3076,7 @@ kbd {
   .article-rendered h3 {
     font-family: Georgia, 'Times New Roman', serif !important;
     font-size: 12pt !important;
-    color: #334155 !important;
+    color: var(--print-border-strong) !important;
     margin-top: 14pt !important;
     margin-bottom: 6pt !important;
     page-break-after: avoid;
@@ -3075,11 +3089,40 @@ kbd {
     line-height: 1.6 !important;
     text-align: justify !important;
     text-justify: inter-word !important;
-    color: #1f2937 !important;
+    color: var(--print-ink-subtle) !important;
     margin-bottom: 10pt !important;
   }
 
-  /* Tarjetas para impresión */
+  .article-rendered strong {
+    color: var(--print-ink-heading) !important;
+    background: transparent !important;
+    font-weight: 700 !important;
+  }
+
+  .article-rendered a {
+    color: var(--print-ink-heading) !important;
+    text-decoration: underline !important;
+  }
+
+  .article-rendered blockquote {
+    border-left: 3pt solid var(--print-border-strong) !important;
+    background: var(--print-surface) !important;
+    color: var(--print-ink-subtle) !important;
+    padding: 10pt 14pt !important;
+    margin: 12pt 0 !important;
+  }
+
+  /* Modo Revista en Oficio / Impresión */
+  .article-rendered .mag-body {
+    column-count: 2 !important;
+    column-gap: 20pt !important;
+    column-rule: 1pt solid var(--print-border) !important;
+    font-size: 10pt !important;
+    orphans: 3 !important;
+    widows: 3 !important;
+  }
+
+  /* Tarjetas periciales para impresión */
   .meta-description-callout,
   .academic-abstract-card,
   .source-summary-callout,
@@ -3087,10 +3130,10 @@ kbd {
   .faq-section-card,
   .copyright-card,
   .author-bio-card {
-    background: #f8fafc !important;
-    border: 1pt solid #cbd5e1 !important;
-    border-left: 4pt solid #334155 !important;
-    color: #1e293b !important;
+    background: var(--print-surface) !important;
+    border: 1pt solid var(--print-border) !important;
+    border-left: 4pt solid var(--print-border-strong) !important;
+    color: var(--print-ink-subtle) !important;
     box-shadow: none !important;
     page-break-inside: avoid;
     break-inside: avoid;
@@ -3099,7 +3142,7 @@ kbd {
   .academic-abstract-label,
   .source-summary-label,
   .meta-description-label {
-    color: #0f172a !important;
+    color: var(--print-ink-heading) !important;
     font-weight: bold !important;
   }
 
@@ -3124,13 +3167,13 @@ kbd {
   }
 
   table th, table td {
-    border: 1pt solid #cbd5e1 !important;
+    border: 1pt solid var(--print-border) !important;
     padding: 6pt !important;
-    color: #111827 !important;
+    color: var(--print-ink) !important;
   }
 
   table th {
-    background: #f1f5f9 !important;
+    background: var(--print-surface-alt) !important;
     font-weight: bold !important;
   }
 }

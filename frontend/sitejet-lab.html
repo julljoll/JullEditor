@@ -64,16 +64,18 @@
       background: var(--bg-default);
     }
     .test-badge-pass {
-      background: #eef9e8;
-      color: #1a6b1a;
-      border: 1px solid #c6f6d5;
+      background: var(--color-secondary-soft);
+      color: var(--color-secondary);
+      border: var(--border-green);
       padding: 2px 8px;
       border-radius: 12px;
       font-size: 0.72rem;
       font-weight: 700;
     }
+    /* export-only: lienzo blanco que simula el canvas del CMS Sitejet */
     .preview-canvas-card {
       background: #ffffff;
+      color: #222222;
       border: 1px solid var(--border-gold);
       border-radius: var(--radius-card);
       padding: 36px;
@@ -81,7 +83,8 @@
       min-height: 700px;
     }
     .instruction-box {
-      background: #fffbe6;
+      background: var(--color-primary-soft);
+      color: var(--text-primary);
       border-left: 4px solid var(--color-primary);
       padding: 14px 18px;
       margin-bottom: 20px;

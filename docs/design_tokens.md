@@ -48,12 +48,18 @@ Este documento define de forma **exclusiva y taxativa los Tokens de Diseño Ofic
 | `surface.elevated` | `--bg-elevated` | `#181D25` | Tarjetas, inputs, menús desplegables |
 | `surface.hover` | `--bg-hover` | `#1F2530` | Estados interactivos hover |
 | `surface.reading` | `--bg-reading` | `#0F1318` | Lienzo pericial del artículo |
+| `surface.media` | `--bg-media` | `#000000` | Fondo de previsualización de imágenes/cabecera 16:9 |
+| `surface.code` | `--bg-code` | `#0A0D11` | Bloques de código preformateado `<pre>` |
+| `surface.kbd` | `--bg-kbd` | `var(--bg-hover)` | Teclas del modal de atajos de teclado |
 | `text.primary` | `--text-primary` | `#E9ECF1` | Texto principal de lectura y títulos |
 | `text.secondary` | `--text-secondary` | `#A9B1BD` | Etiquetas, subtítulos y metadatos |
 | `text.muted` | `--text-muted` | `#7F8896` | Placeholders y notas secundarias |
+| `text.inverse` | `--text-inverse` | `#0B0E12` | Texto oscuro sobre botones e insignias doradas/verdes |
 | `brand.primary` | `--color-primary` | `#F2C230` | Botones de acción principal, H2, foco |
+| `brand.primary.strong` | `--color-primary-strong` | `#FFD54A` | Gradiente activo de botones primarios |
+| `brand.primary.hover` | `--color-primary-hover` | `#FFE566` | Hover extra-brillante de acción primaria |
 | `brand.secondary` | `--color-secondary` | `#3DD68C` | Títulos H1, validación pericial, online |
-| `brand.info` | `--color-info` | `#A3D94F` | Bloques explicativos, enlaces |
+| `brand.info` | `--color-info` | `#A3D94F` | Bloques explicativos, enlaces, abstract académico |
 | `brand.warning` | `--color-warning` | `#FFB23F` | Advertencias de inferencia |
 | `brand.error` | `--color-error` | `#FF6B5E` | Errores de conexión o sintaxis |
 
