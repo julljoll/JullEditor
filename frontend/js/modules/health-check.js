@@ -42,9 +42,10 @@ export async function checkSystemHealth() {
 
     if (data.status === "online") {
       if (statusDot) statusDot.className = "status-dot online";
-      if (statusText) statusText.innerText = "Ollama Local Activo";
+      const latencyStr = data.latency_ms ? ` (${data.latency_ms}ms)` : "";
+      if (statusText) statusText.innerText = `Ollama Activo${latencyStr}`;
       if (terminalStatus) {
-        terminalStatus.innerText = "ONLINE (CPU)";
+        terminalStatus.innerText = `ONLINE (CPU${latencyStr})`;
         terminalStatus.style.color = "var(--color-secondary)";
       }
       setGraniteVisualStatus("standby", "Granite Listo");

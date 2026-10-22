@@ -6,13 +6,13 @@
 </p>
 
 <p align="center">
+  <img src="https://img.shields.io/badge/Release-v3.0.0_Cyber--Legal-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.0.0" />
   <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3_(2B%20%7C%208B)-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite 3.3" />
   <img src="https://img.shields.io/badge/Runtime-Ollama_CPU_(0ms_Network)-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama CPU" />
   <img src="https://img.shields.io/badge/Backend-FastAPI_Async_SSE-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/UI_Design-Dark_OLED_Cyber--Legal_(USWDS_AAA)-00B4D8?style=for-the-badge" alt="Dark Cyber-Legal UI" />
-  <img src="https://img.shields.io/badge/Tests-48%2F48_PASSED_(100%25)-00FF41?style=for-the-badge&logo=pytest&logoColor=black" alt="Pytest 48/48" />
+  <img src="https://img.shields.io/badge/Tests-57%2F57_PASSED_(100%25)-00FF41?style=for-the-badge&logo=pytest&logoColor=black" alt="Pytest 57/57" />
+  <img src="https://img.shields.io/badge/Cloud-Google_Colab_%7C_Oracle_Cloud-F80000?style=for-the-badge&logo=googlecolab&logoColor=white" alt="Google Colab & Oracle Cloud" />
   <img src="https://img.shields.io/badge/Jurisdicci%C3%B3n-Venezuela_%F0%9F%87%BB%F0%9F%87%AA_%7C_Colombia_%F0%9F%87%A8%F0%9F%87%B4-0055A5?style=for-the-badge" alt="Venezuela & Colombia Legal" />
-  <img src="https://img.shields.io/badge/SEO_%2F_GEO_2026-Schema.org_Dual_(Scholarly_%2B_Tech)-8A6800?style=for-the-badge" alt="SEO & GEO 2026" />
 </p>
 
 ---
@@ -23,11 +23,12 @@
 3. [¿Cómo se utiliza el Proyecto? (Manual Paso a Paso)](#-3-cómo-se-utiliza-el-proyecto-manual-paso-a-paso)
 4. [Especialidades Temáticas y Marco Jurídico Soportado](#-4-especialidades-temáticas-y-marco-jurídico-soportado)
 5. [Atajos de Teclado (Power Users)](#-5-atajos-de-teclado-power-users)
-6. [Requisitos del Sistema e Instalación](#-6-requisitos-del-sistema-e-instalación)
+6. [Requisitos del Sistema e Instalación Local](#-6-requisitos-del-sistema-e-instalación)
 7. [Protocolo de Verificación del Funcionamiento](#-7-protocolo-de-verificación-del-funcionamiento)
 8. [Arquitectura y Estructura del Código](#-8-arquitectura-y-estructura-del-código)
 9. [Laboratorio de Compatibilidad Sitejet Builder](#-9-laboratorio-de-compatibilidad-sitejet-builder)
-10. [Preguntas Frecuentes (FAQ)](#-10-preguntas-frecuentes-faq)
+10. [Despliegue en la Nube (Google Colab & Oracle Cloud)](#-10-despliegue-en-la-nube-google-colab--oracle-cloud)
+11. [Preguntas Frecuentes (FAQ)](#-11-preguntas-frecuentes-faq)
 
 ---
 
@@ -373,7 +374,46 @@ Para validar la perfecta renderización en **Sitejet Builder** (constructor de s
 
 ---
 
-## ❓ 10. Preguntas Frecuentes (FAQ)
+## ☁️ 10. Despliegue en la Nube (Google Colab & Oracle Cloud)
+
+Granite Blog Writer v3.0 está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
+
+### 🚀 Opción A: Google Colab (Ejecución Instantánea con Aceleración GPU)
+Ideal para redacción de alta velocidad sin consumir recursos locales de tu máquina:
+1. Abre el notebook oficial: [`notebooks/granite_blog_colab.ipynb`](notebooks/granite_blog_colab.ipynb) en **Google Colab**.
+2. Selecciona **Entorno de ejecución > Cambiar tipo de entorno de ejecución > GPU T4** (o CPU estándar gratuita).
+3. Ejecuta secuencialmente las celdas guiadas:
+   * **Paso 1:** Instala y levanta el demonio de Ollama en background.
+   * **Paso 2:** Descarga `granite3.3:2b` (ultrarrápido) o `granite3.3:8b` (calidad pericial).
+   * **Paso 3:** Clona el repositorio e instala `requirements-colab.txt`.
+   * **Paso 4 & 5:** Configura variables de entorno y levanta el servidor web con puerto expuesto mediante túnel seguro de Google Colab o Ngrok.
+
+### 🏢 Opción B: Oracle Cloud Infrastructure (Always Free VM con Docker & Nginx)
+Para desplegar un centro pericial accesible 24/7 en una instancia gratuita de Oracle Cloud (Ubuntu 22.04/24.04 LTS en arquitectura x86_64 o ARM Ampere):
+
+```bash
+# 1. Clonar el repositorio en la instancia de Oracle Cloud
+git clone https://github.com/tu-usuario/Creador-de-Articulos-Blog-con-Granite.git /opt/granite-blog
+cd /opt/granite-blog
+
+# 2. Asignar permisos y ejecutar el script automatizado
+chmod +x deploy/oracle/setup.sh
+./deploy/oracle/setup.sh
+```
+
+**Lo que realiza el script automáticamente:**
+* Instala **Docker Engine** y **Docker Compose Plugin**.
+* Abre los puertos necesarios en el cortafuegos `iptables` (**80, 443, 8000**).
+* Levanta el ecosistema contenerizado:
+  * **`granite-ollama`**: Motor de inferencia local persistente.
+  * **`granite-blog-app`**: Servidor FastAPI asíncrono con `requirements-cloud.txt`.
+  * **`granite-nginx`**: Reverse proxy con configuración especial para **Server-Sent Events (SSE) sin buffering**.
+* Descarga y precarga el modelo `granite3.3:8b`.
+* Habilita el servicio de inicio automático del sistema `granite-blog.service` para `systemd`.
+
+---
+
+## ❓ 11. Preguntas Frecuentes (FAQ)
 
 <details>
 <summary><strong>¿Puedo utilizar este sistema totalmente sin conexión a internet?</strong></summary>

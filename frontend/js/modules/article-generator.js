@@ -66,8 +66,8 @@ export function initArticleGenerator(state, callbacks) {
       }
     }
 
-    if (!rawText) {
-      toast.warning("Por favor ingresa o extrae un texto o notas base para redactar el artículo.");
+    if (!rawText || rawText.length < 10) {
+      toast.warning("Por favor ingresa o extrae un texto o notas base de al menos 10 caracteres para redactar el artículo.");
       return;
     }
 
@@ -97,11 +97,11 @@ export function initArticleGenerator(state, callbacks) {
       source_text: rawText,
       source_title: (sourceTitle && sourceTitle.value.trim()) || "",
       source_url: (urlInput && urlInput.value.trim()) || "",
-      source_lang: state.scraperMetadata.source_lang,
-      source_author: state.scraperMetadata.source_author,
-      source_date: state.scraperMetadata.source_date,
-      source_section: state.scraperMetadata.source_section,
-      theme: state.selectedTheme,
+      source_lang: (state.scraperMetadata && state.scraperMetadata.source_lang) || "",
+      source_author: (state.scraperMetadata && state.scraperMetadata.source_author) || "",
+      source_date: (state.scraperMetadata && state.scraperMetadata.source_date) || "",
+      source_section: (state.scraperMetadata && state.scraperMetadata.source_section) || "",
+      theme: state.selectedTheme || "cybersecurity",
       tone: (toneSelect && toneSelect.value) || "conversational",
       target_words: parseInt(wordCountTarget ? wordCountTarget.value : "1000") || 1000,
       custom_instructions: (customInstructions && customInstructions.value.trim()) || "",
@@ -126,7 +126,13 @@ export function initArticleGenerator(state, callbacks) {
         let errDetail = response.statusText;
         try {
           const errData = await response.json();
-          if (errData.detail) errDetail = errData.detail;
+          if (errData.details && Array.isArray(errData.details)) {
+            errDetail = errData.details.map(d => `${d.field}: ${d.message}`).join(" | ");
+          } else if (errData.message) {
+            errDetail = errData.message;
+          } else if (errData.detail) {
+            errDetail = typeof errData.detail === "string" ? errData.detail : JSON.stringify(errData.detail);
+          }
         } catch (_) {}
         throw new Error(`Error ${response.status}: ${errDetail}`);
       }

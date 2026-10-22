@@ -3299,5 +3299,76 @@ kbd {
   }
 }
 
+/* ==========================================================================
+   SKELETON LOADER & UX POLISH v3.0
+   ========================================================================== */
+@keyframes skeleton-pulse {
+  0% { opacity: 0.35; }
+  50% { opacity: 0.75; }
+  100% { opacity: 0.35; }
+}
 
+.skeleton-box {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.04) 25%, rgba(255, 255, 255, 0.08) 50%, rgba(255, 255, 255, 0.04) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-pulse 1.6s ease-in-out infinite;
+  border-radius: 6px;
+}
 
+.skeleton-line {
+  height: 14px;
+  margin-bottom: 12px;
+  border-radius: 4px;
+}
+
+.skeleton-line.short { width: 45%; }
+.skeleton-line.medium { width: 75%; }
+.skeleton-line.long { width: 100%; }
+
+/* Badge de Estado Ollama en Header */
+.ollama-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 12px;
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.3);
+  transition: all 0.25s ease;
+}
+
+.ollama-status-badge.online {
+  border-color: rgba(39, 174, 96, 0.4);
+  color: #2ecc71;
+}
+
+.ollama-status-badge.offline {
+  border-color: rgba(231, 76, 60, 0.4);
+  color: #e74c3c;
+}
+
+.ollama-status-badge.checking {
+  border-color: rgba(243, 156, 18, 0.4);
+  color: #f39c12;
+}
+
+.status-dot-pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 6px currentColor;
+}
+
+/* Accesibilidad: Respeto a usuarios con sensibilidad al movimiento */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}

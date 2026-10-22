@@ -1,7 +1,7 @@
 [project]
 name = "granite-blog-writer"
-version = "2.1.0"
-description = "Generador profesional de artículos de blog con IBM Granite y diseño Cyber-Legal LegalTech"
+version = "3.0.0"
+description = "Generador profesional offline-first de artículos de blog con IBM Granite, análisis de sentencias TSJ, diseño Cyber-Legal LegalTech y despliegue multi-plataforma"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -12,6 +12,7 @@ dependencies = [
     "playwright>=1.47.0",
     "python-dotenv>=1.0.1",
     "pydantic>=2.9.2",
+    "aiofiles>=24.1.0",
 ]
 
 [project.optional-dependencies]

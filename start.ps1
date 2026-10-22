@@ -19,9 +19,11 @@ if (-not (Test-Path ".env")) {
 
 # 1. Localizar Python
 $candidatePaths = @(
+    "$env:LOCALAPPDATA\Python\pythoncore-3.14-64\python.exe",
     (Get-Command py.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1),
     "$env:LOCALAPPDATA\Python\bin\python.exe",
     (Get-Command python.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1),
+    "$env:LOCALAPPDATA\Programs\Python\Python314\python.exe",
     "$env:LOCALAPPDATA\Programs\Python\Python312\python.exe",
     "$env:LOCALAPPDATA\Programs\Python\Python311\python.exe",
     "$env:LOCALAPPDATA\Programs\Python\Python310\python.exe",
@@ -45,6 +47,21 @@ if (-not $pythonCmd) {
 }
 
 Write-Host "[OK] Python detectado: $pythonCmd" -ForegroundColor Green
+
+# 1.1 Diagnóstico de Hardware y Perfil Recomendado
+try {
+    $cpuCount = (Get-CimInstance Win32_Processor -ErrorAction SilentlyContinue | Measure-Object -Property NumberOfLogicalProcessors -Sum).Sum
+    if (-not $cpuCount) { $cpuCount = [Environment]::ProcessorCount }
+    $ramBytes = (Get-CimInstance Win32_ComputerSystem -ErrorAction SilentlyContinue).TotalPhysicalMemory
+    $ramGB = if ($ramBytes) { [math]::Round($ramBytes / 1GB, 1) } else { 8.0 }
+    
+    Write-Host "[HARDWARE] Hilos CPU: $cpuCount | Memoria RAM: ${ramGB} GB" -ForegroundColor Cyan
+    if ($ramGB -lt 8.0) {
+        Write-Host "[RECOMENDACION] RAM < 8GB: Se recomienda usar modelo liviano 'granite3.3:2b'." -ForegroundColor Yellow
+    } else {
+        Write-Host "[RECOMENDACION] RAM >= 8GB: Rendimiento óptimo con 'granite3.3:8b'." -ForegroundColor Green
+    }
+} catch {}
 
 # 2. Localizar Ollama, iniciar servicio (Paso 1) y asegurar modelo granite3.3:8b (Paso 2)
 $ollamaCmd = (Get-Command ollama.exe -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Source -First 1)

@@ -9,17 +9,19 @@ import os
 import json
 import time
 import asyncio
+from contextlib import asynccontextmanager
 import httpx
 from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
 from fastapi.exceptions import RequestValidationError
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 from typing import Optional, List, Dict, Any
 from dotenv import load_dotenv
 
 from backend.logger_config import get_logger
+from backend.system_profiler import detect_system_resources
 from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
 from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
 from backend.scraper import extract_article_from_url, is_safe_url
@@ -53,6 +55,9 @@ DEFAULT_TEMPERATURE = float(os.getenv("TEMPERATURE", "0.2"))
 DEFAULT_JURISDICTION = os.getenv("DEFAULT_JURISDICTION", "auto")
 CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://127.0.0.1:8000,http://localhost:8000").split(",")
 
+# Código de estado 422 agnóstico a versiones de Starlette (evita StarletteDeprecationWarning)
+HTTP_422_UNPROCESSABLE = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
+
 # Semáforo de concurrencia: 1 inferencia activa a la vez para no saturar CPU
 generation_semaphore = asyncio.Semaphore(1)
 active_client: Optional[httpx.AsyncClient] = None
@@ -67,10 +72,41 @@ THEME_TEMPERATURES = {
     "science_tech": 0.3
 }
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Ciclo de vida del servidor: diagnóstico y warmup inicial, cleanup ordenado al apagar."""
+    logger.info("=" * 60)
+    logger.info("Granite Blog Writer v3.0 — Motor Activo (CPU/GPU)")
+    logger.info(f"Ollama URL: {OLLAMA_BASE_URL} | Modelo Predeterminado: {DEFAULT_GRANITE_MODEL}")
+    logger.info(f"Ventana Contexto: {NUM_CTX} | Hilos CPU: {NUM_THREAD}")
+    logger.info("=" * 60)
+    try:
+        async with httpx.AsyncClient(timeout=4.0) as client:
+            resp = await client.get(f"{OLLAMA_BASE_URL}/api/tags")
+            if resp.status_code == 200:
+                tags_data = resp.json()
+                models = [m.get("name") for m in tags_data.get("models", [])]
+                granite_found = [m for m in models if "granite" in m.lower()]
+                if granite_found:
+                    logger.info(f"✅ Conexión con Ollama establecida. Modelos Granite listos: {granite_found}")
+                else:
+                    logger.warning(f"⚠️ Ollama activo pero no tiene modelos Granite instalados: {models}")
+    except Exception as e:
+        logger.warning(f"⚠️ Aviso: Ollama no respondió en {OLLAMA_BASE_URL} durante arranque: {e}")
+    yield
+    global active_client
+    if active_client and not active_client.is_closed:
+        try:
+            await active_client.aclose()
+        except Exception:
+            pass
+    logger.info("Granite Blog Writer v3.0 finalizado correctamente.")
+
 app = FastAPI(
     title="Granite Blog Article Generator API",
     description="Motor local de redacción de artículos con IBM Granite y diseño Cyber-Legal optimizado para CPU, SEO estricto y RAG verificado",
-    version="2.2.0"
+    version="3.0.0",
+    lifespan=lifespan
 )
 
 # Configurar CORS restrictivo y seguro
@@ -89,13 +125,21 @@ app.add_middleware(
 @app.exception_handler(RequestValidationError)
 async def validation_exception_handler(request: Request, exc: RequestValidationError):
     logger.warning(f"Error de validación en {request.url.path}: {exc.errors()}")
+    formatted_errors = [
+        {
+            "field": ".".join(str(x) for x in err.get("loc", [])),
+            "message": err.get("msg", ""),
+            "type": err.get("type", "")
+        }
+        for err in exc.errors()
+    ]
     return JSONResponse(
-        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        status_code=HTTP_422_UNPROCESSABLE,
         content={
             "status": "error",
             "error_type": "ValidationError",
             "message": "Los datos enviados no cumplen con los requisitos de validación.",
-            "details": exc.errors()
+            "details": formatted_errors
         }
     )
 
@@ -120,7 +164,7 @@ class ScrapeRequest(BaseModel):
     url: str = Field(..., max_length=2048, description="URL válida del artículo a extraer")
 
 class GenerateRequest(BaseModel):
-    source_text: str = Field(..., min_length=10, max_length=80000, description="Texto fuente base")
+    source_text: str = Field(..., min_length=10, max_length=120000, description="Texto fuente base")
     source_title: Optional[str] = Field("", max_length=300)
     source_url: Optional[str] = Field("", max_length=2048)
     source_lang: Optional[str] = Field("", max_length=20)
@@ -136,6 +180,40 @@ class GenerateRequest(BaseModel):
     jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | international")
     editorial_mode: Optional[str] = Field("magazine", pattern="^(magazine|classic)$", description="magazine | classic")
     sentencia_metadata: Optional[Dict[str, Any]] = Field(None, description="Metadatos estructurados de sentencia TSJ")
+
+    @field_validator("editorial_mode", mode="before")
+    @classmethod
+    def validate_editorial_mode(cls, v):
+        if v is None or v == "":
+            return "magazine"
+        if v not in ("magazine", "classic"):
+            raise ValueError("editorial_mode debe ser 'magazine' o 'classic'")
+        return v
+
+    @field_validator("source_title", "source_url", "source_lang", "source_author", "source_date", "source_section", "custom_instructions", mode="before")
+    @classmethod
+    def coerce_none_to_empty_str(cls, v):
+        return "" if v is None else str(v)
+
+    @field_validator("target_words", mode="before")
+    @classmethod
+    def clamp_target_words(cls, v):
+        try:
+            val = int(v)
+            return max(300, min(val, 4000))
+        except (ValueError, TypeError):
+            return 1000
+
+    @field_validator("temperature", mode="before")
+    @classmethod
+    def clamp_temperature(cls, v):
+        if v is None:
+            return None
+        try:
+            val = float(v)
+            return max(0.1, min(val, 1.5))
+        except (ValueError, TypeError):
+            return None
 
 class ExtractSentenciaRequest(BaseModel):
     content: str = Field(..., min_length=10, max_length=1000000)
@@ -171,45 +249,81 @@ class SeoAuditRequest(BaseModel):
 @app.get("/api/health")
 async def health_check():
     """
-    Verifica el estado de conexión con Ollama, parámetros de CPU y modelos disponibles.
+    Verifica el estado de conexión con Ollama, latencia, parámetros de CPU y modelos disponibles con auto-reintento.
     """
     queue_busy = generation_semaphore.locked()
-    try:
-        async with httpx.AsyncClient(timeout=4.0) as client:
-            resp = await client.get(f"{OLLAMA_BASE_URL}/api/tags")
-            if resp.status_code == 200:
-                data = resp.json()
-                models = [m.get("name") for m in data.get("models", [])]
-                granite_available = any("granite" in m.lower() for m in models)
-                return {
-                    "status": "online",
-                    "ollama_url": OLLAMA_BASE_URL,
-                    "models": models,
-                    "granite_installed": granite_available,
-                    "default_model": DEFAULT_GRANITE_MODEL,
-                    "fast_model": FAST_MODEL,
-                    "num_ctx": NUM_CTX,
-                    "num_thread": NUM_THREAD,
-                    "keep_alive": KEEP_ALIVE,
-                    "queue_busy": queue_busy,
-                    "jurisdiction": DEFAULT_JURISDICTION
-                }
-    except Exception as e:
-        logger.warning(f"Health check: no se pudo conectar a Ollama: {e}")
-        return {
-            "status": "offline",
-            "error": f"No se pudo conectar a Ollama en {OLLAMA_BASE_URL}.",
-            "details": str(e),
-            "granite_installed": False,
-            "default_model": DEFAULT_GRANITE_MODEL,
+    start_time = time.time()
+    last_err = None
+
+    for attempt in range(2):
+        try:
+            async with httpx.AsyncClient(timeout=3.5) as client:
+                resp = await client.get(f"{OLLAMA_BASE_URL}/api/tags")
+                if resp.status_code == 200:
+                    latency_ms = round((time.time() - start_time) * 1000)
+                    data = resp.json()
+                    models = [m.get("name") for m in data.get("models", [])]
+                    granite_available = any("granite" in m.lower() for m in models)
+                    return {
+                        "status": "online",
+                        "ollama_url": OLLAMA_BASE_URL,
+                        "models": models,
+                        "granite_installed": granite_available,
+                        "default_model": DEFAULT_GRANITE_MODEL,
+                        "fast_model": FAST_MODEL,
+                        "num_ctx": NUM_CTX,
+                        "num_thread": NUM_THREAD,
+                        "keep_alive": KEEP_ALIVE,
+                        "queue_busy": queue_busy,
+                        "jurisdiction": DEFAULT_JURISDICTION,
+                        "latency_ms": latency_ms,
+                        "version": "3.0.0"
+                    }
+        except Exception as e:
+            last_err = e
+            if attempt == 0:
+                await asyncio.sleep(0.3)
+                continue
+
+    logger.warning(f"Health check: no se pudo conectar a Ollama tras reintento: {last_err}")
+    return {
+        "status": "offline",
+        "error": f"No se pudo conectar a Ollama en {OLLAMA_BASE_URL}.",
+        "details": str(last_err),
+        "granite_installed": False,
+        "default_model": DEFAULT_GRANITE_MODEL,
+        "fast_model": FAST_MODEL,
+        "num_ctx": NUM_CTX,
+        "num_thread": NUM_THREAD,
+        "keep_alive": KEEP_ALIVE,
+        "queue_busy": queue_busy,
+        "jurisdiction": DEFAULT_JURISDICTION,
+        "latency_ms": round((time.time() - start_time) * 1000),
+        "version": "3.0.0",
+        "models": []
+    }
+
+@app.get("/api/system-info")
+async def system_info_endpoint():
+    """
+    Retorna el diagnóstico automático de hardware del sistema (CPU, RAM, OS)
+    y la configuración recomendada vs la activa para IBM Granite.
+    """
+    res = detect_system_resources()
+    return {
+        "status": "success",
+        "system": res,
+        "active_config": {
+            "model": DEFAULT_GRANITE_MODEL,
             "fast_model": FAST_MODEL,
             "num_ctx": NUM_CTX,
             "num_thread": NUM_THREAD,
-            "keep_alive": KEEP_ALIVE,
-            "queue_busy": queue_busy,
+            "max_tokens": MAX_TOKENS,
+            "temperature": DEFAULT_TEMPERATURE,
             "jurisdiction": DEFAULT_JURISDICTION,
-            "models": []
+            "keep_alive": KEEP_ALIVE
         }
+    }
 
 @app.get("/api/models")
 async def list_models():
@@ -536,8 +650,9 @@ async def generate_article_stream(req: GenerateRequest, request: Request):
 
     async def event_generator():
         global active_client
+        timeout_cfg = httpx.Timeout(timeout=600.0, connect=10.0, read=300.0, write=30.0)
         async with generation_semaphore:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(400.0, connect=10.0)) as client:
+            async with httpx.AsyncClient(timeout=timeout_cfg) as client:
                 active_client = client
                 try:
                     async with client.stream(
