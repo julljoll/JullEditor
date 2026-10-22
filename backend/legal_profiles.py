@@ -116,6 +116,14 @@ GLOSSARY: Dict[str, List[Dict[str, Any]]] = {
         _t("SENIAT", "Servicio Nacional Integrado de Administración Aduanera y Tributaria.", "tributo impuesto seniat fiscal"),
         _t("INPREABOGADO", "Instituto de Previsión Social del Abogado, cuyo número identifica al profesional.", "abogado matrícula inpreabogado ejercicio"),
         _t("fraude procesal", "Maquinación o artificio para engañar al juez y perjudicar a un tercero.", "fraude proceso engaño"),
+        _t("mismidad de la evidencia digital", "Principio pericial que exige demostrar que la prueba electrónica presentada en juicio es idéntica e inalterada respecto a la colectada en el sitio del suceso.", "mismidad evidencia digital forense integridad autenticidad hash"),
+        _t("hash criptográfico / algoritmo de integridad", "Función matemática unidireccional (SHA-256 / SHA-3) que genera una huella digital única para garantizar la indemnidad del archivo o imagen forense.", "hash sha256 sha3 md5 integridad firma digital huella forense"),
+        _t("imagen forense bit a bit", "Copia idéntica física y lógica del soporte de almacenamiento digital realizada sin alterar la fuente original.", "imagen forense bit clonación adquisición evidencia soporte"),
+        _t("Manual Único de Cadena de Custodia (2017)", "Instrumento normativo obligatorio dictado por el Ministerio Público y el CICPC para fijar, colectar, embalar y trasladar evidencias físicas y digitales.", "manual cadena custodia evidencia cicpc ministerio público resolución"),
+        _t("CENIF (Centro Nacional de Informática Forense)", "Órgano oficial pericial creado en Gaceta Oficial Nº 39.847 para experticias digitales de alta complejidad en Venezuela.", "cenif forense peritaje informático centro nacional gaceta 39847"),
+        _t("SUSCERTE", "Superintendencia de Servicios de Certificación Electrónica, autoridad nacional en materia de firmas electrónicas y seguridad informática.", "suscerte certificación electrónica firma digital vencert seguridad"),
+        _t("equivalencia funcional", "Principio de la Ley sobre Mensajes de Datos que confiere al documento electrónico el mismo valor probatorio que al soporte en papel.", "equivalencia funcional mensaje datos firma electrónica valor probatorio"),
+        _t("ISO/IEC 27037", "Estándar internacional de referencia para la identificación, recolección, adquisición y preservación de evidencia digital.", "iso 27037 estándar evidencia digital preservación adquisición"),
     ],
     "co": [
         _t("acción de tutela", "Mecanismo preferente y sumario para la protección inmediata de derechos fundamentales (art. 86 C.P.).", "tutela derechos fundamentales amparo", "No llamarla 'recurso de amparo': es el término de otros países."),
@@ -188,6 +196,26 @@ DISCLAIMER_PATTERN = re.compile(r"no constituye (?:asesor[ií]a|consejo) (?:lega
 # ------------------------------------------------------------------------------
 
 PERSONAS: Dict[str, Dict[str, Any]] = {
+    "revista_cientifica_law_tech": {
+        "jurisdiction": "ve",
+        "label": "Revista Científica Arbitrada (Derecho & Computación Forense — Nivel Universidad)",
+        "register": (
+            "Académico-forense, doctoral y de máxima precisión dogmática. "
+            "Español formal venezolano culto con terminología científica e informática bilingüe. "
+            "Uso de tercera persona o plural de modestia ('concluimos en este estudio'). "
+            "Cero modismos coloquiales ni lenguaje de marketing."
+        ),
+        "formulas": [
+            "a tenor de lo previsto en la legislación venezolana",
+            "de conformidad con el estándar internacional ISO/IEC 27037",
+            "en observancia del Manual Único de Cadena de Custodia de Evidencias Físicas",
+            "a la luz de la doctrina pacífica de la Sala Constitucional del Tribunal Supremo de Justicia",
+            "desde la perspectiva dogmática y pericial forense",
+            "el mensaje de datos analizado ostenta plena eficacia probatoria a tenor de la ley",
+            "preservando el principio de mismidad y cotejo de hash criptográfico SHA-256",
+        ],
+        "structure": "academic_law_tech_review",
+    },
     "abogado_ve_doctrinal": {
         "jurisdiction": "ve",
         "label": "Abogado Venezolano — Doctrinal",
@@ -240,6 +268,22 @@ PERSONAS: Dict[str, Dict[str, Any]] = {
 }
 
 _STRUCTURES = {
+    "academic_law_tech_review": (
+        "Estructura formal de Revista Científica Arbitrada (Law & Tech Review): "
+        "1) Título formal bilingüe (Español / Inglés); "
+        "2) Abstract estructurado bilingüe (Problema, Metodología, Hallazgos, Conclusiones) + Descriptores/Keywords; "
+        "3) Párrafo Answer-First (40-60 palabras) para motores de IA; "
+        "4) Cajas ejecutivas de síntesis pericial y de la fuente original; "
+        "5) Introducción y Estado del Arte; "
+        "6) Marco Normativo Positivo Venezolano (CRBV, Delitos Informáticos, Mensajes de Datos, Infogobierno); "
+        "7) Discusión Técnico-Forense e Informática (RFC 3227, ISO/IEC 27037, hash SHA-256, Cadena de Custodia MP/CICPC); "
+        "8) Análisis Jurisprudencial del TSJ o Contratación Electrónica; "
+        "9) Compatibilidad y Viabilidad Tecnológica en Venezuela (CNTI, SUSCERTE); "
+        "10) Conclusiones y Dictamen Deontológico; "
+        "11) FAQ Jurídico-Técnico de 3 preguntas; "
+        "12) Referencias Bibliográficas y Normativas en Normas APA 7ª Edición / ISO 690; "
+        "13) Doble bloque Schema.org (ScholarlyArticle + FAQPage)."
+    ),
     "ird": (
         "Razona como un abogado (IRAC en español): 1) Cuestión jurídica en una frase; "
         "2) Marco normativo (norma + artículo + vigencia); 3) Criterio jurisprudencial SOLO si consta en el contexto; "

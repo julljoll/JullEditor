@@ -8,34 +8,27 @@
   <meta name="keywords" content="IBM Granite, Ciberseguridad, Derecho Digital, Legislación Venezolana, Inteligencia Artificial, SEO, Artículos de Blog">
   <meta name="author" content="SHA256.US Cyber-Legal Blueprint">
   
-  <!-- Metadatos de Caché y Accesibilidad -->
+  <!-- Metadatos de Caché y Accesibilidad Dark-Only -->
+  <meta name="color-scheme" content="dark">
+  <meta name="theme-color" content="#0B0E12">
   <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
   <meta http-equiv="Pragma" content="no-cache" />
   <meta http-equiv="Expires" content="0" />
   <link rel="icon" href="favicon.svg" type="image/svg+xml" />
   <link rel="manifest" href="manifest.json" />
   
-  <!-- Google Material Symbols Outlined -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
+  <!-- Fuentes e Iconos Locales Offline-First (Sin peticiones CDN externas) -->
+  <link rel="stylesheet" href="css/fonts.css">
   
   <!-- Bootstrap 5.3 Framework (Local Offline-First) -->
   <link rel="stylesheet" href="css/bootstrap.min.css">
 
-  <!-- USWDS Cyber-Legal Stylesheet Light Mode — Cache-Busting v9.1 -->
-  <link rel="stylesheet" href="css/style.css?v=9.1">
+  <!-- USWDS Cyber-Legal Stylesheet Dark-Only — Cache-Busting v10.1 -->
+  <link rel="stylesheet" href="css/style.css?v=10.1">
 </head>
 <body>
 
-  <!-- USWDS Official Banner (Identificador de Sistema Oficial) -->
-  <div class="usa-banner no-print">
-    <div class="usa-banner-content">
-      <span class="usa-banner-flag">🇻🇪</span>
-      <span>SISTEMA OFICIAL DE REDACCIÓN EDITORIAL Y LEGALTECH VENEZUELA · CONFORME A USWDS WCAG 2.1 AA/AAA</span>
-    </div>
-    <span class="usa-banner-badge">OFICIAL · CPU LOCAL</span>
-  </div>
-
-  <!-- Encabezado Superior -->
+  <!-- Encabezado Superior Unificado (56px, Sticky, Blur, No-Print) -->
   <header class="top-header no-print">
     <div class="brand-container">
       <div class="brand-icon">
@@ -45,7 +38,7 @@
         <h1>
           GRANITE BLOG WRITER 
           <span class="brand-badge">LOCAL CPU</span>
-          <span class="brand-badge-flag">🇻🇪 VENEZUELA</span>
+          <span class="brand-badge-flag" title="SISTEMA OFICIAL DE REDACCIÓN EDITORIAL Y LEGALTECH VENEZUELA · CONFORME A USWDS WCAG 2.1 AA/AAA">🇻🇪 VENEZUELA</span>
         </h1>
         <p class="brand-subtitle">Redacción Editorial · SEO Estricto · Ciberseguridad · IA · Delitos Informáticos & Infogobierno</p>
       </div>
@@ -68,272 +61,370 @@
   <!-- Contenedor Principal de 3 Columnas -->
   <main class="app-container">
 
-    <!-- COLUMNA 1: Panel de Control & Configuración -->
-    <aside class="panel no-print">
-      <div class="panel-header">
+    <!-- COLUMNA 1: Panel de Control & Configuración (Stepper de 4 Pasos Guiados) -->
+    <aside class="panel no-print" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+      <div class="panel-header" style="flex-shrink: 0;">
         <span class="panel-title">
           <span class="material-symbols-outlined">tune</span> Parámetros Editoriales
         </span>
       </div>
 
-      <!-- Selector de Modo de Ingesta (Offline-First Docling / Texto / URL) -->
-      <div class="ingest-tabs no-print">
-        <button type="button" class="ingest-tab active" data-mode="docling" id="tabDocling">
-          <span class="material-symbols-outlined">description</span> Docling (.MD / JSON)
-        </button>
-        <button type="button" class="ingest-tab" data-mode="text" id="tabText">
-          <span class="material-symbols-outlined">edit_note</span> Pegar Texto
-        </button>
-        <button type="button" class="ingest-tab" data-mode="url" id="tabUrl">
-          <span class="material-symbols-outlined">link</span> Enlace URL
-        </button>
-      </div>
+      <div class="steps-container" style="flex: 1; overflow-y: auto; padding-right: 2px;">
 
-      <!-- Modo 1: Subir Archivo Docling .MD / .JSON (100% Offline) -->
-      <div id="doclingUploadSection" class="form-group">
-        <label class="form-label" for="fileDoclingInput">
-          1. Subir Archivo .MD / .JSON desde Docling
-          <span class="badge-offline">OFFLINE 0ms</span>
-        </label>
-        
-        <input type="file" id="fileDoclingInput" accept=".md,.markdown,.txt,.json" multiple class="d-none" style="display: none;" />
-        <label for="fileDoclingInput" id="doclingDropzone" class="docling-dropzone" tabindex="0" role="button" aria-label="Zona para subir archivos Markdown y JSON de Docling">
-          <div class="dropzone-content">
-            <span class="material-symbols-outlined dropzone-icon">upload_file</span>
-            <div class="dropzone-text">
-              <strong>Arrastra tus archivos .md y .json de Docling</strong>
-              <span>o selecciónalos juntos en tu explorador</span>
+        <!-- PASO 1: Fuente de Origen -->
+        <section class="step" id="step1">
+          <button type="button" class="step-header-btn" aria-expanded="true" aria-controls="step1Body">
+            <span class="step-num">①</span>
+            <span class="step-title">Fuente de Origen</span>
+            <span id="step1Check" class="material-symbols-outlined step-check">circle</span>
+          </button>
+          
+          <div class="step-body" id="step1Body">
+            <!-- Selector de Modo de Ingesta (Offline-First Docling / Texto / URL) -->
+            <div class="ingest-tabs no-print">
+              <button type="button" class="ingest-tab active" data-mode="docling" id="tabDocling">
+                <span class="material-symbols-outlined">description</span> Docling (.MD)
+              </button>
+              <button type="button" class="ingest-tab" data-mode="text" id="tabText">
+                <span class="material-symbols-outlined">edit_note</span> Pegar Texto
+              </button>
+              <button type="button" class="ingest-tab" data-mode="url" id="tabUrl">
+                <span class="material-symbols-outlined">link</span> Enlace URL
+              </button>
             </div>
-          </div>
-        </label>
 
-        <!-- Barra de Progreso de Subida / Parseo -->
-        <div id="doclingProgress" class="docling-progress" style="display: none;">
-          <div class="d-flex justify-content-between align-items-center mb-1">
-            <span id="doclingProgressText" class="progress-text">
-              <span class="spinner-border spinner-border-sm text-success me-2" role="status"></span>
-              Leyendo y procesando archivos...
-            </span>
-            <span id="doclingProgressPercent" class="progress-percent font-monospace">0%</span>
-          </div>
-          <div class="progress" style="height: 6px; background-color: rgba(138, 104, 0, 0.15);">
-            <div id="doclingProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%"></div>
-          </div>
-        </div>
+            <!-- Modo 1: Subir Archivo Docling .MD / .JSON (100% Offline) -->
+            <div id="doclingUploadSection" class="form-group mb-2">
+              <label class="form-label" for="fileDoclingInput">
+                Subir Archivo .MD / .JSON desde Docling
+                <span class="badge-offline">OFFLINE 0ms</span>
+              </label>
+              
+              <input type="file" id="fileDoclingInput" accept=".md,.markdown,.txt,.json" multiple class="d-none" style="display: none;" />
+              <label for="fileDoclingInput" id="doclingDropzone" class="docling-dropzone" tabindex="0" role="button" aria-label="Zona para subir archivos Markdown y JSON de Docling">
+                <div class="dropzone-content">
+                  <span class="material-symbols-outlined dropzone-icon">upload_file</span>
+                  <div class="dropzone-text">
+                    <strong>Arrastra tus archivos .md y .json de Docling</strong>
+                    <span>o selecciónalos juntos en tu explorador</span>
+                  </div>
+                </div>
+              </label>
 
-        <!-- Tarjeta de Archivos Cargados con Éxito en RAG -->
-        <div id="doclingFileChip" class="docling-file-chip" style="display: none;">
-          <div class="file-chip-info">
-            <span class="material-symbols-outlined file-chip-icon">task_alt</span>
-            <div>
-              <div class="d-flex align-items-center gap-2 flex-wrap">
-                <span id="doclingFileName" class="file-chip-name">archivo.md + archivo.json</span>
-                <span class="badge bg-success text-white" style="font-size: 0.65rem;">✓ IMPORTADO EN RAG</span>
+              <!-- Barra de Progreso de Subida / Parseo -->
+              <div id="doclingProgress" class="docling-progress" style="display: none;">
+                <div class="d-flex justify-content-between align-items-center mb-1">
+                  <span id="doclingProgressText" class="progress-text">
+                    <span class="spinner-border spinner-border-sm text-success me-2" role="status"></span>
+                    Leyendo y procesando archivos...
+                  </span>
+                  <span id="doclingProgressPercent" class="progress-percent font-monospace">0%</span>
+                </div>
+                <div class="progress" style="height: 6px; background-color: rgba(242, 194, 48, 0.15);">
+                  <div id="doclingProgressBar" class="progress-bar progress-bar-striped progress-bar-animated bg-success" role="progressbar" style="width: 0%"></div>
+                </div>
               </div>
-              <span id="doclingFileMeta" class="file-chip-meta">0 palabras · Listo para Granite</span>
+
+              <!-- Tarjeta de Archivos Cargados con Éxito en RAG -->
+              <div id="doclingFileChip" class="docling-file-chip" style="display: none;">
+                <div class="file-chip-info">
+                  <span class="material-symbols-outlined file-chip-icon">task_alt</span>
+                  <div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                      <span id="doclingFileName" class="file-chip-name">archivo.md + archivo.json</span>
+                      <span class="badge bg-success text-white" style="font-size: 0.65rem;">✓ IMPORTADO EN RAG</span>
+                    </div>
+                    <span id="doclingFileMeta" class="file-chip-meta">0 palabras · Listo para Granite</span>
+                  </div>
+                </div>
+                <button type="button" id="btnRemoveDoclingFile" class="file-chip-remove" title="Quitar archivos y seleccionar otros">
+                  <span class="material-symbols-outlined">close</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Modo 2: Extracción por URL Externa (Modo Online Opcional) -->
+            <div id="urlSection" class="form-group mb-2" style="display: none;">
+              <label class="form-label" for="urlInput">Enlace de Artículo Externo (Requiere Internet)</label>
+              <div style="display: flex; gap: 6px;">
+                <input type="url" id="urlInput" class="input-text" placeholder="https://sitio.com/noticia-o-articulo" />
+                <button id="btnScrape" class="btn btn-secondary btn-sm" title="Extraer texto del enlace">
+                  <span class="material-symbols-outlined">download</span> Extraer
+                </button>
+              </div>
+            </div>
+
+            <!-- Título y Texto Fuente -->
+            <div class="form-group mb-2">
+              <label class="form-label" for="sourceTitle">Título Detectado / Tema</label>
+              <input type="text" id="sourceTitle" class="input-text" placeholder="Ej: Nueva Regulación de Inteligencia Artificial y Delitos Informáticos" />
+            </div>
+
+            <div class="form-group mb-1">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label mb-0" for="sourceText">Texto Fuente / Notas Base</label>
+                <span id="sourceWordCount" class="font-monospace text-muted" style="font-size: 0.72rem;">0 palabras (50 mínimas)</span>
+              </div>
+              <textarea id="sourceText" class="textarea-custom" rows="5" placeholder="Pega aquí el contenido extraído o escribe tus notas..."></textarea>
             </div>
           </div>
-          <button type="button" id="btnRemoveDoclingFile" class="file-chip-remove" title="Quitar archivos y seleccionar otros">
-            <span class="material-symbols-outlined">close</span>
+        </section>
+
+        <!-- PASO 2: Enfoque & Tono -->
+        <section class="step" id="step2">
+          <button type="button" class="step-header-btn" aria-expanded="true" aria-controls="step2Body">
+            <span class="step-num">②</span>
+            <span class="step-title">Enfoque & Tono</span>
+            <span id="step2Check" class="material-symbols-outlined step-check step-done">check_circle</span>
           </button>
-        </div>
-      </div>
 
-      <!-- Modo 2: Extracción por URL Externa (Modo Online) -->
-      <div id="urlSection" class="form-group" style="display: none;">
-        <label class="form-label" for="urlInput">1. Enlace de Artículo Externo (Requiere Internet)</label>
-        <div style="display: flex; gap: 6px;">
-          <input type="url" id="urlInput" class="input-text" placeholder="https://sitio.com/noticia-o-articulo" />
-          <button id="btnScrape" class="btn btn-secondary btn-sm" title="Extraer texto del enlace">
-            <span class="material-symbols-outlined">download</span> Extraer
+          <div class="step-body" id="step2Body">
+            <!-- Especialidad Temática -->
+            <div class="form-group mb-2">
+              <label class="form-label">Especialidad Temática</label>
+              <div class="theme-grid">
+                <div class="theme-pill" data-theme="cybersecurity">
+                  <span class="material-symbols-outlined">shield_lock</span>
+                  <span>Ciberseguridad</span>
+                </div>
+                <div class="theme-pill" data-theme="ai_data">
+                  <span class="material-symbols-outlined">psychology</span>
+                  <span>IA & Datos</span>
+                </div>
+                <div class="theme-pill active" data-theme="legal_tech">
+                  <span class="material-symbols-outlined">gavel</span>
+                  <span>Derecho Digital</span>
+                </div>
+                <div class="theme-pill" data-theme="forensic_law" title="Informática Forense, Evidencias Digitales, Sentencias TSJ y Contratos">
+                  <span class="material-symbols-outlined">fingerprint</span>
+                  <span>Forense & TSJ</span>
+                </div>
+                <div class="theme-pill" data-theme="science_tech">
+                  <span class="material-symbols-outlined">biotech</span>
+                  <span>Ciencia & Tech</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Control Segmentado Visual de Modo Editorial (Gutenberg / CMS) -->
+            <div class="form-group mb-2">
+              <label class="form-label">Estilo Editorial (Gutenberg / CMS)</label>
+              <div class="segmented-control" role="radiogroup" aria-label="Estilo Editorial">
+                <button type="button" id="segmentModeMagazine" class="segment-btn active" role="radio" aria-checked="true">📰 Revista (3 Col.)</button>
+                <button type="button" id="segmentModeClassic" class="segment-btn" role="radio" aria-checked="false">📝 Clásico</button>
+              </div>
+              <!-- Select oculto sincronizado para compatibilidad con módulos JS -->
+              <select id="editorialMode" class="visually-hidden">
+                <option value="magazine" selected>📰 Revista Digital (Interpretativo-Explicativo 2026)</option>
+                <option value="classic">📝 Resumen Clásico Fiel (Síntesis Directa)</option>
+              </select>
+            </div>
+
+            <!-- Perfil de Voz / Tono -->
+            <div class="form-group mb-2">
+              <label class="form-label" for="toneSelect">Perfil de Voz / Tono</label>
+              <select id="toneSelect" class="select-custom">
+                <optgroup label="🎓 Nivel Universitario & Revista Arbitrada">
+                  <option value="revista_cientifica_law_tech">🎓 Revista Científica Arbitrada (Derecho & Computación Forense — Nivel Universidad)</option>
+                </optgroup>
+                <optgroup label="⚖️ Abogado Venezuela">
+                  <option value="abogado_ve_doctrinal" selected>Abogado VE — Doctrinal (Forense / TSJ · Recomendado 2026)</option>
+                  <option value="abogado_ve_litigante">Abogado VE — Litigante (Ruta Procesal / Lapsos)</option>
+                  <option value="abogado_ve_explicativo">Abogado VE — Explicativo (Claro / Divulgación)</option>
+                  <option value="jull">Jull (Venezolano Técnico-Científico)</option>
+                  <option value="jull_explicativo">Jull (Venezolano Explicativo)</option>
+                </optgroup>
+                <optgroup label="⚖️ Abogado Colombia">
+                  <option value="abogado_co_doctrinal">Abogado CO — Doctrinal (Precedente / Corte Const.)</option>
+                  <option value="abogado_co_litigante">Abogado CO — Litigante (Tutela / Términos)</option>
+                  <option value="abogado_co_explicativo">Abogado CO — Explicativo (Habeas Data / Ciudadano)</option>
+                </optgroup>
+                <optgroup label="🌐 Corporativo y General">
+                  <option value="consultor_corporativo">Consultor Jurídico Corporativo (Compliance / Riesgos)</option>
+                  <option value="conversational">Conversacional Ágil</option>
+                  <option value="analytical">Analítico Pericial</option>
+                  <option value="didactic">Didáctico / Pedagógico</option>
+                  <option value="executive">Ejecutivo / Directivo</option>
+
+                </optgroup>
+              </select>
+            </div>
+
+            <!-- Jurisdicción / Enfoque Normativo -->
+            <div class="form-group mb-1">
+              <label class="form-label" for="jurisdictionSelect">Jurisdicción / Enfoque Normativo</label>
+              <select id="jurisdictionSelect" class="select-custom">
+                <option value="auto" selected>Auto (Detectar por fuente y notas)</option>
+                <option value="venezuela">🇻🇪 Venezuela (CRBV, Delitos Inf., Infogobierno)</option>
+                <option value="colombia">🇨🇴 Colombia (C.P. 1991, Ley 1273, Ley 1581 Datos)</option>
+                <option value="international">🌐 Internacional / Global (ISO, NIST, UE)</option>
+              </select>
+            </div>
+          </div>
+        </section>
+
+        <!-- PASO 3: Ajustes Avanzados (Colapsado por defecto) -->
+        <section class="step collapsed" id="step3">
+          <button type="button" class="step-header-btn" aria-expanded="false" aria-controls="step3Body">
+            <span class="step-num">③</span>
+            <span class="step-title">Ajustes Avanzados</span>
+            <span class="material-symbols-outlined step-chevron">expand_more</span>
           </button>
-        </div>
-      </div>
 
-      <!-- Título y Texto Extraído -->
-      <div class="form-group">
-        <label class="form-label" for="sourceTitle">Título Detectado / Tema</label>
-        <input type="text" id="sourceTitle" class="input-text" placeholder="Ej: Nueva Regulación de Inteligencia Artificial y Delitos Informáticos" />
-      </div>
+          <div class="step-body" id="step3Body">
+            <!-- Extensión y Modelo -->
+            <div class="form-group mb-2">
+              <label class="form-label" for="wordCountTarget">Objetivo de Extensión</label>
+              <select id="wordCountTarget" class="select-custom">
+                <option value="600">Corto (~600 pal.)</option>
+                <option value="1000" selected>Pilar SEO (~1000 pal. · Recomendado 2026)</option>
+                <option value="1500">Largo (~1500 pal.)</option>
+                <option value="2000">Pilar Extenso (~2000 pal.)</option>
+              </select>
+            </div>
 
-      <div class="form-group">
-        <label class="form-label" for="sourceText">Texto Fuente / Notas Base</label>
-        <textarea id="sourceText" class="textarea-custom" placeholder="Pega aquí el contenido extraído o escribe tus notas..."></textarea>
-      </div>
+            <div class="form-group mb-2">
+              <label class="form-label" for="modelSelect">Modelo Ollama Local</label>
+              <select id="modelSelect" class="select-custom">
+                <option value="granite3.3:8b">granite3.3:8b (Recomendado 16GB)</option>
+                <option value="granite3.3:2b">granite3.3:2b (Rápido CPU)</option>
+              </select>
+            </div>
 
-      <!-- Selector de Temas -->
-      <div class="form-group">
-        <label class="form-label">2. Especialidad Temática (Adaptada a Venezuela)</label>
-        <div class="theme-grid">
-          <div class="theme-pill" data-theme="cybersecurity">
-            <span class="material-symbols-outlined">shield_lock</span>
-            <span>Ciberseguridad</span>
+            <!-- Temperatura Dinámica Anti-Alucinación -->
+            <div class="form-group mb-2">
+              <div class="d-flex justify-content-between align-items-center mb-1">
+                <label class="form-label mb-0" for="tempSlider">Temperatura (Fidelidad / Anti-Alucinación)</label>
+                <span id="tempValueLabel" class="font-monospace" style="font-size:0.75rem; color:var(--color-secondary); font-weight:700;">0.2 (Rigor Factual)</span>
+              </div>
+              <input type="range" id="tempSlider" min="0.05" max="1.0" step="0.05" value="0.2" class="form-range" style="width: 100%; accent-color: var(--color-primary);" />
+            </div>
+
+            <div class="form-group mb-1">
+              <label class="form-label" for="customInstructions">Instrucciones Personalizadas (Opcional)</label>
+              <input type="text" id="customInstructions" class="input-text" placeholder="Ej: Responder intención de búsqueda, incluir ejemplos prácticos y citar normativa vigente" />
+            </div>
           </div>
-          <div class="theme-pill" data-theme="ai_data">
-            <span class="material-symbols-outlined">psychology</span>
-            <span>IA & Datos</span>
+        </section>
+
+        <!-- PASO 4: Historial de Artículos RAG (Colapsado) -->
+        <section class="step collapsed" id="step4">
+          <button type="button" class="step-header-btn" aria-expanded="false" aria-controls="step4Body">
+            <span class="step-num">④</span>
+            <span class="step-title">Historial RAG</span>
+            <span class="material-symbols-outlined step-chevron">expand_more</span>
+          </button>
+
+          <div class="step-body" id="step4Body">
+            <div class="d-flex justify-content-between align-items-center mb-2">
+              <span style="font-size: 0.78rem; color: var(--text-secondary);">Artículos en RAG/articulos/</span>
+              <button type="button" id="btnRefreshHistory" class="btn btn-sm btn-outline py-0 px-2" title="Refrescar historial" style="font-size:0.75rem;">
+                <span class="material-symbols-outlined" style="font-size:0.9rem;">refresh</span>
+              </button>
+            </div>
+            <div id="articlesHistoryList" class="history-list-container">
+              <!-- Poblado dinámicamente por article-history.js -->
+            </div>
           </div>
-          <div class="theme-pill active" data-theme="legal_tech">
-            <span class="material-symbols-outlined">gavel</span>
-            <span>Derecho Digital</span>
-          </div>
-          <div class="theme-pill" data-theme="science_tech">
-            <span class="material-symbols-outlined">biotech</span>
-            <span>Ciencia & Tech</span>
-          </div>
-        </div>
+        </section>
+
       </div>
 
-      <!-- Tono y Extensión -->
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-        <div class="form-group">
-          <label class="form-label" for="toneSelect">Perfil de Voz / Tono</label>
-          <select id="toneSelect" class="select-custom">
-            <optgroup label="⚖️ Abogado Venezuela">
-              <option value="abogado_ve_doctrinal" selected>Abogado VE — Doctrinal (Forense / TSJ · Recomendado 2026)</option>
-              <option value="abogado_ve_litigante">Abogado VE — Litigante (Ruta Procesal / Lapsos)</option>
-              <option value="abogado_ve_explicativo">Abogado VE — Explicativo (Claro / Divulgación)</option>
-              <option value="jull">Jull (Venezolano Técnico-Científico)</option>
-              <option value="jull_explicativo">Jull (Venezolano Explicativo)</option>
-            </optgroup>
-            <optgroup label="⚖️ Abogado Colombia">
-              <option value="abogado_co_doctrinal">Abogado CO — Doctrinal (Precedente / Corte Const.)</option>
-              <option value="abogado_co_litigante">Abogado CO — Litigante (Tutela / Términos)</option>
-              <option value="abogado_co_explicativo">Abogado CO — Explicativo (Habeas Data / Ciudadano)</option>
-            </optgroup>
-            <optgroup label="🌐 Corporativo y General">
-              <option value="consultor_corporativo">Consultor Jurídico Corporativo (Compliance / Riesgos)</option>
-              <option value="conversational">Conversacional Ágil</option>
-              <option value="analytical">Analítico Pericial</option>
-              <option value="didactic">Didáctico / Pedagógico</option>
-              <option value="executive">Ejecutivo / Directivo</option>
-            </optgroup>
-          </select>
-        </div>
-        <div class="form-group">
-          <label class="form-label" for="wordCountTarget">Objetivo</label>
-          <select id="wordCountTarget" class="select-custom">
-            <option value="600">Corto (~600 pal.)</option>
-            <option value="1000" selected>Pilar SEO (~1000 pal. · Recomendado 2026)</option>
-            <option value="1500">Largo (~1500 pal.)</option>
-            <option value="2000">Pilar Extenso (~2000 pal.)</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Selector de Modo Editorial: Revista Digital vs Resumen Clásico -->
-      <div class="form-group">
-        <label class="form-label" for="editorialMode">Estilo de Enfoque Editorial</label>
-        <select id="editorialMode" class="select-custom">
-          <option value="magazine" selected>📰 Revista Digital (Interpretativo-Explicativo 2026)</option>
-          <option value="classic">📝 Resumen Clásico Fiel (Síntesis Directa)</option>
-        </select>
-      </div>
-
-      <!-- Selector de Jurisdicción / Enfoque Normativo -->
-      <div class="form-group">
-        <label class="form-label" for="jurisdictionSelect">Jurisdicción / Enfoque Normativo</label>
-        <select id="jurisdictionSelect" class="select-custom">
-          <option value="auto" selected>Auto (Detectar por fuente y notas)</option>
-          <option value="venezuela">🇻🇪 Venezuela (CRBV, Delitos Inf., Infogobierno)</option>
-          <option value="colombia">🇨🇴 Colombia (C.P. 1991, Ley 1273, Ley 1581 Datos)</option>
-          <option value="international">🌐 Internacional / Global (ISO, NIST, UE)</option>
-        </select>
-      </div>
-
-      <!-- Selector de Modelo y Slider de Temperatura Dinámica -->
-      <div class="form-group">
-        <label class="form-label" for="modelSelect">Modelo Ollama Local</label>
-        <select id="modelSelect" class="select-custom">
-          <option value="granite3.3:8b">granite3.3:8b (Recomendado 16GB)</option>
-          <option value="granite3.3:2b">granite3.3:2b (Rápido CPU)</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <div class="d-flex justify-content-between align-items-center mb-1">
-          <label class="form-label mb-0" for="tempSlider">Temperatura (Fidelidad / Anti-Alucinación)</label>
-          <span id="tempValueLabel" class="font-monospace" style="font-size:0.75rem; color:var(--color-secondary); font-weight:700;">0.2 (Rigor Factual)</span>
-        </div>
-        <input type="range" id="tempSlider" min="0.05" max="1.0" step="0.05" value="0.2" class="form-range" style="width: 100%; accent-color: var(--color-primary);" />
-      </div>
-
-      <div class="form-group">
-        <label class="form-label" for="customInstructions">Instrucciones Personalizadas (Opcional)</label>
-        <input type="text" id="customInstructions" class="input-text" placeholder="Ej: Responder intención de búsqueda, incluir ejemplos prácticos y citar normativa vigente" />
-      </div>
-
-      <!-- Botón de Generación Principal -->
-      <div style="display: flex; gap: 8px; margin-top: 6px;">
+      <!-- Pie Fijo del Panel de Creación: Botón CTA Siempre Visible -->
+      <div class="stepper-footer-sticky no-print">
         <button id="btnGenerate" class="btn btn-primary" style="flex: 1;" title="Generar artículo (Atajo: Ctrl+Enter)">
-          <span class="material-symbols-outlined">bolt</span> Redactar Artículo
+          <span class="material-symbols-outlined">bolt</span> Redactar Artículo <kbd style="font-size: 0.72rem; margin-left: 4px; padding: 1px 4px;">Ctrl+↵</kbd>
         </button>
         <button id="btnStop" class="btn btn-outline btn-sm" disabled title="Detener generación (Atajo: Escape)">
           <span class="material-symbols-outlined">stop</span>
         </button>
       </div>
-
-      <!-- Historial Colapsable de Artículos Archivados en RAG -->
-      <div class="form-group mt-3 pt-2" style="border-top: 1px dashed var(--divider);">
-        <div class="d-flex justify-content-between align-items-center mb-2">
-          <label class="form-label mb-0">📚 Artículos Guardados (RAG)</label>
-          <button type="button" id="btnRefreshHistory" class="btn btn-sm btn-outline py-0 px-2" title="Refrescar historial" style="font-size:0.75rem;">
-            <span class="material-symbols-outlined" style="font-size:0.9rem;">refresh</span>
-          </button>
-        </div>
-        <div id="articlesHistoryList" class="history-list-container">
-          <!-- Poblado dinámicamente por article-history.js -->
-        </div>
-      </div>
     </aside>
 
 
-    <!-- COLUMNA 2: Visualizador del Artículo Generado -->
-    <section class="panel editor-panel">
-      <div class="panel-header no-print">
-        <span class="panel-title">
-          <span class="material-symbols-outlined">article</span> Artículo Estructurado & Jerarquía Funcional
-        </span>
-        
-        <div class="action-group" style="flex-wrap: wrap;">
-          <button id="btnToggleColumns" class="btn btn-outline btn-sm" title="Alternar formato: Revista 3 Columnas / Estándar 1 Columna">
-            <span class="material-symbols-outlined">view_column</span> <span id="btnToggleColumnsText">Revista 3 Col</span>
+    <!-- COLUMNA 2: Visualizador del Artículo y Vista Previa en Vivo -->
+    <section class="panel editor-panel" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+      
+      <!-- Toolbar Central de Navegación, Dispositivos y Acciones -->
+      <div class="preview-toolbar no-print">
+        <!-- Pestañas de Previsualización -->
+        <div class="preview-tabs" role="tablist">
+          <button type="button" class="preview-tab active" data-tab="magazine" role="tab" aria-selected="true" title="Vista Revista Digital (3 Columnas)">Revista</button>
+          <button type="button" class="preview-tab" data-tab="markdown" role="tab" aria-selected="false" title="Vista de Código Markdown Puro">Markdown</button>
+          <button type="button" class="preview-tab" data-tab="wordpress" role="tab" aria-selected="false" title="Vista Preliminar Exportación WordPress Gutenberg">WordPress</button>
+        </div>
+
+        <!-- Selector de Dispositivos Responsive -->
+        <div class="device-selector" role="radiogroup" aria-label="Simulador de dispositivo">
+          <button type="button" class="btn-device active" data-device="desktop" role="radio" aria-checked="true" title="Escritorio (100% ancho)">🖥</button>
+          <button type="button" class="btn-device" data-device="tablet" role="radio" aria-checked="false" title="Tablet (820px)">💻</button>
+          <button type="button" class="btn-device" data-device="mobile" role="radio" aria-checked="false" title="Móvil (390px)">📱</button>
+        </div>
+
+        <!-- Alternadores de Columnas y Modo Lectura -->
+        <div class="d-flex align-items-center gap-1">
+          <button id="btnToggleColumns" class="btn btn-outline btn-sm btn-icon" title="Alternar formato: Revista 3 Columnas / Estándar 1 Columna">
+            <span class="material-symbols-outlined">view_column</span>
+            <span id="btnToggleColumnsText" class="visually-hidden">Revista 3 Col</span>
           </button>
-          <button id="btnReadingMode" class="btn btn-outline btn-sm" title="Alternar Modo Lectura (Oculta paneles laterales)">
-            <span class="material-symbols-outlined">fullscreen</span> <span id="btnReadingModeText">Modo Lectura</span>
+          <button id="btnReadingMode" class="btn btn-outline btn-sm btn-icon" title="Alternar Modo Lectura (Oculta paneles laterales)">
+            <span class="material-symbols-outlined">fullscreen</span>
+            <span id="btnReadingModeText" class="visually-hidden">Modo Lectura</span>
           </button>
-          <button id="btnCopySitejet" class="btn btn-primary btn-sm" title="Copiar optimizado para Sitejet Builder de Namecheap (Ctrl+Shift+S)">
-            <span class="material-symbols-outlined">content_paste_go</span> Copiar p/ Sitejet
+        </div>
+
+        <div style="flex: 1;"></div>
+
+        <!-- Botón Split Accesible "Copiar ▾" con Menú Desplegable -->
+        <div class="btn-copy-split">
+          <button id="btnCopyWordPress" class="btn btn-primary btn-sm btn-main" title="Copiar todo el artículo con estilos para pegar directamente en WordPress Gutenberg (Ctrl+Shift+C)">
+            <span class="material-symbols-outlined">content_paste_go</span> Copiar
           </button>
-          <button id="btnSitejetKit" class="btn btn-secondary btn-sm" title="Abrir Kit SEO & Schema para Sitejet Builder (Ctrl+Shift+K)">
-            <span class="material-symbols-outlined">rocket_launch</span> Kit SEO Sitejet
+          <button type="button" id="btnCopySplitChevron" class="btn-chevron" aria-haspopup="menu" aria-expanded="false" title="Opciones de copia y exportación">
+            ▼
           </button>
-          <button id="btnCopyWordPress" class="btn btn-outline btn-sm" title="Copiar todo el artículo con estilos para pegar directamente en WordPress (Ctrl+Shift+C)">
-            <span class="material-symbols-outlined">content_paste_go</span> Copiar p/ WordPress
-          </button>
-          <a href="sitejet-lab.html" target="_blank" class="btn btn-outline btn-sm" title="Abrir Laboratorio de Calibración Sitejet Builder">
-            <span class="material-symbols-outlined">biotech</span> Lab Sitejet
-          </a>
-          <button id="btnDownloadSelectedImage" class="btn btn-secondary btn-sm" style="display:none;" title="Descargar la imagen extraída de la fuente">
-            <span class="material-symbols-outlined">download_for_offline</span> Descargar Imagen
-          </button>
-          <button id="btnCopy" class="btn btn-outline btn-sm" title="Copiar Markdown al portapapeles (Ctrl+Shift+M)">
-            <span class="material-symbols-outlined">content_copy</span> .MD
-          </button>
-          <button id="btnDownloadHtml" class="btn btn-outline btn-sm" title="Descargar archivo HTML limpio">
-            <span class="material-symbols-outlined">html</span> .HTML
-          </button>
-          <button id="btnPrint" class="btn btn-outline btn-sm" title="Imprimir en formato pericial oficio (Ctrl+Shift+P)">
-            <span class="material-symbols-outlined">print</span> Imprimir
-          </button>
-          <button id="btnClear" class="btn btn-outline btn-sm" title="Limpiar artículo">
-            <span class="material-symbols-outlined">delete</span>
-          </button>
+          <div id="dropdownMenuCopy" class="dropdown-menu-dark" role="menu">
+            <button type="button" id="btnCopySitejet" class="dropdown-item" role="menuitem" title="Copiar optimizado para Sitejet Builder de Namecheap (Ctrl+Shift+S)">
+              <span class="material-symbols-outlined">content_paste_go</span> Copiar p/ Sitejet
+            </button>
+            <button type="button" id="btnSitejetKit" class="dropdown-item" role="menuitem" title="Abrir Kit SEO & Schema para Sitejet Builder (Ctrl+Shift+K)">
+              <span class="material-symbols-outlined">rocket_launch</span> Kit SEO Sitejet
+            </button>
+            <button type="button" id="btnCopy" class="dropdown-item" role="menuitem" title="Copiar Markdown al portapapeles (Ctrl+Shift+M)">
+              <span class="material-symbols-outlined">content_copy</span> Markdown (.MD)
+            </button>
+            <button type="button" id="btnDownloadHtml" class="dropdown-item" role="menuitem" title="Descargar archivo HTML limpio">
+              <span class="material-symbols-outlined">html</span> Descargar .HTML
+            </button>
+            <button type="button" id="btnDownloadSelectedImage" class="dropdown-item" role="menuitem" style="display:none;" title="Descargar imagen extraída de la fuente">
+              <span class="material-symbols-outlined">download_for_offline</span> Descargar Imagen
+            </button>
+            <a href="sitejet-lab.html" target="_blank" class="dropdown-item" role="menuitem" title="Abrir Laboratorio de Calibración Sitejet Builder">
+              <span class="material-symbols-outlined">biotech</span> Lab Sitejet
+            </a>
+            <button type="button" id="btnPrint" class="dropdown-item" role="menuitem" title="Imprimir en formato pericial oficio (Ctrl+Shift+P)">
+              <span class="material-symbols-outlined">print</span> Imprimir (Ctrl+P)
+            </button>
+            <div class="menu-divider"></div>
+            <button type="button" id="btnClear" class="dropdown-item danger" role="menuitem" title="Limpiar artículo">
+              <span class="material-symbols-outlined">delete</span> Limpiar lienzo
+            </button>
+          </div>
         </div>
       </div>
 
-      <!-- Contenedor del Artículo Renderizado -->
-      <div id="articleContainer" class="article-view-container">
+      <!-- Barra de Progreso de Generación en Vivo (Visible durante streaming) -->
+      <div id="liveProgressBarWrap" class="live-progress-bar-wrap" role="region" aria-live="polite">
+        <div class="live-dot"></div>
+        <span id="liveProgressSection" class="live-progress-section">Generando estructura editorial...</span>
+        <span id="liveProgressWords" class="font-monospace" style="font-size: 0.70rem;">0 / 1.000 pal.</span>
+        <div class="live-progress-track">
+          <div id="liveProgressBar" class="live-progress-fill"></div>
+        </div>
+      </div>
+
+      <!-- Contenedor del Lienzo del Artículo Renderizado -->
+      <div id="articleContainer" class="article-view-container" style="flex: 1; overflow-y: auto; position: relative;">
         
         <!-- Banner de Imagen Extraída de la Fuente (si proviene de URL) -->
         <div id="headerBannerWrapper" class="header-banner-wrapper" style="display: none;">
@@ -344,171 +435,210 @@
           </div>
         </div>
 
+        <!-- Vista Revista Principal -->
         <div id="articleView" class="article-rendered">
-          <p style="color: var(--text-muted); font-style: italic;">
-            Carga un archivo <strong>Docling .MD</strong>, pega tus notas o introduce una URL a la izquierda y presiona <strong>"Redactar Artículo"</strong> (<kbd>Ctrl+Enter</kbd>) para iniciar la inferencia con IBM Granite en CPU local.
-          </p>
+          <!-- Esqueleto inteligente renderizado por live-preview.js -->
         </div>
+
+        <!-- Vista Markdown Puro (Pestaña Markdown) -->
+        <pre id="livePreviewMarkdown" class="md-source" style="display: none;"></pre>
+
+        <!-- Vista WordPress Gutenberg iFrame (Pestaña WordPress) -->
+        <iframe id="livePreviewWp" sandbox="allow-same-origin" style="display: none; width: 100%; height: 100%; border: none; min-height: 500px; background: #ffffff; border-radius: var(--radius-card);" title="Vista Previa de WordPress Gutenberg"></iframe>
+
+        <!-- Botón Flotante "Seguir Generación" al hacer scroll arriba -->
+        <button type="button" id="btnFollowStream" title="Volver al final y seguir la redacción en vivo (Ctrl+Shift+F)">
+          <span class="material-symbols-outlined" style="font-size: 1rem;">arrow_downward</span> Seguir generación
+        </button>
       </div>
     </section>
 
 
-    <!-- COLUMNA 3: Panel SEO & Escaneo de Legibilidad -->
-    <aside class="panel seo-sidebar no-print">
-      <div class="panel-header">
+    <!-- COLUMNA 3: Panel SEO & Calidad Editorial (Auditoría Top-Tier 2026) -->
+    <aside class="panel seo-sidebar no-print" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
+      <div class="panel-header" style="flex-shrink: 0;">
         <span class="panel-title">
-          <span class="material-symbols-outlined">monitoring</span> Auditoría SEO & UX
+          <span class="material-symbols-outlined">monitoring</span> Calidad & Auditoría
         </span>
       </div>
 
-      <!-- Scorecard Visual Dual -->
-      <div class="seo-gauge-card">
-        <div class="gauge-header">
-          <span class="metric-label">Calidad SEO Estructural</span>
-          <span id="seoScore" class="gauge-score">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div id="seoProgressFill" class="progress-bar-fill"></div>
+      <div style="flex: 1; overflow-y: auto; padding-right: 2px;">
+
+        <!-- Scorecard Visual Dual -->
+        <div class="seo-gauge-card mb-3">
+          <div class="gauge-header">
+            <span class="metric-label">Calidad SEO Estructural</span>
+            <span id="seoScore" class="gauge-score">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="seoProgressFill" class="progress-bar-fill"></div>
+          </div>
+
+          <div class="gauge-header" style="margin-top: 8px;">
+            <span class="metric-label">Calidad Jurídica & GEO 2026</span>
+            <span id="legalQualityScore" class="gauge-score" style="color: var(--color-gold);">0%</span>
+          </div>
+          <div class="progress-bar-bg">
+            <div id="legalProgressFill" class="progress-bar-fill" style="background: linear-gradient(90deg, var(--color-gold), var(--color-secondary));"></div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px dashed rgba(242, 194, 48, 0.25); font-size: 0.75rem;">
+            <span style="font-weight: 600; color: var(--text-secondary);">ÍNDICE YMYL 2026:</span>
+            <span id="combinedScoreBadge" class="seo-score-badge">0% · STANDBY</span>
+          </div>
         </div>
 
-        <div class="gauge-header" style="margin-top: 8px;">
-          <span class="metric-label">Calidad Jurídica & GEO 2026</span>
-          <span id="legalQualityScore" class="gauge-score" style="color: var(--color-gold);">0%</span>
-        </div>
-        <div class="progress-bar-bg">
-          <div id="legalProgressFill" class="progress-bar-fill" style="background: linear-gradient(90deg, var(--color-gold), var(--color-secondary));"></div>
+        <!-- Estructura en Vivo (12 Bloques canónicos de AGENTS.md) -->
+        <div class="form-group mb-3">
+          <div class="d-flex justify-content-between align-items-center mb-1">
+            <label class="form-label mb-0">Estructura en Vivo</label>
+            <span class="badge bg-secondary text-white" style="font-size: 0.65rem;">12 BLOQUES CANÓNICOS</span>
+          </div>
+          <ul id="liveStructureList">
+            <li id="struct-h1" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>Título H1 Optimizado</span></li>
+            <li id="struct-meta" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>Meta Descripción CTR</span></li>
+            <li id="struct-seo-ribbon" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>Cinta de Badges SEO</span></li>
+            <li id="struct-answer-first" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>Párrafo Answer-First</span></li>
+            <li id="struct-toc" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>Tabla de Contenidos</span></li>
+            <li id="struct-summary" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>📌 Resumen Práctico Fuente</span></li>
+            <li id="struct-30s" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>⚡ Resumen Ejecutivo 30s</span></li>
+            <li id="struct-our-take" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>🔎 Nuestra Lectura Editorial</span></li>
+            <li id="struct-legal" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>Marco Legal VE / CO</span></li>
+            <li id="struct-faq" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>FAQ ×3 Preguntas / Respuestas</span></li>
+            <li id="struct-copyright" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>Derechos de Autor y Atribución</span></li>
+            <li id="struct-schema" data-state="pending"><span class="material-symbols-outlined struct-icon">radio_button_unchecked</span><span>Schema JSON-LD (Tech + FAQ)</span></li>
+          </ul>
         </div>
 
-        <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 6px; border-top: 1px dashed rgba(138, 104, 0, 0.25); font-size: 0.75rem;">
-          <span style="font-weight: 600; color: var(--text-secondary);">ÍNDICE YMYL 2026:</span>
-          <span id="combinedScoreBadge" class="seo-score-badge">0% · STANDBY</span>
-        </div>
-      </div>
+        <!-- Métricas Clave (Desplegable) -->
+        <details class="quality-details" open>
+          <summary>Métricas Clave de Contenido</summary>
+          <div class="seo-metrics-grid mt-2">
+            <div class="metric-item">
+              <span class="metric-label">Palabras</span>
+              <span id="seoWordCount" class="metric-value">0</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Lectura</span>
+              <span id="seoReadingTime" class="metric-value">0 min</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Keywords Negrita</span>
+              <span id="seoBoldKeywordsCount" class="metric-value">0</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Repetición Keyword</span>
+              <span id="seoKeywordRepetition" class="metric-value">0</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Densidad Keyword</span>
+              <span id="seoKeywordDensity" class="metric-value">0%</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Links Referencia</span>
+              <span id="seoLinksCount" class="metric-value">0</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Encabezados (H2/H3)</span>
+              <span id="seoHeadingCount" class="metric-value">0</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Títulos H1</span>
+              <span id="seoH1Count" class="metric-value">0</span>
+            </div>
+          </div>
+        </details>
 
-      <!-- Métricas Clave -->
-      <div class="seo-metrics-grid">
-        <div class="metric-item">
-          <span class="metric-label">Palabras</span>
-          <span id="seoWordCount" class="metric-value">0</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Lectura</span>
-          <span id="seoReadingTime" class="metric-value">0 min</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Keywords Negrita</span>
-          <span id="seoBoldKeywordsCount" class="metric-value">0</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Repetición Keyword</span>
-          <span id="seoKeywordRepetition" class="metric-value">0</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Densidad Keyword</span>
-          <span id="seoKeywordDensity" class="metric-value">0%</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Links Referencia</span>
-          <span id="seoLinksCount" class="metric-value">0</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Encabezados (H2/H3)</span>
-          <span id="seoHeadingCount" class="metric-value">0</span>
-        </div>
-        <div class="metric-item">
-          <span class="metric-label">Títulos H1</span>
-          <span id="seoH1Count" class="metric-value">0</span>
-        </div>
-      </div>
+        <!-- Detecciones SEO Avanzadas & GEO 2026 (Desplegable) -->
+        <details class="quality-details" open>
+          <summary>Detecciones SEO Avanzadas & GEO (2026)</summary>
+          <div class="seo-metrics-grid mt-2">
+            <div class="metric-item">
+              <span class="metric-label">Respuesta Directa GEO</span>
+              <span id="seoAnswerFirstDetected" class="metric-value" style="font-size: 0.85rem;">❌ No</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Descargo Ético</span>
+              <span id="seoDisclaimerDetected" class="metric-value" style="font-size: 0.85rem;">❌ Falta</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Términos Jurídicos</span>
+              <span id="seoLegalTermsDetected" class="metric-value" style="font-size: 0.85rem;">0</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">H2 como Pregunta</span>
+              <span id="seoH2QuestionsDetected" class="metric-value" style="font-size: 0.85rem;">❌ 0/0</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">FAQ Schema</span>
+              <span id="seoFaqDetected" class="metric-value">❌ No</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Tabla Contenidos</span>
+              <span id="seoTocDetected" class="metric-value">❌ No</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Schema Completo</span>
+              <span id="seoSchemaComplete" class="metric-value">❌ No</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Autor (E-E-A-T)</span>
+              <span id="seoAuthorDetected" class="metric-value">❌ No</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">CTA Engagement</span>
+              <span id="seoCtaDetected" class="metric-value">❌ No</span>
+            </div>
+            <div class="metric-item">
+              <span class="metric-label">Chars Título</span>
+              <span id="seoTitleChars" class="metric-value">0/60</span>
+            </div>
+            <div class="metric-item" style="grid-column: span 2;">
+              <span class="metric-label">Chars Meta Descripción</span>
+              <span id="seoDescChars" class="metric-value">0/160</span>
+            </div>
+          </div>
+        </details>
 
-      <!-- Detecciones SEO Avanzadas & GEO (2026) -->
-      <div class="form-group">
-        <label class="form-label">Detecciones SEO Avanzadas & GEO (2026)</label>
-        <div class="seo-metrics-grid">
-          <div class="metric-item">
-            <span class="metric-label">Respuesta Directa GEO</span>
-            <span id="seoAnswerFirstDetected" class="metric-value" style="font-size: 0.85rem;">❌ No</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Descargo Ético</span>
-            <span id="seoDisclaimerDetected" class="metric-value" style="font-size: 0.85rem;">❌ Falta</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Términos Jurídicos</span>
-            <span id="seoLegalTermsDetected" class="metric-value" style="font-size: 0.85rem;">0</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">H2 como Pregunta</span>
-            <span id="seoH2QuestionsDetected" class="metric-value" style="font-size: 0.85rem;">❌ 0/0</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">FAQ Schema</span>
-            <span id="seoFaqDetected" class="metric-value">❌ No</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Tabla Contenidos</span>
-            <span id="seoTocDetected" class="metric-value">❌ No</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Schema Completo</span>
-            <span id="seoSchemaComplete" class="metric-value">❌ No</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Autor (E-E-A-T)</span>
-            <span id="seoAuthorDetected" class="metric-value">❌ No</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">CTA Engagement</span>
-            <span id="seoCtaDetected" class="metric-value">❌ No</span>
-          </div>
-          <div class="metric-item">
-            <span class="metric-label">Chars Título</span>
-            <span id="seoTitleChars" class="metric-value">0/60</span>
-          </div>
-          <div class="metric-item" style="grid-column: span 2;">
-            <span class="metric-label">Chars Meta Descripción</span>
-            <span id="seoDescChars" class="metric-value">0/160</span>
+        <!-- Botón de Auditoría Profunda Backend -->
+        <button id="btnDeepAudit" class="btn btn-secondary btn-sm mb-3" type="button" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
+          <span class="material-symbols-outlined" style="font-size: 1.1rem;">fact_check</span>
+          Auditoría Profunda 2026 (Backend)
+        </button>
+
+        <!-- Contenedor de Diagnóstico e Incidencias -->
+        <div id="seoAuditIssuesContainer" class="seo-audit-issues mb-3" style="display: none;"></div>
+
+        <!-- Preview Snippet de Google -->
+        <div class="form-group mb-3">
+          <label class="form-label">Vista Previa SERP Google</label>
+          <div class="google-preview-card">
+            <div id="previewSlug" class="preview-url">tu-blog.com/articulos/slug-del-articulo</div>
+            <div id="previewTitle" class="preview-title">Título del Artículo de Blog Optimizado</div>
+            <div id="previewSnippet" class="preview-snippet">La meta description generada para capturar clics y responder a la intención del lector aparecerá aquí...</div>
           </div>
         </div>
-      </div>
 
-      <!-- Botón de Auditoría Profunda Backend -->
-      <button id="btnDeepAudit" class="btn btn-secondary btn-sm" type="button" style="width: 100%; display: flex; align-items: center; justify-content: center; gap: 6px;">
-        <span class="material-symbols-outlined" style="font-size: 1.1rem;">fact_check</span>
-        Auditoría Profunda 2026 (Backend)
-      </button>
+        <!-- Reglas del Formato SEO Blog PDF Activas -->
+        <details class="quality-details">
+          <summary>Reglas Formato SEO Blog PDF (2026)</summary>
+          <ul style="font-size: 0.78rem; color: var(--text-secondary); margin-left: 18px; margin-top: 8px; display: flex; flex-direction: column; gap: 4px;">
+            <li><span style="color: var(--color-secondary);">✔</span> <strong>H1 con Keyword:</strong> 8-12 palabras (50-65 chars).</li>
+            <li><span style="color: var(--color-secondary);">✔</span> <strong>Meta Descripción:</strong> 145-160 chars contigua bajo H1.</li>
+            <li><span style="color: var(--color-secondary);">✔</span> <strong>Respuesta Directa GEO:</strong> 40-60 palabras concisas para IA.</li>
+            <li><span style="color: var(--color-secondary);">✔</span> <strong>Subtítulos H2/H3:</strong> ≥50% formulados como preguntas.</li>
+            <li><span style="color: var(--color-secondary);">✔</span> <strong>Léxico Jurídico VE / CO:</strong> Glosarios normativos y sin calcos.</li>
+            <li><span style="color: var(--color-secondary);">✔</span> <strong>Ética Jurídica:</strong> Descargo legal y cero promesas de resultado.</li>
+            <li><span style="color: var(--color-secondary);">✔</span> <strong>E-E-A-T & Fuentes:</strong> Bio del autor y enlaces a fuentes oficiales.</li>
+          </ul>
+        </details>
 
-      <!-- Contenedor de Diagnóstico e Incidencias -->
-      <div id="seoAuditIssuesContainer" class="seo-audit-issues" style="display: none;"></div>
-
-      <!-- Preview Snippet de Google -->
-      <div class="form-group">
-        <label class="form-label">Vista Previa SERP Google</label>
-        <div class="google-preview-card">
-          <div id="previewSlug" class="preview-url">tu-blog.com/articulos/slug-del-articulo</div>
-          <div id="previewTitle" class="preview-title">Título del Artículo de Blog Optimizado</div>
-          <div id="previewSnippet" class="preview-snippet">La meta description generada para capturar clics y responder a la intención del lector aparecerá aquí...</div>
-        </div>
-      </div>
-
-      <!-- Reglas del Formato SEO Blog PDF Activas -->
-      <div class="form-group">
-        <label class="form-label">Reglas Formato SEO Blog PDF (2026)</label>
-        <ul style="font-size: 0.8rem; color: var(--text-secondary); margin-left: 18px; display: flex; flex-direction: column; gap: 5px;">
-          <li><span style="color: var(--color-secondary);">✔</span> <strong>H1 con Keyword:</strong> 8-12 palabras (50-65 chars).</li>
-          <li><span style="color: var(--color-secondary);">✔</span> <strong>Meta Descripción:</strong> 145-160 chars contigua bajo H1.</li>
-          <li><span style="color: var(--color-secondary);">✔</span> <strong>Respuesta Directa GEO:</strong> 40-60 palabras concisas para IA.</li>
-          <li><span style="color: var(--color-secondary);">✔</span> <strong>Subtítulos H2/H3:</strong> ≥50% formulados como preguntas.</li>
-          <li><span style="color: var(--color-secondary);">✔</span> <strong>Léxico Jurídico VE / CO:</strong> Glosarios normativos y sin calcos.</li>
-          <li><span style="color: var(--color-secondary);">✔</span> <strong>Ética Jurídica:</strong> Descargo legal y cero promesas de resultado.</li>
-          <li><span style="color: var(--color-secondary);">✔</span> <strong>E-E-A-T & Fuentes:</strong> Bio del autor y enlaces a fuentes oficiales.</li>
-        </ul>
       </div>
     </aside>
 
   </main>
 
-  <!-- Footer de Terminal Status Bar -->
+  <!-- Footer de Terminal Status Bar (28px Monoespacio) -->
   <footer class="terminal-footer no-print">
     <div class="terminal-status-items">
       <div class="terminal-item">
@@ -538,6 +668,7 @@
   </footer>
 
   <!-- Script JS Modularizado ES6 con Cache-Busting -->
-  <script type="module" src="js/app.js?v=9.5"></script>
+  <script type="module" src="js/app.js?v=10.1"></script>
 </body>
 </html>
+

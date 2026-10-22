@@ -181,3 +181,38 @@ Comparte tus opiniones y comentarios.
     assert data["jurisdiction"] == "ve"
     assert data["combined_score"] > 60
 
+
+def test_academic_persona_structure_and_terms():
+    """Verifica que el perfil de Revista Científica Arbitrada esté configurado con rigor académico y forense."""
+    assert "revista_cientifica_law_tech" in PERSONAS
+    pdata = PERSONAS["revista_cientifica_law_tech"]
+    assert pdata["jurisdiction"] == "ve"
+    assert "doctoral" in pdata["register"].lower()
+    assert pdata["structure"] == "academic_law_tech_review"
+    assert any("27037" in f for f in pdata["formulas"])
+    assert any("cadena de custodia" in f.lower() for f in pdata["formulas"])
+
+    ve_terms = [t["term"] for t in GLOSSARY["ve"]]
+    assert any("mismidad" in t.lower() for t in ve_terms)
+    assert any("hash criptográfico" in t.lower() or "sha-256" in t.lower() for t in ve_terms)
+    assert any("manual único de cadena de custodia" in t.lower() for t in ve_terms)
+    assert any("cenif" in t.lower() for t in ve_terms)
+
+
+def test_prompt_generation_with_academic_persona():
+    """Verifica que el prompt de generación para revista científica inyecte la estructura canónica doctoral."""
+    prompt = build_generation_prompt(
+        article_source_text="Estudio sobre la evidencia digital y adquisición en memoria volátil conforme a RFC 3227.",
+        source_title="Preservación de Evidencia Informática y Cadena de Custodia",
+        theme="forensic_law",
+        tone="revista_cientifica_law_tech",
+        jurisdiction="venezuela"
+    )
+    assert "ScholarlyArticle" in prompt
+    assert "RESUMEN ESTRUCTURADO (ABSTRACT)" in prompt
+    assert "ISO/IEC 27037" in prompt
+    assert "Manual Único de Cadena de Custodia" in prompt
+    assert "Tribunal Supremo de Justicia" in prompt
+    assert "APA 7" in prompt or "APA" in prompt
+
+

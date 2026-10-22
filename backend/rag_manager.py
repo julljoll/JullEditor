@@ -400,19 +400,21 @@ def retrieve_legal_context(query_text: str, theme: str = "cybersecurity", top_k:
         for kw in block.get("keywords", []):
             if kw in query_lower:
                 score += 3
-        if theme == "cybersecurity" and "Delitos" in block.get("norma", ""): score += 4
+        if theme in ("forensic_law", "legal_tech") and ("Cadena" in block.get("norma", "") or "Forense" in block.get("norma", "")): score += 6
+        if theme in ("forensic_law", "legal_tech") and "Mensajes de Datos" in block.get("norma", ""): score += 5
+        if theme in ("forensic_law", "cybersecurity") and "Delitos" in block.get("norma", ""): score += 5
         if theme == "cybersecurity" and "Cadena" in block.get("norma", ""): score += 3
         if theme == "ai_data" and "Constitucional" in block.get("area", ""): score += 4
         if theme == "ai_data" and "Infogobierno" in block.get("area", ""): score += 3
-        if theme == "legal_tech" and "Mensajes de Datos" in block.get("norma", ""): score += 4
         if theme == "legal_tech" and "Constitucional" in block.get("area", ""): score += 3
         if theme == "science_tech" and "Telecomunicaciones" in block.get("area", ""): score += 4
         
-        if any(w in query_lower for w in ["dato", "privacidad", "personal", "seguridad", "ciber", "regula"]):
-            if "Constitucional" in block.get("area", "") or "Delitos" in block.get("norma", ""):
+        if any(w in query_lower for w in ["dato", "privacidad", "personal", "seguridad", "ciber", "regula", "cadena", "custodia", "evidencia", "forense", "hash", "tsj", "contrato"]):
+            if "Constitucional" in block.get("area", "") or "Delitos" in block.get("norma", "") or "Cadena" in block.get("norma", "") or "Mensajes" in block.get("norma", ""):
                 score += 5
                 
         scored_blocks.append((score, block))
+
         
     scored_blocks.sort(key=lambda x: x[0], reverse=True)
     selected_blocks = [b[1] for b in scored_blocks[:top_k]]

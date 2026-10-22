@@ -154,11 +154,33 @@ if ($ollamaCmd) {
     Write-Host "[ADVERTENCIA] Ollama no encontrado. Asegurate de instalarlo desde https://ollama.com" -ForegroundColor DarkYellow
 }
 
-# 3. Abrir navegador
-Write-Host "[INFO] Abriendo navegador en http://127.0.0.1:8000 ..." -ForegroundColor Cyan
-Start-Process "http://127.0.0.1:8000"
+# 3. Verificar y liberar el puerto 8000 si quedo ocupado por una instancia previa
+try {
+    $existingConns = Get-NetTCPConnection -LocalPort 8000 -State Listen -ErrorAction SilentlyContinue
+    if ($existingConns) {
+        foreach ($conn in $existingConns) {
+            $prevPid = $conn.OwningProcess
+            if ($prevPid -and $prevPid -ne 0 -and $prevPid -ne $PID) {
+                $prevProc = Get-Process -Id $prevPid -ErrorAction SilentlyContinue
+                if ($prevProc -and ($prevProc.ProcessName -like "*python*" -or $prevProc.ProcessName -like "*uvicorn*")) {
+                    Write-Host "[INFO] Liberando puerto 8000 ocupado por proceso previo de Python (PID $prevPid)..." -ForegroundColor Cyan
+                    Stop-Process -Id $prevPid -Force -ErrorAction SilentlyContinue
+                    Start-Sleep -Milliseconds 800
+                } elseif ($prevProc) {
+                    Write-Host "[ADVERTENCIA] El puerto 8000 esta en uso por el proceso '$($prevProc.ProcessName)' (PID $prevPid)." -ForegroundColor Yellow
+                }
+            }
+        }
+    }
+} catch {}
 
-# 4. Iniciar servidor FastAPI
+# 4. Abrir navegador en segundo plano al iniciar
+Start-Job -ScriptBlock {
+    Start-Sleep -Seconds 1
+    Start-Process "http://127.0.0.1:8000"
+} | Out-Null
+
+# 5. Iniciar servidor FastAPI
 Write-Host ""
 Write-Host "=========================================================================" -ForegroundColor Green
 Write-Host "   Servidor Web Activo: http://127.0.0.1:8000" -ForegroundColor Green
@@ -167,3 +189,4 @@ Write-Host "====================================================================
 Write-Host ""
 
 & $pythonCmd -m uvicorn backend.app:app --host 127.0.0.1 --port 8000 --reload
+

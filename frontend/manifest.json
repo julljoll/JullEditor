@@ -4,8 +4,8 @@
   "description": "Sistema de Redacción Editorial y LegalTech con IBM Granite Local",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#F4F3EE",
-  "theme_color": "#8A6800",
+  "background_color": "#0B0E12",
+  "theme_color": "#0B0E12",
   "icons": [
     {
       "src": "/favicon.svg",

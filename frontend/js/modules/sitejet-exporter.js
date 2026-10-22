@@ -642,7 +642,7 @@ function createSitejetModalElement() {
       </div>
 
       <!-- Sección Imagen Cabecera & Media Manager de Sitejet -->
-      <div class="form-group mb-3 p-3" style="background: rgba(138, 104, 0, 0.06); border: 1px solid var(--border-gold); border-radius: 6px;">
+      <div class="form-group mb-3 p-3" style="background: var(--color-primary-soft); border: 1px solid var(--border-gold); border-radius: 6px;">
         <label class="form-label mb-1" style="color: var(--color-primary); font-weight: 700;">
           🖼️ Cabecera 16:9 y Sitejet Media Manager
         </label>

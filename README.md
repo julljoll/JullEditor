@@ -1,285 +1,409 @@
 # ⚖️ Granite Blog Writer & LegalTech Studio
 
 <p align="center">
-  <strong>Estación Editorial y Pericial de Redacción de Artículos de Blog con IBM Granite Local (CPU-Only)</strong><br>
-  <em>Optimizada para Ciberseguridad, Inteligencia Artificial, Ciencia de Datos, Derecho Digital y Jurisdicciones de Venezuela 🇻🇪 y Colombia 🇨🇴.</em>
+  <strong>Estación Editorial y Pericial de Redacción de Artículos Científicos, Blog y LegalTech con IBM Granite 3.3 Local (CPU-Only)</strong><br>
+  <em>Optimizada para Ciberseguridad Forense, Cadena de Custodia, Inteligencia Artificial, Derecho Digital y Jurisdicciones de Venezuela 🇻🇪 y Colombia 🇨🇴.</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite" />
-  <img src="https://img.shields.io/badge/Runtime-Ollama_CPU-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama" />
-  <img src="https://img.shields.io/badge/Backend-FastAPI-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/UI_Design-USWDS_Cyber--Legal-8A6800?style=for-the-badge" alt="USWDS Design" />
+  <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3_(2B%20%7C%208B)-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite 3.3" />
+  <img src="https://img.shields.io/badge/Runtime-Ollama_CPU_(0ms_Network)-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama CPU" />
+  <img src="https://img.shields.io/badge/Backend-FastAPI_Async_SSE-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/UI_Design-Dark_OLED_Cyber--Legal_(USWDS_AAA)-00B4D8?style=for-the-badge" alt="Dark Cyber-Legal UI" />
+  <img src="https://img.shields.io/badge/Tests-48%2F48_PASSED_(100%25)-00FF41?style=for-the-badge&logo=pytest&logoColor=black" alt="Pytest 48/48" />
   <img src="https://img.shields.io/badge/Jurisdicci%C3%B3n-Venezuela_%F0%9F%87%BB%F0%9F%87%AA_%7C_Colombia_%F0%9F%87%A8%F0%9F%87%B4-0055A5?style=for-the-badge" alt="Venezuela & Colombia Legal" />
-  <img src="https://img.shields.io/badge/Auditor%C3%ADa_SEO-GEO_2026_Top--Tier-00FF41?style=for-the-badge" alt="SEO & GEO 2026" />
+  <img src="https://img.shields.io/badge/SEO_%2F_GEO_2026-Schema.org_Dual_(Scholarly_%2B_Tech)-8A6800?style=for-the-badge" alt="SEO & GEO 2026" />
 </p>
 
 ---
 
-## 💡 ¿Qué es este Proyecto?
-
-**Granite Blog Writer & LegalTech Studio** es una estación editorial local de alta precisión que transforma documentos técnicos, investigaciones forenses, peritajes o enlaces web en **artículos de blog de alto impacto editorial, rigor normativo y posicionamiento SEO / GEO 2026**.
-
-### 🌟 Pilares Fundamentales:
-1. **100% Offline y Privado (0ms Latencia de Red):** Procesa todo en la CPU de tu equipo con **IBM Granite 3.3** vía **Ollama**. Cero envío de datos a la nube o APIs de pago.
-2. **Cero Alucinación Jurídica (Temperatura 0.2):** Motor RAG local que fundamenta los textos exclusivamente en la **normativa real** autorizada (CRBV, Delitos Informáticos, Mensajes de Datos para Venezuela 🇻🇪; Constitución 1991, Ley 1273, Ley 1581 para Colombia 🇨🇴).
-3. **Auditoría Dual SEO & UX 2026 en Tiempo Real:**
-   - **Calidad SEO Estructural (0-100%):** H1 óptimo (8-12 palabras), Meta descripción (145-160 caracteres), H2/H3 (5-9 palabras), TOC con anclas, FAQ, autor E-E-A-T y doble bloque Schema.org (`TechArticle` + `FAQPage`).
-   - **Calidad Jurídica & GEO 2026 (0-100%):** Respuesta directa *"Answer-First"* (40 a 60 palabras) para citación en Google AI Overviews y Perplexity, descargo ético obligatorio, detección de ≥ 8 términos jurídicos autorizados y ≥ 50% de H2 formulados como preguntas.
-4. **Perfiles de Voz Especializados (VE / CO):** Tonos periciales auténticos para Abogados Doctrinales, Litigantes y Explicativos con fórmulas procesales y control anti-promesas.
-5. **Exportación Universal Multi-CMS:**
-   - 📋 **Copiar p/ WordPress:** HTML enriquecido con estilos Gutenberg y soporte para Classic Editor.
-   - 🚀 **Copiar p/ Sitejet Builder:** HTML visualmente limpio, sin scripts, con fallback de 5 etapas en portapapeles.
-   - 📦 **Descargar Kit Sitejet:** Empaquetado `.zip` con `contenido.html`, `articulo.md`, `metadata.json` y `banner.png` (renderizado local de SVG a PNG).
+## 📑 Tabla de Contenidos
+1. [¿Para qué sirve este Proyecto?](#-1-para-qué-sirve-este-proyecto)
+2. [¿Cómo funciona internamente?](#-2-cómo-funciona-internamente)
+3. [¿Cómo se utiliza el Proyecto? (Manual Paso a Paso)](#-3-cómo-se-utiliza-el-proyecto-manual-paso-a-paso)
+4. [Especialidades Temáticas y Marco Jurídico Soportado](#-4-especialidades-temáticas-y-marco-jurídico-soportado)
+5. [Atajos de Teclado (Power Users)](#-5-atajos-de-teclado-power-users)
+6. [Requisitos del Sistema e Instalación](#-6-requisitos-del-sistema-e-instalación)
+7. [Protocolo de Verificación del Funcionamiento](#-7-protocolo-de-verificación-del-funcionamiento)
+8. [Arquitectura y Estructura del Código](#-8-arquitectura-y-estructura-del-código)
+9. [Laboratorio de Compatibilidad Sitejet Builder](#-9-laboratorio-de-compatibilidad-sitejet-builder)
+10. [Preguntas Frecuentes (FAQ)](#-10-preguntas-frecuentes-faq)
 
 ---
 
-## 🔄 Flujo de Trabajo
+## 💡 1. ¿Para qué sirve este Proyecto?
+
+**Granite Blog Writer & LegalTech Studio** es una estación de trabajo pericial y editorial concebida para transformar borradores, apuntes técnicos, peritajes, fallos jurisprudenciales o documentos estructurados de **Docling** en **artículos de nivel científico universitario y publicaciones de blog de alto impacto** optimizadas para buscadores y motores de respuesta de inteligencia artificial (**Google AI Overviews, Perplexity, ChatGPT Search**).
+
+### 🎯 Problemas Críticos que Resuelve:
+* **Cero Fuga de Información Confidencial (Privacidad Absoluta):** Funciona **100% de manera local y offline** en tu ordenador con **IBM Granite 3.3** vía **Ollama**. Ni un solo dato, contrato, expediente o nota pericial sale a servidores de terceros ni APIs comerciales.
+* **Cero Alucinación Jurídica (Temperatura 0.2):** Los LLMs genéricos inventan artículos de leyes, números de gacetas o fallos inexistentes. Esta plataforma restringe estrictamente la inferencia al corpus normativo positivo real y penaliza severamente cualquier invención.
+* **Publicaciones con Estándar Universitario Arbitrado:** Permite generar artículos con el rigor metodológico exigido por revistas científicas de facultades de Derecho e Informática Forense (título bilingüe, resumen estructurado / abstract, análisis dogmático, directrices ISO/NIST, jurisprudencia del TSJ y referencias en formato APA 7ma edición).
+* **Exportación Directa Multi-CMS sin Pérdida de Formato:** Proporciona código HTML higienizado y enriquecido con estilos inline listo para copiar y pegar directamente en los constructores más populares (**WordPress Gutenberg, Elementor, Sitejet Builder**) o imprimir en formato físico de oficio (`@media print`).
+
+### 👥 ¿A quién está dirigido?
+* **Abogados y Consultores Legales:** Elaboración de artículos de doctrina, análisis de sentencias y compliance normativo.
+* **Peritos e Ingenieros Forenses:** Publicaciones técnicas sobre evidencia digital, mismidad, hash criptográfico SHA-256 y protocolos de cadena de custodia.
+* **Investigadores Académicos y Docentes:** Generación de papers y ensayos para revistas científicas arbitradas.
+* **Redactores de Ciberseguridad y Tech:** Creación de guías técnicas en profundidad (Pilar SEO de 1.000 a 1.500 palabras) con microdatos Schema.org completos.
+
+---
+
+## ⚙️ 2. ¿Cómo funciona internamente?
+
+El sistema combina un backend asíncrono en **FastAPI**, un motor de orquestación de prompts con perfilado dogmático, un **RAG local indexado** y una interfaz web modular de alto rendimiento construida con **Vanilla JavaScript ES6** y diseño **Dark OLED Cyber-Legal**.
+
+### 🔄 Diagrama de Flujo del Pipeline Local:
 
 ```mermaid
-graph LR
-    A[Docling .MD / .JSON<br/>o Texto Pegado / URL] --> B[RAG Local<br/>Persistencia inputs/]
-    B --> C[IBM Granite 3.3<br/>Ollama CPU · Temp 0.2]
-    C --> D[Streaming SSE<br/>en Tiempo Real]
-    D --> E[Doble Auditoría SEO & UX<br/>+ Calidad Jurídica GEO]
-    E --> F[Exportar: WordPress<br/>Sitejet Builder / Kit ZIP]
+flowchart TD
+    subgraph INGESTA["1. Ingesta Offline-First (0ms Latencia)"]
+        A1["Docling Markdown / JSON<br/>(Informacion_docling_rag/)"] --> B["Limpieza y Normalización<br/>(Extracción H1, conteo)"]
+        A2["Texto Pegado Directo<br/>(Notas / Dictámenes)"] --> B
+        A3["URL Web Segura<br/>(Validación Anti-SSRF)"] --> B
+    end
+
+    subgraph RAG["2. Memoria y Corpus RAG Local"]
+        B --> C["Indexación RAG<br/>(96 Fuentes Normativas)"]
+        C --> D["Persistencia Inmutable<br/>(RAG/inputs/)"]
+    end
+
+    subgraph PROMPT["3. Orquestador de Prompts y Perfiles"]
+        D --> E{"Perfil Seleccionado"}
+        E -->|"Revista Científica"| P1["Estructura Doctoral (12 Bloques)<br/>Abstract Bilingüe + APA 7 + TSJ"]
+        E -->|"Doctrinal / Litigante"| P2["Perfil Jurídico VE / CO<br/>Fórmulas Procesales + Glosario"]
+        E -->|"Tech / Ciberseguridad"| P3["Wireframe SEO / GEO 2026<br/>Answer-First + FAQ"]
+    end
+
+    subgraph INFERENCIA["4. Motor de Inferencia Local (Ollama)"]
+        P1 --> F["IBM Granite 3.3 (2B / 8B)<br/>num_ctx: 8192 | temp: 0.2 | threads: 4"]
+        P2 --> F
+        P3 --> F
+        F --> G["Streaming SSE en Vivo<br/>(Server-Sent Events)"]
+    end
+
+    subgraph VISUALIZADOR["5. Interfaz Dark-Only & Exportación"]
+        G --> H["Renderizado Dinámico en 3 Columnas<br/>(Revista / Markdown / WP iFrame)"]
+        H --> I["Doble Auditoría en Tiempo Real<br/>(SEO Estructural + Calidad Jurídica GEO)"]
+        I --> J1["Copiar WordPress Gutenberg"]
+        I --> J2["Copiar Sitejet Builder"]
+        I --> J3["Imprimir Oficio (@media print)"]
+        I --> J4["Auto-guardado RAG/articulos/"]
+    end
 ```
+
+### 🧠 Parámetros de Inferencia de IBM Granite:
+* **Modelo Predeterminado:** `granite3.3:8b` (o `granite3.3:2b` para portátiles con recursos ajustados).
+* **Context Window (`num_ctx`):** 8.192 tokens para soportar análisis exhaustivos y textos extensos sin truncamiento.
+* **Temperatura:** `0.2` (Rigor Factual y Científico) para eliminar la invención de normativas o sentencias.
+* **Hilos de CPU (`num_thread`):** 4 hilos optimizados para equilibrio entre velocidad y responsividad del sistema.
+* **Persistencia en Memoria (`keep_alive`):** `30m` para evitar recargas del modelo en memoria RAM entre generaciones sucesivas.
 
 ---
 
-## 💻 Requisitos del Sistema
+## 🖥️ 3. ¿Cómo se utiliza el Proyecto? (Manual Paso a Paso)
 
-| Componente | Requisito Recomendado | Requisito Mínimo |
-|---|---|---|
-| **Sistema Operativo** | Windows 10 / 11 (64-bit) | Windows 10 |
-| **Memoria RAM** | 16 GB (para `granite3.3:8b`) | 8 GB (usando `granite3.3:2b`) |
-| **Procesador (CPU)** | Intel Core i5/i7/Ryzen 5 o superior | 4 núcleos x64 |
-| **Almacenamiento** | ~6 GB libres (modelo + entorno) | ~3 GB libres |
-| **Python** | Python 3.10, 3.11, 3.12 o 3.14 | Python 3.10 |
-| **Ollama** | Última versión instalada | v0.3.0+ |
-
----
-
-## 🚀 Guía de Instalación Rápida (Paso a Paso)
-
-### Paso 1: Instalar Ollama en Windows
-Descárgalo e instálalo desde [ollama.com/download/windows](https://ollama.com/download/windows) o ejecuta en PowerShell:
-```powershell
-winget install Ollama.Ollama
-```
-
-### Paso 2: Descargar el Modelo IBM Granite
-Abre una terminal y descarga el modelo optimizado para CPU:
-```powershell
-ollama pull granite3.3:8b
-```
-*(Opcional: Si tu equipo tiene 8 GB de RAM o deseas máxima velocidad en CPU livianas, descarga `ollama pull granite3.3:2b`)*.
-
-### Paso 3: Instalar Dependencias de Python
-En la carpeta del proyecto, ejecuta:
-```powershell
-pip install -r requirements.txt
-```
-
-### Paso 4: Iniciar la Aplicación
-Haz doble clic en el archivo **`start.bat`** (o ejecuta `.\start.ps1` en PowerShell):
-```powershell
-.\start.bat
-```
-El script comprobará el entorno, verificará Ollama, iniciará el servidor FastAPI y abrirá automáticamente tu navegador en:
-👉 **[http://127.0.0.1:8000](http://127.0.0.1:8000)**
-
----
-
-## 🖥️ Manual de Uso de la Interfaz (UX/UI en 3 Columnas)
-
-La interfaz sigue el estándar pericial **USWDS Cyber-Legal Light Mode** (alto contraste WCAG AAA) organizada en tres columnas de trabajo:
+La interfaz se divide en **3 columnas de trabajo** inspiradas en el estándar pericial **USWDS Cyber-Legal Dark Mode**:
 
 ```
 ┌─────────────────────────┬───────────────────────────────┬─────────────────────────┐
 │ 1. PANEL DE CONTROL     │ 2. VISOR DEL ARTÍCULO         │ 3. AUDITORÍA SEO & UX   │
+│ (Stepper de 4 Pasos)    │ (Lienzo Central en 3 Col.)    │ (Scorecard Doble 2026)  │
 │                         │                               │                         │
-│ • Modo de Ingesta       │ • Cabecera 16:9 Procedural    │ • Score SEO Estructural │
-│ • Especialidad Temática │ • Formato SEO Blog PDF        │ • Score Calidad Jurídica│
-│ • Perfil de Voz (VE/CO) │ • Callouts y Resúmenes        │ • Badge Índice YMYL 2026│
-│ • Objetivo de Palabras  │ • Doble Schema.org JSON-LD    │ • Respuesta Directa GEO │
-│ • Slider Anti-Alucinante│ • Copiar WordPress / Sitejet  │ • Descargo y Léxico     │
-│ • Botón 'Redactar'      │ • Descargar Kit Sitejet ZIP   │ • Auditoría Profunda    │
+│ • Modo de Ingesta       │ • Pestañas: Revista/MD/WP     │ • Score SEO Estructural │
+│ • Especialidad Temática │ • Simulador Desktop/Tab/Móvil │ • Score Calidad Jurídica│
+│ • Perfil de Voz y Tono  │ • Cajas Didácticas y Callouts │ • Detección Answer-First│
+│ • Longitud y Temp       │ • Copiar WordPress / Sitejet  │ • Glosario y Descargo   │
+│ • Botón 'Redactar'      │ • Impresión Formato Oficio    │ • Auditoría Profunda    │
 └─────────────────────────┴───────────────────────────────┴─────────────────────────┘
 ```
 
-### 1️⃣ Columna Izquierda: Panel de Control e Ingesta
-- **Pestañas de Ingesta:**
-  - **Docling (.MD / JSON):** Arrastra uno o varios archivos procesados por Docling. Limpia artefactos OCR y persiste inmutablemente en `RAG/inputs/`.
-  - **Pegar Texto:** Escribe o pega borradores, notas periciales o fuentes.
-  - **URL Externa:** Extrae el contenido y metadatos de cualquier artículo web con validación anti-SSRF.
-- **Especialidad Temática:**
-  - `Derecho Digital` (*Predeterminado*): Decreto-Ley de Mensajes de Datos, Firmas Electrónicas, validez probatoria digital y TSJ.
-  - `Ciberseguridad`: Delitos informáticos, cadena de custodia forense, VenCERT e ISO/IEC 27037.
-  - `IA & Datos`: Modelos generativos, soberanía de datos, gobernanza digital y LOCTI.
-  - `Ciencia & Tech`: Telecomunicaciones, nube e infraestructura nacional.
-- **Perfil de Voz / Tono:**
-  - ⚖️ **Abogado Venezuela:** Doctrinal (Forense / TSJ · *Recomendado*), Litigante (Ruta procesal / Lapsos), Explicativo (Divulgación), Jull (Técnico-Científico) y Jull (Explicativo).
-  - ⚖️ **Abogado Colombia:** Doctrinal (Precedente / Corte Constitucional), Litigante (Acción de Tutela / Términos), Explicativo (Habeas Data / Ciudadano).
-  - 🌐 **Corporativo y General:** Consultor Corporativo (Compliance / Riesgos), Conversacional, Analítico, Didáctico, Ejecutivo.
-- **Objetivo de Extensión:** `Pilar SEO (~1000 pal. · Recomendado 2026)`, 600, 1500 o 2000 palabras.
-- **Jurisdicción:** Auto-detección inteligente, Venezuela (`es-VE`), Colombia (`es-CO`) o Internacional (`ISO/NIST/UE`).
-- **Temperatura (Rigor Factual):** Predeterminada en `0.2` para garantizar precisión milimétrica y cero invención de leyes.
+### Paso 1: Seleccionar la Fuente de Origen (Columna 1)
+Dispones de tres modalidades de ingesta:
+1. **Docling (.MD / .JSON) [Recomendado - 0ms Latencia]:** Sube archivos procesados con Docling. Extrae automáticamente títulos limpios, elimina artefactos OCR y los almacena en `RAG/inputs/`.
+2. **Pegar Texto:** Pega notas periciales, apuntes o resúmenes de leyes directamente en el editor.
+3. **Enlace URL:** Introduce un enlace web. El scraper seguro de HTTPX extraerá el contenido limpiando menús y rastreadores con protección anti-SSRF.
 
-### 2️⃣ Columna Central: Editor y Visor Estructurado
-- **Streaming SSE en Tiempo Real:** Redacción fluida en vivo con cursor interactivo y contador de tokens/tiempo.
-- **Cajas Didácticas y Estilos Inline:** *Meta Descripción*, *Resumen Ejecutivo en 30 Segundos*, *En Palabras Simples* y *Conclusión del Párrafo*.
-- **Acciones y Exportación Multi-CMS:**
-  - 📋 **Copiar p/ WordPress:** Copia el artículo en HTML estilizado compatible con bloques de Gutenberg o Editor Clásico.
-  - 🚀 **Copiar p/ Sitejet:** Copia HTML higienizado sin etiquetas `<script>` para el constructor visual de Sitejet.
-  - 📦 **Kit Sitejet:** Descarga un archivo `.zip` con el artículo en Markdown, HTML, metadatos JSON y la cabecera procesada a PNG.
-  - 📥 **Descargar .MD / .HTML / Imprimir Oficio:** Formatos completos con Frontmatter YAML y estilos periciales.
+### Paso 2: Seleccionar la Especialidad Temática (Columna 1)
+Haz clic en una de las píldoras temáticas:
+* **🔬 Forense & TSJ (`forensic_law`):** Evidencia digital, cadena de custodia, hash SHA-256, sentencias de la Sala Constitucional/Penal del TSJ, ISO 27037 y manual MP/CICPC 2017.
+* **⚖️ Derecho Digital (`legal_tech`):** Firmas electrónicas, mensajes de datos (G.O. 37.148), validez procesal y comercio electrónico.
+* **🛡️ Ciberseguridad (`cybersecurity`):** Ley Especial contra los Delitos Informáticos (G.O. 37.313), VenCERT, ISO 27001 e incidentes de seguridad.
+* **🤖 IA & Datos (`ai_ethics`):** Modelos generativos, gobernanza algorítmica, soberanía tecnológica e Infogobierno (G.O. 40.274).
+* **📡 Ciencia & Tech (`science_tech`):** Telecomunicaciones, computación en la nube e infraestructura crítica.
 
-### 3️⃣ Columna Derecha: Auditoría SEO & UX (Doble Scorecard 2026)
-- **Score Calidad SEO Estructural (0-100%):** Evalúa longitud H1 (8-12 palabras), meta descripción (145-160 caracteres), subtítulos H2 rítmicos, negritas, enlaces, FAQ, TOC y microdatos Schema.org.
-- **Score Calidad Jurídica & GEO 2026 (0-100%):**
-  - **Respuesta Directa GEO (40-60 palabras):** Párrafo inicial extractable por Google AI Overviews, Perplexity y ChatGPT.
-  - **Descargo Ético Obligatorio:** Cláusula de advertencia profesional (*"no constituye asesoría legal..."*).
-  - **Términos Jurídicos Detectados:** Contador de términos autorizados del glosario procesal (óptimo ≥ 8).
-  - **H2 como Preguntas (≥ 50%):** Redacción en formato de consulta de usuario.
-  - **Control Anti-Promesas y Anti-Calcos:** Sanciona expresiones engañosas (*"garantizamos el éxito"*) y vicios lingüísticos (*"a nivel de"*).
-- **Índice YMYL 2026 Consolidado:** Medidor ponderado (*60% SEO Estructural + 40% Calidad Jurídica*) con badge de estado (`EXCELENTE 2026`, `ACEPTABLE`, `REVISIÓN REQUERIDA`).
-- **Botón Auditoría Profunda (`btnDeepAudit`):** Ejecuta la evaluación determinista contra el backend `/api/seo-audit` y despliega chips detallados con advertencias e incidencias.
+### Paso 3: Calibrar los Parámetros Editoriales (Columna 1)
+* **Perfil de Voz / Tono:**
+  * 🎓 **Revista Científica Arbitrada (Derecho & Computación Forense — Nivel Universidad):** Autocalibra la extensión a 1.500 palabras y temperatura 0.2 con estructura doctoral de 12 bloques.
+  * ⚖️ **Abogado Venezuela:** Doctrinal (Forense/TSJ), Litigante (Rutas procesales), Explicativo (Divulgación).
+  * ⚖️ **Abogado Colombia:** Doctrinal (Precedente Corte Constitucional), Litigante (Acción de Tutela), Explicativo.
+  * 🌐 **Corporativo y Divulgación:** Consultor Corporativo, Conversacional, Analítico, Didáctico, Ejecutivo.
+* **Extensión Objetivo:** Desde 600 palabras (Resumen Ejecutivo) hasta 2.000 palabras (Tratado Extenso). *Recomendado SEO: Pilar de 1.000 palabras*.
+* **Temperatura:** Predeterminada en `0.2` para máxima fidelidad fáctica.
+
+### Paso 4: Redacción en Vivo y Visualización (Columna 2)
+* Pulsa **`Redactar Artículo`** o presiona <kbd>Ctrl</kbd> + <kbd>Enter</kbd>.
+* Observa el streaming en tiempo real con indicador de palabras y sección activa.
+* Si necesitas cancelar, presiona <kbd>Escape</kbd> o el botón **Detener**.
+* Alterna entre las pestañas del visor:
+  * **Revista:** Diseño digital fluido con tipografía editorial, cajas de notas y callouts.
+  * **Markdown:** Vista de código fuente crudo listo para descargar.
+  * **WordPress:** Vista previa en iframe idéntica a cómo se verá en el editor Gutenberg.
+* Prueba el **Simulador Responsive** (🖥️ Escritorio 100%, 💻 Tablet 820px, 📱 Móvil 390px).
+
+### Paso 5: Exportación e Impresión
+Despliega el botón **"Copiar ▾"**:
+* 📋 **Copiar:** Copia el HTML con estilos inline optimizado para pegar en WordPress Gutenberg o Classic Editor.
+* 🚀 **Copiar p/ Sitejet:** HTML higienizado sin `<script>` para el constructor Sitejet Builder.
+* 📦 **Kit SEO Sitejet:** Descarga un `.zip` con el HTML, Markdown, metadatos JSON y la cabecera procesada a PNG real (1200x675 px).
+* 🖨️ **Imprimir (Ctrl+P):** Activa el motor `@media print` para exportar a **PDF u oficio físico** con maquetación de revista universitaria (Georgia, texto justificado, sangría francesa APA y sin barras de navegación).
+
+### Paso 6: Verificación en el Scorecard de Auditoría (Columna 3)
+La columna derecha audita simultáneamente:
+1. **Calidad SEO Estructural (0-100%):** H1 (8-12 palabras), meta descripción (145-160 caracteres), H2 rítmicos, FAQ, TOC y Schema.org.
+2. **Calidad Jurídica & GEO 2026 (0-100%):** Respuesta directa *Answer-First* para Google AI, descargo ético profesional, términos jurídicos del glosario y ausencia de promesas engañosas.
+3. **Auditoría Profunda:** Pulsa el botón para recibir un informe determinista generado por el backend.
 
 ---
 
-## ⌨️ Atajos de Teclado (Power Users)
+## 🏛️ 4. Especialidades Temáticas y Marco Jurídico Soportado
+
+El sistema cuenta con un índice RAG local precargado con **96 fuentes normativas y técnicas** organizadas en `Informacion_docling_rag/`:
+
+```text
+🇻🇪 REPÚBLICA BOLIVARIANA DE VENEZUELA:
+   • Constitución de la República Bolivariana de Venezuela (CRBV, Arts. 28, 60 y 110)
+   • Ley Especial contra los Delitos Informáticos (G.O. Nº 37.313, 2001)
+   • Decreto-Ley sobre Mensajes de Datos y Firmas Electrónicas (G.O. Nº 37.148, 2001)
+   • Ley de Infogobierno (G.O. Nº 40.274, 2013) y LOCTI
+   • Manual Único de Cadena de Custodia de Evidencias Físicas (MP / CICPC, Versión 2017)
+   • Centro Nacional de Informática Forense (CENIF, G.O. Nº 39.847) y SUSCERTE / VenCERT
+   • Línea Jurisprudencial TSJ: Sala Constitucional, Sala de Casación Penal y Civil
+
+🇨🇴 REPÚBLICA DE COLOMBIA:
+   • Constitución Política de Colombia de 1991 (Arts. 15 y 20)
+   • Ley 1273 de 2009 (Protección de la Información y Delitos Informáticos)
+   • Ley 1581 de 2012 y Ley 1266 de 2008 (Habeas Data y Datos Personales)
+   • Ley 527 de 1999 (Comercio Electrónico, Mensajes de Datos y Firmas Digitales)
+   • Código General del Proceso (CGP) y Precedentes de la Corte Constitucional
+
+🌐 ESTÁNDARES INTERNACIONALES FORENSES:
+   • ISO/IEC 27037:2012 (Directrices para la identificación, recolección, adquisición y preservación de evidencia digital)
+   • ISO/IEC 27042:2015 (Análisis e interpretación de evidencias digitales)
+   • RFC 3227 (Directrices para la recolección de evidencia en memoria volátil)
+   • NIST SP 800-86 (Integración de técnicas forenses en respuesta a incidentes)
+```
+
+---
+
+## ⌨️ 5. Atajos de Teclado (Power Users)
 
 | Atajo | Acción |
 |---|---|
 | <kbd>Ctrl</kbd> + <kbd>Enter</kbd> | **Redactar / Iniciar Inferencia** |
 | <kbd>Escape</kbd> | **Detener Inferencia Inmediatamente** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | **Copiar con Estilos para WordPress** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> | **Copiar para Sitejet Builder** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> | **Copiar Markdown Crudo** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> | **Imprimir en Formato Pericial** |
-| <kbd>?</kbd> | **Abrir Modal de Ayuda de Atajos** |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | **Copiar con Estilos para WordPress Gutenberg** |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> | **Copiar Higienizado para Sitejet Builder** |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd> | **Generar y Descargar Kit SEO Sitejet (.ZIP)** |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> | **Copiar Código Markdown Crudo** |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> o <kbd>Ctrl</kbd> + <kbd>P</kbd> | **Imprimir en Formato Oficio / Revista Física** |
+| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd> | **Seguir Flujo de Redacción (Scroll Automático)** |
+| <kbd>?</kbd> | **Abrir Modal de Ayuda de Atajos de Teclado** |
 
 ---
 
-## 🎯 Especialidades Temáticas y Marco Jurídico
+## 💻 6. Requisitos del Sistema e Instalación
 
-```text
-🇻🇪 VENEZUELA:
-   • Constitución de la República Bolivariana de Venezuela (CRBV, Arts. 28, 60 y 110)
-   • Decreto-Ley sobre Mensajes de Datos y Firmas Electrónicas (G.O. 37.148)
-   • Ley Especial contra los Delitos Informáticos (G.O. 37.313)
-   • Ley de Infogobierno (G.O. 40.274) y Ley Orgánica de Ciencia y Tecnología (LOCTI)
-   • Cadena de Custodia Digital (COPP Art. 187 / MP / CICPC / SUSCERTE / VenCERT)
+### Requisitos del Sistema:
+| Componente | Requisito Recomendado | Requisito Mínimo |
+|---|---|---|
+| **Sistema Operativo** | Windows 10 / 11 (64-bit) | Windows 10 (64-bit) |
+| **Memoria RAM** | 16 GB (para `granite3.3:8b`) | 8 GB (usando `granite3.3:2b`) |
+| **Procesador (CPU)** | Intel Core i5/i7/Ryzen 5 o superior (4+ hilos) | 4 núcleos x64 |
+| **Almacenamiento** | ~6 GB libres (modelo + dependencias) | ~3 GB libres |
+| **Python** | Python 3.10, 3.11, 3.12 o 3.14 | Python 3.10 |
+| **Ollama** | Última versión instalada | v0.3.0+ |
 
-🇨🇴 COLOMBIA:
-   • Constitución Política de Colombia de 1991 (Arts. 15 y 20)
-   • Ley 1273 de 2009 (Protección de la Información y de los Datos / Delitos Informáticos)
-   • Ley 1581 de 2012 y Ley 1266 de 2008 (Habeas Data y Datos Personales)
-   • Ley 527 de 1999 (Mensajes de Datos, Comercio Electrónico y Firmas Digitales)
-   • Código General del Proceso (CGP) · Precedentes Corte Constitucional · Circulares SIC
+---
 
-🌐 INTERNACIONAL:
-   • Normas ISO/IEC 27001, 27037 (Evidencia Digital) · Estándares NIST SP 800-86 · RFC 3227
+### Instalación Rápida Paso a Paso:
+
+#### 1. Instalar Ollama en Windows
+Descárgalo de [ollama.com/download/windows](https://ollama.com/download/windows) o ejecuta en PowerShell:
+```powershell
+winget install Ollama.Ollama
 ```
 
+#### 2. Descargar el Modelo IBM Granite 3.3
+Abre PowerShell y ejecuta:
+```powershell
+ollama pull granite3.3:8b
+```
+*(Opcional: Si tu equipo tiene 8 GB de RAM o deseas máxima velocidad en CPU livianas, descarga `ollama pull granite3.3:2b`)*.
+
+#### 3. Instalar Dependencias de Python
+En la raíz del proyecto, ejecuta:
+```powershell
+pip install -r requirements.txt
+```
+
+#### 4. Iniciar la Aplicación con 1 Clic
+Haz doble clic en **`start.bat`** (o ejecuta `.\start.ps1` en PowerShell):
+```powershell
+.\start.bat
+```
+El iniciador verificará el entorno, levantará Ollama si no está activo, ejecutará el servidor FastAPI y abrirá automáticamente tu navegador en:  
+👉 **`http://127.0.0.1:8000`**
+
 ---
 
-## 📂 Estructura Limpia del Proyecto
+## 🧪 7. Protocolo de Verificación del Funcionamiento
+
+Para verificar que todos los subsistemas del proyecto funcionan al 100%, sigue estos sencillos pasos:
+
+### Paso 1: Ejecutar la Batería Automatizada de Pruebas (Pytest)
+Abre PowerShell en la carpeta del proyecto y ejecuta:
+```powershell
+py -m pytest -v
+```
+**Resultado esperado:**
+* **48 pruebas pasando (100% verde)** en menos de 3 segundos.
+* Cobertura completa: endpoints de FastAPI, rechazo anti-SSRF, parseo de Docling, perfiles jurídicos de Venezuela y Colombia, perfil de revista científica arbitrada, tokens dark-only CSS y reglas de impresión.
+
+### Paso 2: Comprobar el Endpoint de Salud (Healthcheck)
+Ejecuta en tu terminal o abre en el navegador:
+```powershell
+curl http://127.0.0.1:8000/api/health
+```
+**Respuesta JSON esperada:**
+```json
+{
+  "status": "online",
+  "ollama_url": "http://localhost:11434",
+  "models": ["granite3.3:8b", "granite3.3:2b"],
+  "granite_installed": true,
+  "default_model": "granite3.3:2b",
+  "num_ctx": 8192,
+  "num_thread": 4,
+  "keep_alive": "30m",
+  "jurisdiction": "auto"
+}
+```
+
+### Paso 3: Prueba de Generación en Vivo
+1. Abre `http://127.0.0.1:8000`.
+2. En la pestaña **Pegar Texto**, escribe: *"Análisis de la evidencia digital y el valor probatorio del hash SHA-256 en Venezuela"*.
+3. En el Paso 2, selecciona **Forense & TSJ**.
+4. En el Paso 3, selecciona **Revista Científica Arbitrada**.
+5. Presiona **Redactar Artículo** (<kbd>Ctrl</kbd> + <kbd>Enter</kbd>).
+6. Verifica que la generación comience de inmediato, que aparezca la tarjeta azul de **Abstract Científico** y que el scorecard alcance un índice excelente.
+
+---
+
+## 📂 8. Arquitectura y Estructura del Código
 
 ```text
-├── backend/                  # Servidor FastAPI y motores de inferencia
-│   ├── app.py                # Endpoints FastAPI, CORS y SSE streaming
-│   ├── prompts.py            # Motor de prompts, wireframe SEO y reglas GEO 2026
-│   ├── legal_profiles.py     # Perfiles de voz VE/CO, glosarios y fórmulas procesales
-│   ├── legal_validator.py    # Validador de calidad jurídica, calcos, ética y GEO
-│   ├── seo_validator.py      # Validador determinista de métricas SEO y Schema.org
-│   ├── rag_manager.py        # Gestor de RAG, persistencia e historial inmutable
-│   ├── docling_parser.py     # Parser de archivos Markdown/JSON de Docling
-│   ├── scraper.py            # Extractor web seguro con HTTPX y BeautifulSoup
-│   ├── image_generator.py    # Generador procedural de cabeceras SVG 16:9
-│   ├── logger_config.py      # Logger con rotación automática a logs/app.log
+├── backend/                      # Servidor FastAPI y motores periciales
+│   ├── app.py                    # Endpoints FastAPI, CORS, streaming SSE y healthcheck
+│   ├── prompts.py                # Ensamblado de prompts, wireframe SEO y estructura doctoral
+│   ├── legal_profiles.py         # Perfiles de voz VE/CO, revista científica y glosario forense
+│   ├── legal_validator.py        # Validador de calidad jurídica, calcos y ética profesional
+│   ├── seo_validator.py          # Validador determinista SEO, legibilidad y Schema.org
+│   ├── rag_manager.py            # Gestor RAG, recuperación ponderada e historial inmutable
+│   ├── docling_parser.py         # Parser y extractor limpio de Markdown/JSON de Docling
+│   ├── scraper.py                # Extractor HTTPX seguro con validación estricta anti-SSRF
+│   ├── image_generator.py        # Generador de cabeceras vectoriales SVG 16:9
+│   ├── logger_config.py          # Sistema de logs con rotación en logs/app.log
 │   └── data/
-│       └── legal_corpus_ve.json # Corpus normativo venezolano indexado
-├── frontend/                 # Interfaz web modular ES6
-│   ├── index.html            # Layout semántico en 3 columnas
-│   ├── sitejet-lab.html      # Laboratorio de calibración visual Sitejet Builder
-│   ├── favicon.svg           # Ícono SVG pericial
-│   ├── manifest.json         # Manifest PWA
+│       └── legal_corpus_ve.json  # Corpus normativo venezolano estructurado
+├── frontend/                     # Interfaz web modular Dark-Only ES6
+│   ├── index.html                # Layout semántico en 3 columnas y stepper de 4 pasos
+│   ├── sitejet-lab.html          # Laboratorio de calibración visual Sitejet Builder
+│   ├── favicon.svg               # Ícono de terminal pericial
+│   ├── manifest.json             # Manifest de aplicación web
 │   ├── css/
-│   │   ├── style.css         # Tokens de diseño USWDS Cyber-Legal Light Mode
-│   │   └── bootstrap.min.css # Framework base local
+│   │   ├── style.css             # Tokens Dark OLED, modo revista y @media print
+│   │   ├── fonts.css             # Tipografías e iconos locales (0ms CDN)
+│   │   └── bootstrap.min.css     # Framework base local
+│   ├── fonts/                    # Archivos de fuentes locales (Geist, Fira, Outfit)
 │   └── js/
-│       ├── app.js            # Orquestador ES6 y sincronización de estado
-│       └── modules/          # Módulos JS especializados
-│           ├── seo-audit.js          # Auditoría client-side y deep audit server-side
-│           ├── sitejet-exporter.js   # Exportador Sitejet con fallback multietapa y ZIP
-│           ├── wordpress-exporter.js # Exportador Gutenberg enriquecido
-│           ├── article-generator.js  # Gestor SSE streaming y payload
-│           ├── docling-handler.js    # Manejador de subida y limpieza Docling
-│           ├── scraper-handler.js    # Consumo de endpoint de scraping
-│           ├── markdown-renderer.js  # Renderizado seguro de Markdown y tablas
-│           ├── article-history.js    # Historial de artículos archivados en RAG
-│           ├── health-check.js       # Verificación en vivo de Ollama y Granite
-│           ├── keyboard-shortcuts.js # Atajos de teclado accesibles
-│           └── toast-notifications.js# Notificaciones contextuales accesibles
-├── RAG/                      # Memoria viva del sistema
-│   ├── inputs/               # Fuentes importadas persistidas
-│   └── articulos/            # Artículos terminados con Frontmatter YAML
-├── Informacion_docling_rag/  # Documentos normativos indexables para RAG
-├── tests/                    # Suite de 35 pruebas automatizadas (pytest)
-│   ├── test_api_endpoints.py # Verificación de API, SSRF, Sitejet y auditoría SEO
-│   ├── test_legal_profiles.py# Validación de perfiles de voz VE/CO y glosarios
-│   ├── test_prompts.py       # Pruebas de estructura de prompts y reglas GEO 2026
-│   ├── test_docling_parser.py# Pruebas de limpieza y extracción Docling
-│   └── test_rag_manager.py   # Pruebas de persistencia y contexto normativo
-├── logs/                     # Registro de ejecución con rotación
-├── requirements.txt          # Dependencias Python
-├── start.bat                 # Lanzador de 1 clic para Windows
-└── start.ps1                 # Script automatizado de inicio PowerShell
+│       ├── app.js                # Orquestador principal y sincronización de estado
+│       └── modules/              # Módulos especializados
+│           ├── live-preview.js       # Gestor de vista previa y seguimiento de streaming
+│           ├── creation-flow.js      # Controlador de pasos del stepper (1 a 4)
+│           ├── toolbar-menu.js       # Menús contextuales y dropdowns accesibles
+│           ├── markdown-renderer.js  # Renderizador Markdown con callouts y tarjetas científicas
+│           ├── wordpress-exporter.js # Exportador Gutenberg con inline styles e impresión
+│           ├── sitejet-exporter.js   # Exportador higienizado Sitejet y generador de ZIP
+│           ├── seo-audit.js          # Scorecards SEO y calidad jurídica en tiempo real
+│           ├── article-generator.js  # Cliente SSE para streaming con Ollama
+│           ├── docling-handler.js    # Manejador de subida drag & drop Docling
+│           ├── scraper-handler.js    # Controlador de ingesta por URL
+│           ├── article-history.js    # Explorador del historial de artículos RAG
+│           ├── health-check.js       # Monitor de estado de Ollama y Granite
+│           └── keyboard-shortcuts.js # Atajos de teclado con navegación accesible
+├── RAG/                          # Memoria persistente local
+│   ├── inputs/                   # Fuentes cargadas respaldadas con timestamp
+│   └── articulos/                # Artículos terminados archivados con YAML Frontmatter
+├── Informacion_docling_rag/      # 96 documentos normativos indexados (12 categorías jurídicas)
+├── tests/                        # Suite de 48 pruebas automatizadas (pytest)
+│   ├── test_api_endpoints.py     # Pruebas de API, SSRF, UI, tokens dark y print styles
+│   ├── test_legal_profiles.py    # Pruebas de perfiles VE/CO, revista científica y glosarios
+│   ├── test_prompts.py           # Pruebas de inyección de prompts y reglas GEO 2026
+│   ├── test_docling_parser.py    # Pruebas de extracción y limpieza Docling
+│   └── test_rag_manager.py       # Pruebas de recuperación RAG y persistencia YAML
+├── logs/                         # Registro histórico de actividad
+├── requirements.txt              # Requerimientos de Python
+├── start.bat                     # Lanzador de 1 clic para Windows
+└── start.ps1                     # Script de inicio automatizado PowerShell
 ```
 
 ---
 
-## 🧪 Laboratorio de Compatibilidad Sitejet Builder
+## 🧪 9. Laboratorio de Compatibilidad Sitejet Builder
 
-Para validar que los artículos generados se visualicen de forma idéntica en el editor de **Sitejet Builder**, el proyecto incluye un entorno de calibración:
+Para validar la perfecta renderización en **Sitejet Builder** (constructor de sitios web de cPanel / Namecheap), la aplicación incluye un laboratorio de pruebas visuales:
 * Abre en tu navegador: **`http://127.0.0.1:8000/sitejet-lab.html`**
-* Te permite probar:
-  - Preservación de cajas destacadas (*Callouts* de resumen, notas y avisos).
-  - Tablas estilizadas con tipografía legible y celdas acolchadas.
-  - Títulos H1 a H3 con jerarquía visual proporcionada.
-  - Botones de prueba de copiado directo y descarga de kits empaquetados.
+* Te permite probar en tiempo real:
+  * Preservación de cajas destacadas (*Callouts* de resumen, notas y advertencias).
+  * Tablas estilizadas con bordes sutiles y padding equilibrado.
+  * Jerarquía H1-H3 sin alteraciones por el reseteador CSS de Sitejet.
+  * Generación y descarga en vivo de Kits `.ZIP`.
 
 ---
 
-## ❓ Preguntas Frecuentes (FAQ)
+## ❓ 10. Preguntas Frecuentes (FAQ)
 
 <details>
-<summary><strong>¿Puedo usarlo totalmente sin conexión a internet?</strong></summary>
-<strong>Sí, al 100%.</strong> El modelo IBM Granite corre localmente en tu procesador a través de Ollama. Si utilizas la pestaña <em>Docling (.MD/JSON)</em> o <em>Pegar Texto</em>, no se realiza ninguna petición externa a internet.
+<summary><strong>¿Puedo utilizar este sistema totalmente sin conexión a internet?</strong></summary>
+<strong>Sí, al 100%.</strong> IBM Granite 3.3 opera localmente en tu procesador a través de Ollama. Si utilizas la ingesta de archivos Docling (.MD/.JSON) o el pegado directo de texto, la aplicación no realiza ninguna solicitud a internet. Las fuentes tipográficas y los iconos están integrados localmente en la carpeta <code>frontend/fonts/</code>.
 </details>
 
 <details>
 <summary><strong>¿Qué diferencia hay entre "Copiar p/ WordPress" y "Copiar p/ Sitejet"?</strong></summary>
-<strong>WordPress (Gutenberg)</strong> procesa bloques enriquecidos con clases e inline styles específicos para su parser de bloques. <strong>Sitejet Builder</strong> es un constructor visual estricto que rechaza scripts y requiere estilos inline directos en etiquetas HTML estándar (sin clases complejas) para evitar que su editor sanitice o rompa la diagramación.
+<strong>WordPress (Gutenberg):</strong> Genera HTML enriquecido con estilos específicos que los bloques de párrafo, encabezado y tabla de Gutenberg reconocen de forma nativa manteniendo el diseño.  
+<strong>Sitejet Builder:</strong> Constructor visual estricto que requiere etiquetas HTML limpias con estilos inline directos y sin scripts, evitando que su motor de sanitización elimine componentes visuales.
 </details>
 
 <details>
-<summary><strong>¿Cómo funciona el Kit Sitejet (.zip)?</strong></summary>
-Al pulsar <strong>"Kit Sitejet"</strong>, tu navegador convierte en milisegundos la cabecera SVG a un PNG real de alta resolución (`1200x675 px`) y genera un archivo ZIP descargable que contiene el HTML limpio, el Markdown original, los metadatos estructurados en JSON y la imagen lista para subir como recurso a Sitejet.
+<summary><strong>¿Qué ventajas tiene el perfil "Revista Científica Arbitrada"?</strong></summary>
+Estructura el artículo conforme al estándar de publicaciones universitarias internacionales: genera un <strong>Abstract estructurado bilingüe</strong> (Objetivo, Metodología, Resultados, Conclusiones), cita directrices periciales internacionales (<strong>ISO/IEC 27037, RFC 3227</strong>), contrasta con el <strong>Manual Único de Cadena de Custodia de Venezuela (2017)</strong>, analiza jurisprudencia del <strong>TSJ</strong>, aplica referencias en formato <strong>APA 7ma edición</strong> y microdatos Schema.org <code>ScholarlyArticle</code>.
 </details>
 
 <details>
-<summary><strong>¿Por qué la temperatura está configurada en 0.2?</strong></summary>
-En la redacción jurídica y técnica (YMYL), temperaturas altas (> 0.5) provocan que los modelos de lenguaje alucinen normativas, inventen números de artículos o citen jurisprudencia ficticia. Con <strong>0.2 (Rigor Factual)</strong>, IBM Granite se ciñe estrictamente a los hechos de la fuente y al corpus legal autorizado.
+<summary><strong>¿Cómo funciona la impresión en formato oficio (@media print)?</strong></summary>
+Al presionar <kbd>Ctrl</kbd> + <kbd>P</kbd> o seleccionar <em>Imprimir</em> en el menú, la hoja de estilos <code>@media print</code> oculta automáticamente todos los paneles de control, barras de navegación y botones, ajustando el contenido a tamaño carta/oficio con tipografía serifa académica (Georgia), texto justificado, control de saltos de página y sangría francesa en las referencias.
 </details>
 
 <details>
-<summary><strong>¿Cómo ejecuto las pruebas automatizadas del proyecto?</strong></summary>
-Abre PowerShell y ejecuta:
-<pre><code>py -3.14 -m pytest -v</code></pre>
-La suite incluye <strong>35 pruebas automatizadas</strong> que verifican endpoints de FastAPI, rechazo anti-SSRF, parseo de Docling, perfiles jurídicos de Venezuela y Colombia, validadores de auditoría SEO/GEO y generación de kits.
+<summary><strong>¿Por qué la temperatura recomendada es 0.2?</strong></summary>
+En áreas técnicas y jurídicas (YMYL), temperaturas mayores a 0.5 aumentan exponencialmente la probabilidad de que el modelo alucine normativas, confunda artículos de leyes o invente jurisprudencia. Con <strong>0.2 (Rigor Factual)</strong>, IBM Granite 3.3 se ciñe estrictamente al contexto suministrado y al corpus legal positivo verificado.
+</details>
+
+<details>
+<summary><strong>¿Qué modelo de Granite debo elegir (2B vs 8B)?</strong></summary>
+• <strong>granite3.3:8b (Recomendado):</strong> Mayor riqueza léxica, razonamiento dogmático superior y redacción pericial profunda. Requiere ~8-10 GB de RAM disponible.<br>
+• <strong>granite3.3:2b:</strong> Ultrarrápido, ideal para ordenadores portátiles o equipos con 8 GB de RAM total. Proporciona excelente síntesis técnica con un consumo inferior a 2.5 GB de RAM.
 </details>
 
 ---

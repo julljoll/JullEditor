@@ -95,7 +95,8 @@ export function initKeyboardShortcuts(callbacks) {
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd></td><td>Abrir Kit SEO Sitejet</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td>Copiar para WordPress</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></td><td>Copiar Markdown</td></tr>
-            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd></td><td>Imprimir formato pericial</td></tr>
+            <tr><td><kbd>Ctrl</kbd> + <kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd></td><td>Pestaña Revista / Markdown / WordPress</td></tr>
+            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd></td><td>Seguir generación (auto-scroll)</td></tr>
             <tr><td><kbd>?</kbd></td><td>Mostrar esta ayuda</td></tr>
           </table>
         </div>

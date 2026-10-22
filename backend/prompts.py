@@ -379,7 +379,8 @@ def build_generation_prompt(
         "conversational": "Conversacional, amigable, directo, profesional pero cálido (como hablar con un colega especialista que explica con total claridad).",
         "analytical": "Analítico pericial, metódico, apoyado en evidencia técnica, doctrina jurídica y razonamiento lógico.",
         "didactic": "Didáctico y pedagógico, con analogías cotidianas, ideal para rápida comprensión por cualquier usuario.",
-        "executive": "Ejecutivo y directivo, orientado a la toma de decisiones, gestión de riesgos legales y gobernanza tecnológica."
+        "executive": "Ejecutivo y directivo, orientado a la toma de decisiones, gestión de riesgos legales y gobernanza tecnológica.",
+        "revista_cientifica_law_tech": "Revista Científica Arbitrada (Derecho & Computación Forense — Nivel Universidad / Postgrado). Máximo rigor dogmático, pericial y metodológico con abstract estructurado bilingüe, referencias APA 7ª y Schema.org ScholarlyArticle."
     }
     selected_tone = tone_descriptions.get(tone, tone_descriptions["conversational"])
 
@@ -389,6 +390,40 @@ def build_generation_prompt(
         persona_def = PERSONAS[tone]
         selected_tone = f"{persona_def['label']}: {persona_def['register']}"
         persona_block = build_persona_block(tone, jcode, query_str[:3000])
+
+    # Instrucción de estructura específica si se selecciona el Tono Académico de Revista Universitaria
+    academic_specific_structure = ""
+    if tone == "revista_cientifica_law_tech":
+        academic_specific_structure = """
+DIRECTRICES ESPECÍFICAS DE REVISTA CIENTÍFICA ARBITRADA (LAW & TECH REVIEW):
+- **Estructura Académica Formal de Universidad/Postgrado:**
+  • **Título Académico Bilingüe:** 
+    `# [TÍTULO CIENTÍFICO EN ESPAÑOL DE 8-12 PALABRAS CON LA PALABRA CLAVE PRIMARIA]`
+    `### *[Scientific Title in English: Formal Academic Translation for International Indexing]*`
+  • **Meta Descripción CTR:** 145 a 160 caracteres contigua bajo el título.
+  • **Cinta de Indexación:** Palabra Clave Primaria | Keywords LSI | Descriptores UNESCO / Tesauro Jurídico | Jurisdicción: Venezuela 🇻🇪 | Cita Sugerida: Revista Arbitrada de Derecho & Ciberseguridad.
+  • **Resumen Estructurado (Abstract Bilingüe Obligatorio):**
+    `> **📋 RESUMEN ESTRUCTURADO (ABSTRACT):**`
+    `> - **Objetivo / Problema Jurídico:** [Planteamiento del conflicto técnico-legal analizado].`
+    `> - **Metodología / Marco Doctrinal:** [Cruce de normativas venezolanas, normas ISO/NIST y cadena de custodia].`
+    `> - **Resultados / Hallazgos Periciales:** [Comprobación de autenticidad, riesgos procesales o validez de cláusulas].`
+    `> - **Conclusiones Doctrinales:** [Dictamen pericial aplicable al ejercicio pericial y litigio].`
+    `> `
+    `> **Palabras Clave:** [5 descriptores formales en español]`
+    `> **Keywords (EN):** [5 keywords correspondientes en inglés]`
+  • **Párrafo GEO 2026 de Respuesta Directa (Answer-First):** Párrafo autocontenido de 40 a 60 palabras exactas inmediatamente bajo el abstract, respondiendo directamente a la cuestión central antes de la Tabla de Contenidos.
+  • **Cajas de Entrada Rápida:** `> **⚡ RESUMEN EJECUTIVO EN 30 SEGUNDOS (PARA ABOGADOS Y PERITOS):**` y `> **📌 SÍNTESIS FIDEDIGNA DE LA FUENTE ORIGINAL:**`.
+  • **Cuerpo Canónico con Secciones Numeradas con anclas {#slug}:**
+    1. `## 1. Introducción y Estado del Arte (State of the Art) {#introduccion}`
+    2. `## 2. Marco Normativo y Doctrinal Venezolano Aplicable {#marco-normativo}` (CRBV Arts. 28, 49, 60, 110; Ley Especial contra los Delitos Informáticos G.O. 37.313; Ley sobre Mensajes de Datos y Firmas Electrónicas G.O. 37.148; Ley de Infogobierno).
+    3. `## 3. Discusión Técnico-Forense y Protocolos de Ciberseguridad {#discusion-forense}` (Metodología RFC 3227, ISO/IEC 27037, cálculo y verificación de hash SHA-256 e imagen bit a bit, fases del Manual Único de Cadena de Custodia MP/CICPC 2017).
+    4. `## 4. Análisis Jurisprudencial del TSJ y Contratación Electrónica {#analisis-jurisprudencial}` (Criterios vinculantes de salas del TSJ sobre prueba electrónica, y cláusulas de confidencialidad y validez contractual electrónica).
+    5. `## 5. Compatibilidad y Viabilidad Tecnológica en Venezuela {#compatibilidad-venezuela}` (Infraestructura, conectividad, acreditación pericial SUSCERTE y gobernanza CNTI).
+    6. `## 6. Conclusiones y Recomendaciones Deontológicas {#conclusiones}` (Dictamen pericial y deberes éticos del abogado).
+    7. `## 7. Preguntas Frecuentes Jurídico-Técnicas (FAQ) {#faq}` (3 preguntas P/R).
+    8. `## 8. Referencias Bibliográficas y Normativas (Normas APA 7ª Edición / ISO 690) {#referencias}` (Citas formales de Gacetas Oficiales, leyes, sentencias del TSJ y estándares ISO/NIST).
+  • **Doble Bloque Schema.org JSON-LD:** Primer bloque con `@type: "ScholarlyArticle"` (con `about`, `audience: Abogados y Peritos`, `educationalLevel: Postgrado`) y segundo bloque `@type: "FAQPage"`.
+"""
 
     # Instrucción de estructura específica si se selecciona el Tono Jull (Técnico o Explicativo)
     jull_specific_structure = ""
@@ -454,9 +489,12 @@ DIRECTRICES ESPECÍFICAS DE ESTRUCTURA Y TONO JULL (WIREFRAME EDITORIAL EXACTO):
 
 {jull_specific_structure}
 
+{academic_specific_structure}
+
 {persona_block}
 
 {legal_rag_section}
+
 
 CONFIGURACIÓN DE LA PUBLICACIÓN:
 - Idioma de Redacción: ESPAÑOL ESTRICTO (100% traducido y analizado conceptualmente).

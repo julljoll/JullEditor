@@ -41,8 +41,14 @@ export function initScraperHandler(state) {
       }
 
       const data = await res.json();
-      if (sourceTitle) sourceTitle.value = data.title || "";
-      if (sourceText) sourceText.value = data.text || "";
+      if (sourceTitle) {
+        sourceTitle.value = data.title || "";
+        sourceTitle.dispatchEvent(new Event("input"));
+      }
+      if (sourceText) {
+        sourceText.value = data.text || "";
+        sourceText.dispatchEvent(new Event("input"));
+      }
 
       // Guardar metadatos en el objeto state compartido
       state.scraperMetadata.source_lang = data.source_lang || "";

@@ -18,7 +18,9 @@ export function initLayoutToggle(state) {
 
   // 1. Restaurar preferencias de diseño desde localStorage
   const savedLayout = localStorage.getItem("granite.layout") || "magazine";
-  const savedReading = localStorage.getItem("granite.reading") === "true";
+  // El modo lectura NUNCA debe persistir al iniciar para asegurar que el panel de creación principal siempre sea visible
+  localStorage.removeItem("granite.reading");
+  const savedReading = false;
 
   function applyLayout(layout) {
     if (!articleContainer) return;

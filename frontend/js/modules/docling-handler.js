@@ -128,8 +128,14 @@ export function initDoclingHandler(callbacks) {
 
       combinedWordCount = primaryText.split(/\s+/).filter(Boolean).length;
 
-      if (sourceTitle) sourceTitle.value = primaryTitle;
-      if (sourceText) sourceText.value = primaryText;
+      if (sourceTitle) {
+        sourceTitle.value = primaryTitle;
+        sourceTitle.dispatchEvent(new Event("input"));
+      }
+      if (sourceText) {
+        sourceText.value = primaryText;
+        sourceText.dispatchEvent(new Event("input"));
+      }
 
       if (callbacks && callbacks.onThemeDetected) {
         callbacks.onThemeDetected(finalTheme);
@@ -203,8 +209,14 @@ export function initDoclingHandler(callbacks) {
       doclingProgress.style.display = "none";
       doclingFileChip.style.display = "none";
       doclingDropzone.style.display = "block";
-      if (sourceTitle) sourceTitle.value = "";
-      if (sourceText) sourceText.value = "";
+      if (sourceTitle) {
+        sourceTitle.value = "";
+        sourceTitle.dispatchEvent(new Event("input"));
+      }
+      if (sourceText) {
+        sourceText.value = "";
+        sourceText.dispatchEvent(new Event("input"));
+      }
       if (terminalStatus) {
         terminalStatus.innerText = "STANDBY";
         terminalStatus.style.color = "var(--text-secondary)";

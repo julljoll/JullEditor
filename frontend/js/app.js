@@ -16,8 +16,14 @@ import { initArticleHistory } from "./modules/article-history.js";
 import { initKeyboardShortcuts } from "./modules/keyboard-shortcuts.js";
 import { initArticleGenerator } from "./modules/article-generator.js";
 import { initLayoutToggle } from "./modules/layout-toggle.js";
+import { initCreationFlow } from "./modules/creation-flow.js";
+import { initToolbarMenu } from "./modules/toolbar-menu.js";
+import { initLivePreview } from "./modules/live-preview.js";
 
 document.addEventListener("DOMContentLoaded", () => {
+  // Asegurar que la página siempre inicie arriba en el panel principal de creación
+  window.scrollTo(0, 0);
+
   // Estado global compartido
   const state = {
     selectedTheme: "legal_tech",
@@ -64,6 +70,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const THEME_DEFAULTS = {
     legal_tech: 0.2,
+    forensic_law: 0.2,
     cybersecurity: 0.25,
     ai_data: 0.3,
     science_tech: 0.3
@@ -110,6 +117,26 @@ document.addEventListener("DOMContentLoaded", () => {
   // Inicializar tema y temperatura por defecto (LegalTech 0.2 Rigor Factual para máxima puntuación SEO & Deontología)
   selectTheme("legal_tech");
 
+  const toneSelect = document.getElementById("toneSelect");
+  const wordCountTarget = document.getElementById("wordCountTarget");
+
+  if (toneSelect) {
+    toneSelect.addEventListener("change", () => {
+      if (toneSelect.value === "revista_cientifica_law_tech") {
+        if (wordCountTarget) wordCountTarget.value = "1500";
+        if (tempSlider) {
+          tempSlider.value = 0.2;
+          if (tempValueLabel) {
+            tempValueLabel.innerText = "0.2 (Rigor Científico & Doctrinal)";
+            tempValueLabel.style.color = "var(--color-secondary)";
+          }
+        }
+        selectTheme("forensic_law");
+        toast.info("Modo Revista Científica Arbitrada activado: Rigor 0.20 · Extensión ~1.500 pal.");
+      }
+    });
+  }
+
   if (tempSlider && tempValueLabel) {
     tempSlider.addEventListener("input", (e) => {
       const val = parseFloat(e.target.value);
@@ -117,6 +144,7 @@ document.addEventListener("DOMContentLoaded", () => {
       tempValueLabel.style.color = formatTempColor(val);
     });
   }
+
 
   // 4. Inicializar Docling Handler
   initDoclingHandler({
@@ -152,6 +180,15 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // 9.1 Inicializar Alternador de Revista 3 Columnas y Modo Lectura
   initLayoutToggle(state);
+
+  // 9.2 Inicializar Flujo Guiado de Creación (Stepper, validación fuente, segmentos)
+  initCreationFlow(state);
+
+  // 9.3 Inicializar Menú Accesible de Toolbar (Copiar ▾)
+  initToolbarMenu();
+
+  // 9.4 Inicializar Vista Previa en Vivo (Esqueleto vivo, estructura 12 bloques, tabs, streaming)
+  initLivePreview(state);
 
   // 10. Auditoría Profunda 2026 y Sincronización Jurisdiccional
   const btnDeepAudit = document.getElementById("btnDeepAudit");
@@ -192,8 +229,14 @@ document.addEventListener("DOMContentLoaded", () => {
       if (btnDownloadSelectedImage) btnDownloadSelectedImage.style.display = "none";
       renderArticle("");
       updateSeoAudit("");
-      if (sourceText) sourceText.value = "";
-      if (sourceTitle) sourceTitle.value = "";
+      if (sourceText) {
+        sourceText.value = "";
+        sourceText.dispatchEvent(new Event("input"));
+      }
+      if (sourceTitle) {
+        sourceTitle.value = "";
+        sourceTitle.dispatchEvent(new Event("input"));
+      }
       if (urlInput) urlInput.value = "";
       if (terminalTokens) terminalTokens.innerText = "0";
       if (terminalTime) terminalTime.innerText = "0s";

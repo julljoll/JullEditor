@@ -54,10 +54,12 @@ CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://127.0.0.1:8000,http://localhost
 
 # Semáforo de concurrencia: 1 inferencia activa a la vez para no saturar CPU
 generation_semaphore = asyncio.Semaphore(1)
+active_client: Optional[httpx.AsyncClient] = None
 
 # Temperaturas predeterminadas por especialidad temática (Anti-alucinación y rigor fáctico 0.2 - 0.3)
 THEME_TEMPERATURES = {
     "legal_tech": 0.2,
+    "forensic_law": 0.2,
     "cybersecurity": 0.25,
     "ai_data": 0.3,
     "science_tech": 0.3
@@ -376,18 +378,44 @@ async def download_proxy_image(image_url: str):
         logger.error(f"Error en proxy de imagen {image_url}: {e}")
         raise HTTPException(status_code=500, detail=f"Error descargando imagen: {str(e)}")
 
+@app.post("/api/stop-generation")
+async def stop_generation_endpoint():
+    """Cancela inmediatamente la inferencia activa en Ollama si existe."""
+    global active_client
+    if active_client and not active_client.is_closed:
+        try:
+            await active_client.aclose()
+            logger.info("Inferencia en Ollama cancelada exitosamente vía /api/stop-generation.")
+        except Exception as e:
+            logger.warning(f"Aviso cerrando cliente de generación: {e}")
+    return {"status": "stopped"}
+
 @app.post("/api/generate-stream")
-async def generate_article_stream(req: GenerateRequest):
+async def generate_article_stream(req: GenerateRequest, request: Request):
     """
     Genera el artículo en tiempo real mediante Server-Sent Events (SSE) desde Ollama
     con control de concurrencia en CPU, ventana de contexto extendida (num_ctx),
     parámetros de inferencia de alto rendimiento y adaptación jurisdiccional.
     """
+    global active_client
     if generation_semaphore.locked():
-        raise HTTPException(
-            status_code=status.HTTP_429_TOO_MANY_REQUESTS,
-            detail="El motor Granite local está procesando otra redacción en CPU. Por favor espera unos momentos a que finalice."
-        )
+        # Si hay una sesión previa huérfana o el cliente inició otra solicitud, intentar liberar
+        if active_client and not active_client.is_closed:
+            logger.info("Cerrando sesión previa huérfana para atender nueva solicitud de generación.")
+            try:
+                await active_client.aclose()
+            except Exception:
+                pass
+
+        # Esperar hasta 3.5 segundos a que el semáforo se libere
+        try:
+            await asyncio.wait_for(generation_semaphore.acquire(), timeout=3.5)
+            generation_semaphore.release()
+        except asyncio.TimeoutError:
+            raise HTTPException(
+                status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+                detail="El motor Granite local está procesando otra redacción en CPU. Por favor espera unos momentos a que finalice."
+            )
 
     selected_model = req.model or DEFAULT_GRANITE_MODEL
     selected_temp = req.temperature if req.temperature is not None else THEME_TEMPERATURES.get(req.theme, DEFAULT_TEMPERATURE)
@@ -458,8 +486,10 @@ async def generate_article_stream(req: GenerateRequest):
     )
 
     async def event_generator():
+        global active_client
         async with generation_semaphore:
             async with httpx.AsyncClient(timeout=httpx.Timeout(400.0, connect=10.0)) as client:
+                active_client = client
                 try:
                     async with client.stream(
                         "POST",
@@ -474,6 +504,11 @@ async def generate_article_stream(req: GenerateRequest):
                             return
 
                         async for chunk in response.aiter_lines():
+                            # Verificar si el cliente del navegador se desconectó
+                            if await request.is_disconnected():
+                                logger.info("Cliente desconectado de SSE (cancelado o recarga). Deteniendo inferencia en Ollama.")
+                                break
+
                             if chunk:
                                 try:
                                     parsed = json.loads(chunk)
@@ -493,12 +528,16 @@ async def generate_article_stream(req: GenerateRequest):
                                         break
                                 except json.JSONDecodeError:
                                     continue
+                except (httpx.RequestError, asyncio.CancelledError) as exc:
+                    logger.info(f"Stream cancelado o interrumpido: {exc}")
                 except Exception as e:
                     logger.error(f"Error en streaming SSE: {e}", exc_info=True)
                     err_text = str(e)
                     if "connection" in err_text.lower() or "connect" in err_text.lower():
                         err_text = f"No se pudo conectar a Ollama en {OLLAMA_BASE_URL}. Inicia el servicio ejecutando 'ollama serve' en una terminal."
                     yield f"data: {json.dumps({'error': err_text})}\n\n"
+                finally:
+                    active_client = None
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
@@ -521,6 +560,10 @@ if os.path.exists(frontend_path):
     img_dir = os.path.join(frontend_path, "images")
     if os.path.exists(img_dir):
         app.mount("/images", StaticFiles(directory=img_dir), name="images")
+
+    fonts_dir = os.path.join(frontend_path, "fonts")
+    if os.path.exists(fonts_dir):
+        app.mount("/fonts", StaticFiles(directory=fonts_dir), name="fonts")
 
     @app.get("/")
     async def serve_index():

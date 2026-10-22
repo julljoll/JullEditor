@@ -30,14 +30,22 @@ export function initArticleGenerator(state, callbacks) {
   let abortController = null;
   let generationStartTime = 0;
   let timerInterval = null;
+  let isGenerating = false;
 
   async function generateArticle() {
-    const rawText = sourceText.value.trim();
-    if (!rawText) {
-      toast.warning("Por favor ingresa o extrae un texto para redactar el artículo.");
+    if (isGenerating) {
+      toast.info("Ya hay una redacción en curso con IBM Granite...");
       return;
     }
 
+    const rawText = sourceText ? sourceText.value.trim() : "";
+    if (!rawText) {
+      toast.warning("Por favor ingresa o extrae un texto o notas base para redactar el artículo.");
+      return;
+    }
+
+    if (articleContainer) articleContainer.dataset.follow = "true";
+    isGenerating = true;
     state.currentRawMarkdown = "";
     if (articleView) articleView.innerHTML = '<span class="streaming-cursor"></span>';
     if (btnGenerate) btnGenerate.disabled = true;
@@ -258,23 +266,23 @@ export function initArticleGenerator(state, callbacks) {
         if (!state.currentRawMarkdown && articleView) {
           const isConnectionErr = err.message.includes("Ollama") || err.message.includes("connection") || err.message.includes("failed");
           articleView.innerHTML = `
-            <div style="background: #fff5f5; border: 1px solid #fed7d7; border-left: 5px solid var(--color-error); padding: 22px; border-radius: 8px; margin: 20px 0; font-family: Arial, sans-serif;">
-              <div style="display: flex; align-items: center; gap: 8px; color: var(--color-error); font-weight: 700; font-size: 1.1rem; margin-bottom: 10px;">
+            <div class="alert-card alert-card--error">
+              <div class="alert-card__title">
                 <span class="material-symbols-outlined">cloud_off</span>
                 <span>${isConnectionErr ? "Motor Local IBM Granite (Ollama) no disponible" : "Error en Inferencia"}</span>
               </div>
-              <p style="color: #2d3748; font-size: 0.95rem; line-height: 1.6; margin-bottom: 12px;">
+              <p style="color: var(--text-primary); font-size: 0.95rem; line-height: 1.6; margin-bottom: 12px;">
                 ${isConnectionErr 
                   ? "La aplicación no pudo comunicarse con el servicio local de Ollama en <code>http://localhost:11434</code>. Por esta razón, el artículo no se generó ni se visualizó en la pantalla."
                   : `Detalle del fallo: <code>${err.message}</code>`}
               </p>
-              <div style="background: #111111; color: #00FF41; padding: 12px 16px; border-radius: 6px; font-family: monospace; font-size: 0.85rem; margin-bottom: 12px; line-height: 1.5;">
-                <span style="color: #888;"># Paso 1: Inicia el servicio de Ollama en tu terminal o PowerShell:</span><br>
+              <div class="alert-card__code">
+                <span style="color: var(--text-muted);"># Paso 1: Inicia el servicio de Ollama en tu terminal o PowerShell:</span><br>
                 <strong>ollama serve</strong><br><br>
-                <span style="color: #888;"># Paso 2: Asegúrate de tener descargado el modelo:</span><br>
+                <span style="color: var(--text-muted);"># Paso 2: Asegúrate de tener descargado el modelo:</span><br>
                 <strong>ollama pull granite3.3:8b</strong>
               </div>
-              <p style="color: #718096; font-size: 0.85rem; margin: 0;">
+              <p class="alert-card__note">
                 💡 Una vez iniciado Ollama, la píldora superior indicará <strong>'Ollama Local Activo'</strong> y podrás generar y copiar el artículo sin interrupciones.
               </p>
             </div>
@@ -284,6 +292,7 @@ export function initArticleGenerator(state, callbacks) {
       }
       renderArticle(state.currentRawMarkdown, false);
     } finally {
+      isGenerating = false;
       clearInterval(timerInterval);
       if (btnGenerate) btnGenerate.disabled = false;
       if (btnStop) btnStop.disabled = true;
@@ -293,9 +302,17 @@ export function initArticleGenerator(state, callbacks) {
   function stopGeneration() {
     if (abortController) {
       abortController.abort();
-      setGraniteVisualStatus("standby", "Granite Standby");
     }
+    fetch("/api/stop-generation", { method: "POST" }).catch(() => {});
+    setGraniteVisualStatus("standby", "Granite Standby");
+    isGenerating = false;
   }
+
+  window.addEventListener("beforeunload", () => {
+    if (isGenerating) {
+      navigator.sendBeacon("/api/stop-generation");
+    }
+  });
 
   // Sincronización inteligente entre Perfil Jurídico y Jurisdicción
   if (toneSelect && jurisdictionSelect) {

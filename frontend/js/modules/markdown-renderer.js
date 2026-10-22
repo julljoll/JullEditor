@@ -8,7 +8,10 @@ export function renderArticle(markdown, isStreaming = false) {
   if (!articleView) return;
 
   if (!markdown) {
-    articleView.innerHTML = '<p class="text-muted" style="color: var(--text-muted); font-style: italic;">El artículo generado aparecerá aquí con estructura jerárquica, citas y bloques SEO...</p>';
+    articleView.innerHTML = "";
+    document.dispatchEvent(new CustomEvent("article:rendered", {
+      detail: { markdown: "", isStreaming: false }
+    }));
     return;
   }
 
@@ -47,15 +50,21 @@ export function renderArticle(markdown, isStreaming = false) {
     return `\n\n<div class="source-summary-callout"><div class="source-summary-label"><span class="material-symbols-outlined" style="font-size:1rem;">auto_stories</span> Resumen Práctico de la Fuente Original (Traducción & Análisis)</div><div class="source-summary-text">${clean}</div></div>\n\n`;
   });
 
+  text = text.replace(/(?:^|\n)(?:&gt;|>)?\s*\*\*📋\s*RESUMEN ESTRUCTURADO \(ABSTRACT\):\*\*\s*([\s\S]*?)(?=\n\n|\n(?:&gt;|>)\s*\*\*|##|$)/gim, (match, p1) => {
+    const clean = p1.replace(/^(?:&gt;|>)\s*/gm, '').trim();
+    return `\n\n<div class="academic-abstract-card"><div class="academic-abstract-label"><span class="material-symbols-outlined" style="font-size:1.1rem;">school</span> Resumen Estructurado / Abstract (Normas de Publicación Científica)</div><div class="academic-abstract-text">${clean}</div></div>\n\n`;
+  });
+
   text = text.replace(/(?:^|\n)(?:&gt;|>)?\s*\*\*⚡ Resumen Ejecutivo en 30 Segundos:\*\*\s*([\s\S]*?)(?=\n\n|\n(?:&gt;|>)\s*\*\*|##|$)/gim, (match, p1) => {
     const clean = p1.replace(/^(?:&gt;|>)\s*/gm, '').trim();
-    return `\n\n<div class="source-summary-callout" style="border-left-color: var(--color-primary); background: rgba(138, 104, 0, 0.08);"><div class="source-summary-label" style="color: var(--color-primary);"><span class="material-symbols-outlined" style="font-size:1rem;">bolt</span> Resumen Ejecutivo en 30 Segundos</div><div class="source-summary-text">${clean}</div></div>\n\n`;
+    return `\n\n<div class="source-summary-callout source-summary-callout--exec"><div class="source-summary-label"><span class="material-symbols-outlined" style="font-size:1rem;">bolt</span> Resumen Ejecutivo en 30 Segundos</div><div class="source-summary-text">${clean}</div></div>\n\n`;
   });
 
   text = text.replace(/(?:^|\n)(?:&gt;|>)?\s*(?:###\s*)?(?:💡\s*)?En Palabras Simples\s*([\s\S]*?)(?=\n\n|##|$)/gim, (match, p1) => {
     const clean = p1.replace(/^(?:&gt;|>)\s*/gm, '').trim();
-    return `\n\n<div class="source-summary-callout" style="border-left-color: var(--color-info); background: rgba(74, 106, 0, 0.08);"><div class="source-summary-label" style="color: var(--color-info);"><span class="material-symbols-outlined" style="font-size:1rem;">lightbulb</span> En Palabras Simples</div><div class="source-summary-text">${clean}</div></div>\n\n`;
+    return `\n\n<div class="source-summary-callout source-summary-callout--simple"><div class="source-summary-label"><span class="material-symbols-outlined" style="font-size:1rem;">lightbulb</span> En Palabras Simples</div><div class="source-summary-text">${clean}</div></div>\n\n`;
   });
+
 
   text = text.replace(/(?:^|\n)\*\*Conclusi[oó]n del p[aá]rrafo:\*\*\s*(.+?)(?=\n|$)/gim, (match, p1) => {
     return `\n\n<div class="paragraph-takeaway"><strong>⚡ Conclusión del párrafo:</strong> ${p1.trim()}</div>\n\n`;
@@ -70,7 +79,7 @@ export function renderArticle(markdown, isStreaming = false) {
   text = text.replace(/\*\*Palabras Clave Secundarias:\*\*(.*?)(?=\s*\||\n|$)/gi, '<div class="seo-badge"><strong>Keywords LSI:</strong>$1</div>');
   text = text.replace(/\*\*Slug Sugerido:\*\*(.*?)(?=\s*\||\n|$)/gi, '<div class="seo-badge"><strong>Slug:</strong>$1</div>');
   text = text.replace(/\*\*Tiempo de Lectura(?: Estimado)?:\*\*(.*?)(?=\s*\||\n|$)/gi, '<div class="seo-badge"><strong>⏱ Lectura:</strong>$1</div>');
-  text = text.replace(/\*\*Jurisdicci[oó]n(?: Aplicable)?:\*\*(.*?)(?=\s*\||\n|$)/gi, '<div class="seo-badge" style="border-color: var(--color-primary); background: rgba(254,207,6,0.18);"><strong>⚖️ Jurisdicción:</strong>$1</div>');
+  text = text.replace(/\*\*Jurisdicci[oó]n(?: Aplicable)?:\*\*(.*?)(?=\s*\||\n|$)/gi, '<div class="seo-badge seo-badge--jurisdiction"><strong>⚖️ Jurisdicción:</strong>$1</div>');
 
   text = text.replace(/(<div class="seo-badge"[\s\S]*?<\/div>)+/gim, (match) => {
     return `\n\n<div class="seo-badge-container">${match}</div>\n\n`;
@@ -202,9 +211,13 @@ export function renderArticle(markdown, isStreaming = false) {
 
   articleView.innerHTML = finalHtml;
 
-  if (articleContainer && isStreaming) {
+  if (articleContainer && isStreaming && articleContainer.dataset.follow !== "false") {
     articleContainer.scrollTop = articleContainer.scrollHeight;
   }
+
+  document.dispatchEvent(new CustomEvent("article:rendered", {
+    detail: { markdown, isStreaming }
+  }));
 }
 
 /**
