@@ -23,6 +23,14 @@ export function generateWordPressHtml(state) {
   tempDiv.innerHTML = articleView.innerHTML;
   unwrapMagazine(tempDiv);
 
+  const isSentencia = state.sentenciaMetadata || 
+    (state.currentRawMarkdown && /ficha técnica de la sentencia|tribunal supremo de justicia|analista_tsj_revista|dispositivo del fallo/i.test(state.currentRawMarkdown));
+
+  let tsjBadgeHeader = "";
+  if (isSentencia) {
+    tsjBadgeHeader = `<div style="display: inline-block; background: #fffbe6; color: #b89000; border: 1px solid #FECF06; border-radius: 4px; padding: 5px 12px; font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 16px; font-family: monospace;">🏛️ ANÁLISIS JURISPRUDENCIAL — TSJ VENEZUELA</div>\n`;
+  }
+
   tempDiv.querySelectorAll(".streaming-cursor").forEach(el => el.remove());
 
   tempDiv.querySelectorAll("h1").forEach(el => {
@@ -114,15 +122,27 @@ export function generateWordPressHtml(state) {
     el.setAttribute("style", "font-weight: 700; color: #b89000; margin-bottom: 10px; text-transform: uppercase; font-family: monospace; font-size: 13px;");
   });
 
-  // Tablas
+  // Tablas (Ficha Técnica TSJ / Tablas comparativas)
   tempDiv.querySelectorAll("table").forEach(el => {
-    el.setAttribute("style", "width: 100%; border-collapse: collapse; margin: 20px 0 24px 0; font-family: Arial, sans-serif; font-size: 14.5px;");
+    if (isSentencia) {
+      el.setAttribute("style", "width: 100%; border-collapse: collapse; margin: 20px 0 24px 0; font-family: Arial, sans-serif; font-size: 14.5px; border: 1px solid #D4A843; box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-radius: 4px; overflow: hidden;");
+    } else {
+      el.setAttribute("style", "width: 100%; border-collapse: collapse; margin: 20px 0 24px 0; font-family: Arial, sans-serif; font-size: 14.5px;");
+    }
   });
   tempDiv.querySelectorAll("th").forEach(el => {
-    el.setAttribute("style", "background: #008726; color: #ffffff; padding: 10px 14px; text-align: left; font-weight: 700; border: 1px solid #00681d; font-family: Arial, sans-serif;");
+    if (isSentencia) {
+      el.setAttribute("style", "background: #1a1a2e; color: #F2C230; padding: 11px 14px; text-align: left; font-weight: 700; border: 1px solid #D4A843; font-family: Arial, sans-serif;");
+    } else {
+      el.setAttribute("style", "background: #008726; color: #ffffff; padding: 10px 14px; text-align: left; font-weight: 700; border: 1px solid #00681d; font-family: Arial, sans-serif;");
+    }
   });
   tempDiv.querySelectorAll("td").forEach(el => {
-    el.setAttribute("style", "padding: 10px 14px; border: 1px solid #e2e8f0; color: #222222; font-family: Arial, sans-serif; line-height: 1.5;");
+    if (isSentencia) {
+      el.setAttribute("style", "padding: 10px 14px; border: 1px solid #e2e8f0; color: #1a1a2e; font-family: Arial, sans-serif; line-height: 1.5; background: #fafafa;");
+    } else {
+      el.setAttribute("style", "padding: 10px 14px; border: 1px solid #e2e8f0; color: #222222; font-family: Arial, sans-serif; line-height: 1.5;");
+    }
   });
 
   // Listas y código
@@ -159,7 +179,7 @@ export function generateWordPressHtml(state) {
     }
   }
 
-  const wrappedHtml = `<div class="granite-article-wrapper" style="max-width: 100%; font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #222222; line-height: 1.65;">\n${bannerTag}${tempDiv.innerHTML}\n</div>${schemaEmbedHtml}`;
+  const wrappedHtml = `<div class="granite-article-wrapper" style="max-width: 100%; font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #222222; line-height: 1.65;">\n${bannerTag}${tsjBadgeHeader}${tempDiv.innerHTML}\n</div>${schemaEmbedHtml}`;
   return wrappedHtml;
 }
 

@@ -20,7 +20,8 @@ from typing import Optional, List, Dict, Any
 from dotenv import load_dotenv
 
 from backend.logger_config import get_logger
-from backend.prompts import build_generation_prompt
+from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
+from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
 from backend.scraper import extract_article_from_url, is_safe_url
 from backend.docling_parser import parse_docling_markdown
 from backend.image_generator import generate_header_image
@@ -58,6 +59,7 @@ active_client: Optional[httpx.AsyncClient] = None
 
 # Temperaturas predeterminadas por especialidad temática (Anti-alucinación y rigor fáctico 0.2 - 0.3)
 THEME_TEMPERATURES = {
+    "sentencia_tsj": 0.15,
     "legal_tech": 0.2,
     "forensic_law": 0.2,
     "cybersecurity": 0.25,
@@ -133,6 +135,11 @@ class GenerateRequest(BaseModel):
     temperature: Optional[float] = Field(None, ge=0.1, le=1.5)
     jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | international")
     editorial_mode: Optional[str] = Field("magazine", pattern="^(magazine|classic)$", description="magazine | classic")
+    sentencia_metadata: Optional[Dict[str, Any]] = Field(None, description="Metadatos estructurados de sentencia TSJ")
+
+class ExtractSentenciaRequest(BaseModel):
+    content: str = Field(..., min_length=10, max_length=1000000)
+    filename: Optional[str] = Field("", max_length=255)
 
 class DoclingParseRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=1000000)
@@ -276,6 +283,22 @@ async def parse_docling_md_endpoint(req: DoclingParseRequest):
     except Exception as e:
         logger.error(f"Error procesando Docling: {e}")
         raise HTTPException(status_code=500, detail=f"Error procesando archivo Docling: {str(e)}")
+
+@app.post("/api/extract-sentencia")
+async def extract_sentencia_endpoint(req: ExtractSentenciaRequest):
+    """
+    Extrae la Ficha Técnica estructurada de una sentencia del TSJ desde su texto Markdown.
+    100% offline, determinista y sin dependencias externas.
+    """
+    try:
+        meta = extract_sentencia_metadata(req.content, req.filename or "")
+        return {
+            "status": "success",
+            "metadata": meta
+        }
+    except Exception as e:
+        logger.error(f"Error extrayendo metadatos de sentencia TSJ: {e}")
+        raise HTTPException(status_code=500, detail=f"Error analizando sentencia TSJ: {str(e)}")
 
 @app.post("/api/save-generated-article")
 async def save_generated_article_endpoint(req: SaveArticleRequest):
@@ -451,23 +474,45 @@ async def generate_article_stream(req: GenerateRequest, request: Request):
         logger.warning(f"Texto fuente excede presupuesto de contexto ({len(source_text_processed)} chars). Truncando a {max_safe_source_chars} chars.")
         source_text_processed = source_text_processed[:max_safe_source_chars] + "\n\n[...Texto original truncado para respetar la ventana de contexto de inferencia...]"
 
-    # 3. Construir el prompt optimizado
-    full_prompt = build_generation_prompt(
-        article_source_text=source_text_processed,
-        source_title=req.source_title or "",
-        source_url=req.source_url or "",
-        source_lang=req.source_lang or "",
-        source_author=req.source_author or "",
-        source_date=req.source_date or "",
-        source_section=req.source_section or "",
-        theme=req.theme,
-        tone=req.tone,
-        target_words=req.target_words,
-        custom_instructions=req.custom_instructions or "",
-        legal_rag_context=rag_legal_context,
-        jurisdiction=selected_jurisdiction,
-        editorial_mode=req.editorial_mode or "magazine"
+    is_sentencia = (
+        req.tone == "analista_tsj_revista"
+        or req.theme == "sentencia_tsj"
+        or req.sentencia_metadata is not None
+        or is_sentencia_text(source_text_processed)
     )
+
+    if is_sentencia and req.temperature is None:
+        selected_temp = 0.15
+
+    # 3. Construir el prompt optimizado
+    if is_sentencia:
+        logger.info("Detectado modo Análisis de Sentencia TSJ (Revista Digital). Usando build_sentencia_tsj_prompt().")
+        full_prompt = build_sentencia_tsj_prompt(
+            article_source_text=source_text_processed,
+            source_title=req.source_title or "",
+            source_url=req.source_url or "",
+            sentencia_metadata=req.sentencia_metadata,
+            legal_rag_context=rag_legal_context,
+            custom_instructions=req.custom_instructions or "",
+            target_words=req.target_words or 1400
+        )
+    else:
+        full_prompt = build_generation_prompt(
+            article_source_text=source_text_processed,
+            source_title=req.source_title or "",
+            source_url=req.source_url or "",
+            source_lang=req.source_lang or "",
+            source_author=req.source_author or "",
+            source_date=req.source_date or "",
+            source_section=req.source_section or "",
+            theme=req.theme,
+            tone=req.tone,
+            target_words=req.target_words,
+            custom_instructions=req.custom_instructions or "",
+            legal_rag_context=rag_legal_context,
+            jurisdiction=selected_jurisdiction,
+            editorial_mode=req.editorial_mode or "magazine"
+        )
 
     ollama_payload = {
         "model": selected_model,

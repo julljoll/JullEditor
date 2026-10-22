@@ -119,6 +119,10 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
     words = cleaned_content.split()
     word_count = len(words)
     reading_time = max(1, round(word_count / 200))
+
+    article_type = meta.get("article_type") or (
+        "sentencia_tsj" if meta.get("tone") == "analista_tsj_revista" or meta.get("theme") == "sentencia_tsj" else "blog_post"
+    )
     
     yaml_frontmatter = ""
     if not cleaned_content.startswith("---"):
@@ -127,6 +131,7 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
             f"title: \"{article_title.replace('\"', '\\\"')}\"\n"
             f"date: \"{now.strftime('%Y-%m-%d %H:%M:%S')}\"\n"
             f"slug: \"{slug}\"\n"
+            f"article_type: \"{article_type}\"\n"
             f"theme: \"{meta.get('theme', 'cybersecurity')}\"\n"
             f"model: \"{meta.get('model', 'granite3.3:8b')}\"\n"
             f"tone: \"{meta.get('tone', 'conversational')}\"\n"
@@ -183,6 +188,7 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
                 
             title = filename
             theme = "cybersecurity"
+            article_type = "blog_post"
             date = datetime.fromtimestamp(os.path.getmtime(filepath)).strftime("%Y-%m-%d %H:%M")
             word_count = 0
             model = "granite3.3:8b"
@@ -198,6 +204,7 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
                             v = v.strip().strip('"').strip("'")
                             if k == "title": title = v
                             elif k == "theme": theme = v
+                            elif k == "article_type": article_type = v
                             elif k == "date": date = v
                             elif k == "word_count": word_count = int(v) if v.isdigit() else 0
                             elif k == "model": model = v
@@ -206,6 +213,7 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
                 "filename": filename,
                 "title": title,
                 "theme": theme,
+                "article_type": article_type,
                 "date": date,
                 "word_count": word_count,
                 "model": model,
@@ -309,8 +317,11 @@ def search_docling_rag_files(query_text: str, top_k: int = 2) -> List[Dict[str, 
     docs = _get_docling_files_cache()
     results = []
 
+    is_jurisprudential = any(term in query_text.lower() for term in ["jurisprudencia", "sentencia", "tsj", "tribunal supremo", "casaci", "ponente", "fallo"])
+
     for item in docs:
         text_lower = item["text_lower"]
+        rel_lower = item["rel_path"].lower()
         first_pos = -1
         matches = 0
         for tok in query_tokens:
@@ -319,6 +330,11 @@ def search_docling_rag_files(query_text: str, top_k: int = 2) -> List[Dict[str, 
                 matches += 1
                 if first_pos == -1 or pos < first_pos:
                     first_pos = pos
+
+        if is_jurisprudential and "jurisprudencia" in rel_lower:
+            matches += 8
+        if is_jurisprudential and "tribunal-supremo" in rel_lower:
+            matches += 6
 
         if matches > 0:
             raw_text = item["text"]

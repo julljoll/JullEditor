@@ -167,6 +167,60 @@
               </div>
               <textarea id="sourceText" class="textarea-custom" rows="5" placeholder="Pega aquí el contenido extraído o escribe tus notas..."></textarea>
             </div>
+
+            <!-- Panel de Detección y Ficha Técnica TSJ -->
+            <div id="tsjDetectionContainer" class="tsj-detection-box" style="display: none;">
+              <div class="tsj-badge-header">
+                <span class="tsj-badge">
+                  <span class="material-symbols-outlined tsj-icon">account_balance</span>
+                  <span>🏛️ Sentencia TSJ Detectada</span>
+                </span>
+                <button type="button" id="btnToggleTsjFicha" class="btn-toggle-ficha" title="Ver / Ocultar Ficha Técnica">
+                  <span id="tsjFichaToggleText">Ver Ficha Técnica</span>
+                  <span class="material-symbols-outlined" id="tsjFichaToggleIcon">expand_more</span>
+                </button>
+              </div>
+              <div id="tsjFichaPanel" class="tsj-ficha-content" style="display: none;">
+                <div class="tsj-ficha-grid">
+                  <div class="tsj-ficha-item">
+                    <span class="tsj-ficha-label">Sala:</span>
+                    <span id="tsjFichaSala" class="tsj-ficha-value">-</span>
+                  </div>
+                  <div class="tsj-ficha-item">
+                    <span class="tsj-ficha-label">Expediente:</span>
+                    <span id="tsjFichaExpediente" class="tsj-ficha-value font-monospace">-</span>
+                  </div>
+                  <div class="tsj-ficha-item">
+                    <span class="tsj-ficha-label">Sentencia Nº:</span>
+                    <span id="tsjFichaNumero" class="tsj-ficha-value font-monospace">-</span>
+                  </div>
+                  <div class="tsj-ficha-item">
+                    <span class="tsj-ficha-label">Ponente:</span>
+                    <span id="tsjFichaPonente" class="tsj-ficha-value">-</span>
+                  </div>
+                  <div class="tsj-ficha-item">
+                    <span class="tsj-ficha-label">Fecha:</span>
+                    <span id="tsjFichaFecha" class="tsj-ficha-value">-</span>
+                  </div>
+                  <div class="tsj-ficha-item">
+                    <span class="tsj-ficha-label">Partes:</span>
+                    <span id="tsjFichaPartes" class="tsj-ficha-value">-</span>
+                  </div>
+                  <div class="tsj-ficha-item">
+                    <span class="tsj-ficha-label">Materia / Asunto:</span>
+                    <span id="tsjFichaMateria" class="tsj-ficha-value">-</span>
+                  </div>
+                  <div class="tsj-ficha-item">
+                    <span class="tsj-ficha-label">Dispositivo:</span>
+                    <span id="tsjFichaDecision" class="tsj-ficha-value highlight-decision">-</span>
+                  </div>
+                  <div class="tsj-ficha-item full-width">
+                    <span class="tsj-ficha-label">Normas Detectadas:</span>
+                    <span id="tsjFichaNormas" class="tsj-ficha-value normas-tags">-</span>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </section>
 
@@ -224,6 +278,9 @@
             <div class="form-group mb-2">
               <label class="form-label" for="toneSelect">Perfil de Voz / Tono</label>
               <select id="toneSelect" class="select-custom">
+                <optgroup label="🏛️ Jurisprudencia TSJ (Modo Revista)">
+                  <option value="analista_tsj_revista">📰 Analista Jurisprudencial TSJ — Revista Digital Educativa</option>
+                </optgroup>
                 <optgroup label="🎓 Nivel Universitario & Revista Arbitrada">
                   <option value="revista_cientifica_law_tech">🎓 Revista Científica Arbitrada (Derecho & Computación Forense — Nivel Universidad)</option>
                 </optgroup>

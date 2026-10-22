@@ -3178,4 +3178,126 @@ kbd {
   }
 }
 
+/* ==========================================================================
+   PANEL DE FICHA TÉCNICA Y DETECCIÓN TSJ (USWDS CYBER-LEGAL TOKENS)
+   ========================================================================== */
+
+.tsj-detection-box {
+  background: var(--bg-elevated);
+  border: 1px solid var(--border-subtle);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-sm, 6px);
+  padding: 10px 14px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  animation: fadeIn 0.25s ease-in-out;
+}
+
+.tsj-badge-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.tsj-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-primary-soft);
+  color: var(--color-primary);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-full, 9999px);
+  padding: 3px 10px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.tsj-badge .tsj-icon {
+  font-size: 1.05rem;
+  color: var(--color-primary);
+}
+
+.btn-toggle-ficha {
+  background: transparent;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.76rem;
+  font-family: inherit;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs, 4px);
+  transition: color 0.15s ease, background 0.15s ease;
+}
+
+.btn-toggle-ficha:hover {
+  color: var(--color-primary);
+  background: var(--bg-hover);
+}
+
+.btn-toggle-ficha .material-symbols-outlined {
+  font-size: 1.1rem;
+}
+
+.tsj-ficha-content {
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--border-subtle);
+}
+
+.tsj-ficha-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 8px 14px;
+}
+
+.tsj-ficha-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.tsj-ficha-item.full-width {
+  grid-column: span 2;
+}
+
+.tsj-ficha-label {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 600;
+}
+
+.tsj-ficha-value {
+  font-size: 0.8rem;
+  color: var(--text-primary);
+  word-break: break-word;
+}
+
+.tsj-ficha-value.highlight-decision {
+  color: var(--color-secondary);
+  font-weight: 600;
+}
+
+.tsj-ficha-value.normas-tags {
+  color: var(--color-info);
+  font-size: 0.74rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 640px) {
+  .tsj-ficha-grid {
+    grid-template-columns: 1fr;
+  }
+  .tsj-ficha-item.full-width {
+    grid-column: span 1;
+  }
+}
+
+
 

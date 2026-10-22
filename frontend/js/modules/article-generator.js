@@ -108,7 +108,8 @@ export function initArticleGenerator(state, callbacks) {
       model: (modelSelect && modelSelect.value) || "granite3.3:8b",
       temperature: tempSlider ? parseFloat(tempSlider.value) : undefined,
       jurisdiction: (jurisdictionSelect && jurisdictionSelect.value) || "auto",
-      editorial_mode: (editorialModeSelect && editorialModeSelect.value) || "magazine"
+      editorial_mode: (editorialModeSelect && editorialModeSelect.value) || "magazine",
+      sentencia_metadata: state.sentenciaMetadata || null
     };
 
     abortController = new AbortController();
@@ -252,7 +253,8 @@ export function initArticleGenerator(state, callbacks) {
             tone: (toneSelect && toneSelect.value) || "conversational",
             source_url: (urlInput && urlInput.value) || "",
             jurisdiction: (jurisdictionSelect && jurisdictionSelect.value) || "auto",
-            editorial_mode: (editorialModeSelect && editorialModeSelect.value) || "magazine"
+            editorial_mode: (editorialModeSelect && editorialModeSelect.value) || "magazine",
+            article_type: (toneSelect && toneSelect.value === "analista_tsj_revista") ? "sentencia_tsj" : "blog_post"
           })
         });
         if (saveRes.ok) {
@@ -341,11 +343,171 @@ export function initArticleGenerator(state, callbacks) {
     }
   });
 
+  // Panel de Ficha Técnica TSJ
+  function populateTsjFichaPanel(metadata) {
+    if (!metadata) return;
+    state.sentenciaMetadata = metadata;
+
+    const elContainer = document.getElementById("tsjDetectionContainer");
+    const elSala = document.getElementById("tsjFichaSala");
+    const elExp = document.getElementById("tsjFichaExpediente");
+    const elNum = document.getElementById("tsjFichaNumero");
+    const elPon = document.getElementById("tsjFichaPonente");
+    const elFecha = document.getElementById("tsjFichaFecha");
+    const elPartes = document.getElementById("tsjFichaPartes");
+    const elMat = document.getElementById("tsjFichaMateria");
+    const elDec = document.getElementById("tsjFichaDecision");
+    const elNormas = document.getElementById("tsjFichaNormas");
+
+    if (elSala) elSala.innerText = metadata.sala || "Tribunal Supremo de Justicia";
+    if (elExp) elExp.innerText = metadata.expediente || "S/E";
+    if (elNum) elNum.innerText = metadata.numero_sentencia ? `Nº ${metadata.numero_sentencia}` : "S/N";
+    if (elPon) elPon.innerText = metadata.ponente || "No especificado";
+    if (elFecha) elFecha.innerText = metadata.fecha_decision || "Fecha en autos";
+
+    const partesStr = [
+      metadata.partes?.recurrente_o_demandante ? `Rec: ${metadata.partes.recurrente_o_demandante}` : "",
+      metadata.partes?.recurrido_o_demandado ? `Recdo: ${metadata.partes.recurrido_o_demandado}` : ""
+    ].filter(Boolean).join(" vs. ") || "Partes en autos";
+    if (elPartes) elPartes.innerText = partesStr;
+
+    const matStr = [metadata.materia, metadata.delito_asunto].filter(Boolean).join(" · ") || "Materia Jurisprudencial";
+    if (elMat) elMat.innerText = matStr;
+
+    if (elDec) elDec.innerText = metadata.decision_tipo || "Sentencia de Fondo";
+
+    if (elNormas) {
+      if (metadata.leyes_citadas && metadata.leyes_citadas.length > 0) {
+        elNormas.innerText = metadata.leyes_citadas.join(" | ");
+      } else {
+        elNormas.innerText = "Normas citadas en el texto judicial";
+      }
+    }
+
+    if (elContainer) {
+      elContainer.style.display = "block";
+    }
+  }
+
+  let tsjDetectDebounce = null;
+  async function detectAndConfigureTsj(text, filename = "", force = false) {
+    if (!text || text.length < 40) {
+      const elContainer = document.getElementById("tsjDetectionContainer");
+      if (elContainer && toneSelect && toneSelect.value !== "analista_tsj_revista") {
+        elContainer.style.display = "none";
+      }
+      return;
+    }
+
+    const lower = text.toLowerCase();
+    const markers = [
+      "tribunal supremo de justicia",
+      "sala de casación",
+      "sala constitucional",
+      "recurso de casación",
+      "recurso extraordinario de casación",
+      "magistrado ponente",
+      "magistrada ponente",
+      "código orgánico procesal penal",
+      "código de procedimiento civil"
+    ];
+    const matchCount = markers.filter(m => lower.includes(m)).length;
+    const isSentencia = force || matchCount >= 2 || (filename && /scp-|scc-|tsj/i.test(filename));
+
+    if (!isSentencia) {
+      const elContainer = document.getElementById("tsjDetectionContainer");
+      if (elContainer && toneSelect && toneSelect.value !== "analista_tsj_revista") {
+        elContainer.style.display = "none";
+      }
+      return;
+    }
+
+    // 1. Configuración automática de parámetros
+    if (toneSelect && toneSelect.value !== "analista_tsj_revista") {
+      toneSelect.value = "analista_tsj_revista";
+      toneSelect.dispatchEvent(new Event("change"));
+    }
+    if (jurisdictionSelect && jurisdictionSelect.value !== "venezuela") {
+      jurisdictionSelect.value = "venezuela";
+      jurisdictionSelect.dispatchEvent(new Event("change"));
+    }
+    if (tempSlider) {
+      tempSlider.value = "0.15";
+      const tempValueLabel = document.getElementById("tempValueLabel");
+      if (tempValueLabel) {
+        tempValueLabel.innerText = "0.15 (Rigor TSJ Sentencias)";
+        tempValueLabel.style.color = "var(--color-secondary)";
+      }
+    }
+
+    // Activar pill forense & TSJ si existe
+    const forensicPill = document.querySelector('.theme-pill[data-theme="forensic_law"]');
+    if (forensicPill && !forensicPill.classList.contains("active")) {
+      forensicPill.click();
+    }
+
+    // 2. Extraer metadatos vía API
+    try {
+      const res = await fetch("/api/extract-sentencia", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ content: text.slice(0, 30000), filename: filename || "" })
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.status === "success" && data.metadata) {
+          populateTsjFichaPanel(data.metadata);
+          toast.success("🏛️ Sentencia TSJ detectada: Perfil de análisis y Ficha Técnica activados");
+        }
+      }
+    } catch (e) {
+      console.warn("Aviso llamando /api/extract-sentencia:", e);
+    }
+  }
+
+  // Toggle colapsable de la Ficha Técnica
+  const btnToggleTsjFicha = document.getElementById("btnToggleTsjFicha");
+  const tsjFichaPanel = document.getElementById("tsjFichaPanel");
+  const tsjFichaToggleText = document.getElementById("tsjFichaToggleText");
+  const tsjFichaToggleIcon = document.getElementById("tsjFichaToggleIcon");
+
+  if (btnToggleTsjFicha && tsjFichaPanel) {
+    btnToggleTsjFicha.addEventListener("click", () => {
+      const isVisible = tsjFichaPanel.style.display !== "none";
+      tsjFichaPanel.style.display = isVisible ? "none" : "block";
+      if (tsjFichaToggleText) tsjFichaToggleText.innerText = isVisible ? "Ver Ficha Técnica" : "Ocultar Ficha";
+      if (tsjFichaToggleIcon) tsjFichaToggleIcon.innerText = isVisible ? "expand_more" : "expand_less";
+    });
+  }
+
+  // Escuchar texto fuente para auto-detección de sentencias TSJ
+  if (sourceText) {
+    sourceText.addEventListener("input", () => {
+      clearTimeout(tsjDetectDebounce);
+      tsjDetectDebounce = setTimeout(() => {
+        detectAndConfigureTsj(sourceText.value, sourceTitle ? sourceTitle.value : "", false);
+      }, 500);
+    });
+  }
+
   // Sincronización inteligente entre Perfil Jurídico y Jurisdicción
   if (toneSelect && jurisdictionSelect) {
     toneSelect.addEventListener("change", () => {
       const val = toneSelect.value;
-      if (val.startsWith("abogado_ve") || val.startsWith("jull")) {
+      if (val === "analista_tsj_revista") {
+        if (jurisdictionSelect) jurisdictionSelect.value = "venezuela";
+        if (tempSlider) {
+          tempSlider.value = "0.15";
+          const tempValueLabel = document.getElementById("tempValueLabel");
+          if (tempValueLabel) {
+            tempValueLabel.innerText = "0.15 (Rigor TSJ Sentencias)";
+            tempValueLabel.style.color = "var(--color-secondary)";
+          }
+        }
+        if (sourceText && sourceText.value.trim().length > 30) {
+          detectAndConfigureTsj(sourceText.value, sourceTitle ? sourceTitle.value : "", true);
+        }
+      } else if (val.startsWith("abogado_ve") || val.startsWith("jull")) {
         if (jurisdictionSelect.value === "colombia") {
           jurisdictionSelect.value = "venezuela";
         }
@@ -359,7 +521,7 @@ export function initArticleGenerator(state, callbacks) {
     jurisdictionSelect.addEventListener("change", () => {
       const jur = jurisdictionSelect.value;
       const currentTone = toneSelect.value;
-      if (jur === "colombia" && (currentTone.startsWith("abogado_ve") || currentTone.startsWith("jull"))) {
+      if (jur === "colombia" && (currentTone.startsWith("abogado_ve") || currentTone.startsWith("jull") || currentTone === "analista_tsj_revista")) {
         toneSelect.value = "abogado_co_litigante";
       } else if (jur === "venezuela" && currentTone.startsWith("abogado_co")) {
         toneSelect.value = "abogado_ve_litigante";
@@ -372,6 +534,7 @@ export function initArticleGenerator(state, callbacks) {
 
   return {
     generate: generateArticle,
-    stop: stopGeneration
+    stop: stopGeneration,
+    detectAndConfigureTsj: detectAndConfigureTsj
   };
 }

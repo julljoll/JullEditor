@@ -124,6 +124,15 @@ GLOSSARY: Dict[str, List[Dict[str, Any]]] = {
         _t("SUSCERTE", "Superintendencia de Servicios de Certificación Electrónica, autoridad nacional en materia de firmas electrónicas y seguridad informática.", "suscerte certificación electrónica firma digital vencert seguridad"),
         _t("equivalencia funcional", "Principio de la Ley sobre Mensajes de Datos que confiere al documento electrónico el mismo valor probatorio que al soporte en papel.", "equivalencia funcional mensaje datos firma electrónica valor probatorio"),
         _t("ISO/IEC 27037", "Estándar internacional de referencia para la identificación, recolección, adquisición y preservación de evidencia digital.", "iso 27037 estándar evidencia digital preservación adquisición"),
+        _t("ponencia / magistrado ponente", "Magistrado encargado de redactar el proyecto de sentencia sometido a consideración de la Sala del TSJ.", "ponencia ponente magistrado sala redactar proyecto"),
+        _t("ratio decidendi", "Razón jurídica determinante y fundamento directo que resuelve el dispositivo de la sentencia con fuerza de precedente.", "ratio decidendi precedente fundamento doctrina jurisprudencia fallo"),
+        _t("obiter dictum", "Argumento o consideración incidental expresada por el tribunal que no constituye el fundamento vinculante del fallo.", "obiter dictum incidental argumento consideración"),
+        _t("voto salvado", "Opinión razonada y disidente de un magistrado que discrepa de la decisión mayoritaria del tribunal.", "voto salvado disidente discrepancia minoría"),
+        _t("voto concurrente", "Opinión de un magistrado que coincide con el dispositivo final pero difiere de la motivación o añade fundamentos adicionales.", "voto concurrente motivación coincidencia fundamentos"),
+        _t("carácter vinculante", "Efecto obligatorio y erga omnes de las interpretaciones constitucionales del TSJ (art. 335 CRBV) para todos los tribunales de la República.", "carácter vinculante obligatorio erga omnes precedente 335 crbv"),
+        _t("revisión constitucional", "Facultad extraordinaria de la Sala Constitucional para revisar sentencias definitivamente firmes de amparo o de otras Salas que violen la Constitución.", "revisión constitucional amparo sala extraordinaria"),
+        _t("control difuso de la constitucionalidad", "Facultad y deber de todo juez de la República de desaplicar una norma que colida con la Constitución (art. 334 CRBV).", "control difuso desaplicar norma juez 334 crbv inconstitucional"),
+        _t("control concentrado de la constitucionalidad", "Competencia exclusiva de la Sala Constitucional del TSJ para declarar la nulidad total o parcial de leyes y normas con rango de ley (art. 334 y 336 CRBV).", "control concentrado nulidad ley sala constitucional 336 crbv"),
     ],
     "co": [
         _t("acción de tutela", "Mecanismo preferente y sumario para la protección inmediata de derechos fundamentales (art. 86 C.P.).", "tutela derechos fundamentales amparo", "No llamarla 'recurso de amparo': es el término de otros países."),
@@ -216,6 +225,31 @@ PERSONAS: Dict[str, Dict[str, Any]] = {
         ],
         "structure": "academic_law_tech_review",
     },
+    "analista_tsj_revista": {
+        "jurisdiction": "ve",
+        "label": "📰 Analista Jurisprudencial TSJ — Revista Digital Educativa",
+        "register": (
+            "Profesional-educativo de revista digital: español venezolano culto, pedagógico y accesible. "
+            "Combina rigurosidad doctrinal con claridad explicativa para juristas, estudiantes de derecho y público profesional interesado. "
+            "Uso de segunda persona del plural ('analizamos', 'observamos') para generar cercanía académica. "
+            "Evita la solemnidad forense pura: busca el equilibrio entre el análisis técnico-jurídico y la divulgación didáctica de alto nivel."
+        ),
+        "formulas": [
+            "la Sala estableció con carácter vinculante que",
+            "el criterio sostenido por la ponencia razona",
+            "en la parte motiva de la decisión se advierte",
+            "el dispositivo del fallo resuelve",
+            "la ratio decidendi de esta sentencia radica en",
+            "el voto salvado/concurrente del Magistrado X plantea",
+            "a la luz de la doctrina pacífica de esta Sala",
+            "el precedente fijado por la Sala Constitucional en sentencia vinculante",
+            "resulta de particular interés pedagógico destacar",
+            "el Tribunal Supremo de Justicia interpretó el alcance de",
+            "desde la perspectiva del principio de progresividad",
+            "en atención al principio de intervención mínima del derecho penal",
+        ],
+        "structure": "analisis_sentencia_tsj",
+    },
     "abogado_ve_doctrinal": {
         "jurisdiction": "ve",
         "label": "Abogado Venezolano — Doctrinal",
@@ -283,6 +317,25 @@ _STRUCTURES = {
         "11) FAQ Jurídico-Técnico de 3 preguntas; "
         "12) Referencias Bibliográficas y Normativas en Normas APA 7ª Edición / ISO 690; "
         "13) Doble bloque Schema.org (ScholarlyArticle + FAQPage)."
+    ),
+    "analisis_sentencia_tsj": (
+        "Estructura de Revista Digital Educativa para Análisis de Sentencias TSJ: "
+        "1) Titular H1 impactante tipo revista (8-12 palabras) con la doctrina o principio central; "
+        "2) Meta Descripción (145-160 caracteres) optimizada para búsqueda; "
+        "3) Ficha Técnica de la Sentencia (tabla con: Sala, Expediente, Ponente, Fecha, Partes, Materia, Decisión); "
+        "4) Párrafo Answer-First GEO 2026 (40-60 palabras) con la conclusión jurídica central; "
+        "5) Caja 📌 Resumen Práctico: síntesis de la ratio decidendi y el dispositivo en lenguaje accesible; "
+        "6) Caja ⚡ 30 Segundos: 3 viñetas con los puntos clave de la decisión; "
+        "7) Sección '¿Qué resolvió el TSJ?' — Contexto fáctico y procesal (antecedentes del caso); "
+        "8) Sección '¿Cuál es la doctrina establecida?' — Análisis de la ratio decidendi y obiter dicta relevantes; "
+        "9) Sección '¿Qué normas aplicó la Sala?' — Marco normativo citado en la sentencia con artículos exactos; "
+        "10) Sección '¿Cómo impacta esta decisión en la práctica?' — Consecuencias prácticas para litigantes, jueces y ciudadanos; "
+        "11) Caja 💡 En Palabras Simples con analogía educativa; "
+        "12) Sección de Votos Salvados/Concurrentes (si los hay); "
+        "13) FAQ Jurídico con 3 preguntas naturales; "
+        "14) Descargo ético obligatorio; "
+        "15) Ficha de Derechos de Autor y enlace a la fuente TSJ; "
+        "16) Doble bloque Schema.org (TechArticle tipo 'LegalCommentary' + FAQPage)."
     ),
     "ird": (
         "Razona como un abogado (IRAC en español): 1) Cuestión jurídica en una frase; "
