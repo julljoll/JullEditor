@@ -555,7 +555,7 @@ body {
 .ingest-tab {
   flex: 1;
   background: transparent;
-  border: none;
+  border: 1px solid transparent;
   color: var(--text-secondary);
   font-family: var(--font-main);
   font-size: 0.76rem;
@@ -568,6 +568,7 @@ body {
   justify-content: center;
   gap: 4px;
   transition: all 0.2s ease;
+  user-select: none;
 }
 
 .ingest-tab .material-symbols-outlined {
@@ -577,6 +578,7 @@ body {
 .ingest-tab:hover {
   color: var(--text-primary);
   background: var(--bg-hover);
+  border-color: rgba(242, 194, 48, 0.25);
 }
 
 .ingest-tab.active {
@@ -584,7 +586,12 @@ body {
   color: var(--color-primary);
   border: var(--border-gold);
   font-weight: 700;
-  box-shadow: var(--co-shadow-1);
+  box-shadow: var(--co-shadow-1), 0 0 10px rgba(242, 194, 48, 0.18);
+}
+
+.ingest-tab:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
 }
 
 .badge-offline {

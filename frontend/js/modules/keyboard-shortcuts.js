@@ -56,6 +56,12 @@ export function initKeyboardShortcuts(callbacks) {
         if (btnCopyWp) btnCopyWp.click();
         return;
       }
+      if (e.key === "H" || e.key === "h") {
+        e.preventDefault();
+        const btnCopyHtml = document.getElementById("btnCopyRawHtml");
+        if (btnCopyHtml) btnCopyHtml.click();
+        return;
+      }
       if (e.key === "M" || e.key === "m") {
         e.preventDefault();
         const btnCopy = document.getElementById("btnCopy");
@@ -91,10 +97,11 @@ export function initKeyboardShortcuts(callbacks) {
           <table style="width:100%; font-size:0.85rem;">
             <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Redactar Artículo</td></tr>
             <tr><td><kbd>Escape</kbd></td><td>Detener Inferencia</td></tr>
+            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td>Copiar para WordPress (Estilos Inline)</td></tr>
+            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd></td><td>Copiar Código HTML Puro</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td>Copiar para Sitejet Builder</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd></td><td>Abrir Kit SEO Sitejet</td></tr>
-            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td>Copiar para WordPress</td></tr>
-            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></td><td>Copiar Markdown</td></tr>
+            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></td><td>Copiar Markdown (.MD)</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd></td><td>Pestaña Revista / Markdown / WordPress</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd></td><td>Seguir generación (auto-scroll)</td></tr>
             <tr><td><kbd>?</kbd></td><td>Mostrar esta ayuda</td></tr>

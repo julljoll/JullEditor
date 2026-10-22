@@ -44,24 +44,45 @@ document.addEventListener("DOMContentLoaded", () => {
   const ingestTabs = document.querySelectorAll(".ingest-tab");
   const doclingUploadSection = document.getElementById("doclingUploadSection");
   const urlSection = document.getElementById("urlSection");
+  const urlInput = document.getElementById("urlInput");
+  const sourceText = document.getElementById("sourceText");
 
-  ingestTabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      ingestTabs.forEach((t) => t.classList.remove("active"));
-      tab.classList.add("active");
-      const mode = tab.dataset.mode;
-      if (mode === "docling") {
-        if (doclingUploadSection) doclingUploadSection.style.display = "block";
-        if (urlSection) urlSection.style.display = "none";
-      } else if (mode === "text") {
-        if (doclingUploadSection) doclingUploadSection.style.display = "none";
-        if (urlSection) urlSection.style.display = "none";
-      } else if (mode === "url") {
-        if (doclingUploadSection) doclingUploadSection.style.display = "none";
-        if (urlSection) urlSection.style.display = "block";
+  function setIngestMode(mode) {
+    ingestTabs.forEach((tab) => {
+      const isActive = tab.dataset.mode === mode;
+      tab.classList.toggle("active", isActive);
+      tab.setAttribute("aria-selected", isActive ? "true" : "false");
+    });
+
+    if (mode === "docling") {
+      if (doclingUploadSection) doclingUploadSection.style.display = "block";
+      if (urlSection) urlSection.style.display = "none";
+    } else if (mode === "text") {
+      if (doclingUploadSection) doclingUploadSection.style.display = "none";
+      if (urlSection) urlSection.style.display = "none";
+      if (sourceText) sourceText.focus();
+    } else if (mode === "url") {
+      if (doclingUploadSection) doclingUploadSection.style.display = "none";
+      if (urlSection) {
+        urlSection.style.display = "block";
+        if (urlInput) urlInput.focus();
+      }
+    }
+  }
+
+  // Delegación de eventos y listeners directos para máxima confiabilidad
+  const ingestTabsContainer = document.querySelector(".ingest-tabs");
+  if (ingestTabsContainer) {
+    ingestTabsContainer.addEventListener("click", (e) => {
+      const tab = e.target.closest(".ingest-tab");
+      if (tab && tab.dataset.mode) {
+        setIngestMode(tab.dataset.mode);
       }
     });
-  });
+  }
+
+  // Exponer a window para integración y testing
+  window.setIngestMode = setIngestMode;
 
   // 3. Manejo de Temas (Pills)
   const themePills = document.querySelectorAll(".theme-pill");

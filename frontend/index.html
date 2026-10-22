@@ -23,8 +23,8 @@
   <!-- Bootstrap 5.3 Framework (Local Offline-First) -->
   <link rel="stylesheet" href="css/bootstrap.min.css">
 
-  <!-- USWDS Cyber-Legal Stylesheet Dark-Only — Cache-Busting v10.1 -->
-  <link rel="stylesheet" href="css/style.css?v=10.1">
+  <!-- USWDS Cyber-Legal Stylesheet Dark-Only — Cache-Busting v10.2 -->
+  <link rel="stylesheet" href="css/style.css?v=10.2">
 </head>
 <body>
 
@@ -81,14 +81,14 @@
           
           <div class="step-body" id="step1Body">
             <!-- Selector de Modo de Ingesta (Offline-First Docling / Texto / URL) -->
-            <div class="ingest-tabs no-print">
-              <button type="button" class="ingest-tab active" data-mode="docling" id="tabDocling">
+            <div class="ingest-tabs no-print" role="tablist" aria-label="Modo de ingesta de la fuente">
+              <button type="button" class="ingest-tab active" data-mode="docling" id="tabDocling" role="tab" aria-selected="true" title="Cargar archivos estructurados Markdown y JSON de Docling (Offline 0ms)">
                 <span class="material-symbols-outlined">description</span> Docling (.MD)
               </button>
-              <button type="button" class="ingest-tab" data-mode="text" id="tabText">
+              <button type="button" class="ingest-tab" data-mode="text" id="tabText" role="tab" aria-selected="false" title="Escribir o pegar texto y notas directamente">
                 <span class="material-symbols-outlined">edit_note</span> Pegar Texto
               </button>
-              <button type="button" class="ingest-tab" data-mode="url" id="tabUrl">
+              <button type="button" class="ingest-tab" data-mode="url" id="tabUrl" role="tab" aria-selected="false" title="Extraer contenido de un enlace web público">
                 <span class="material-symbols-outlined">link</span> Enlace URL
               </button>
             </div>
@@ -387,6 +387,9 @@
             <button type="button" id="btnCopySitejet" class="dropdown-item" role="menuitem" title="Copiar optimizado para Sitejet Builder de Namecheap (Ctrl+Shift+S)">
               <span class="material-symbols-outlined">content_paste_go</span> Copiar p/ Sitejet
             </button>
+            <button type="button" id="btnCopyRawHtml" class="dropdown-item" role="menuitem" title="Copiar código HTML estructurado y autónomo con estilos embebidos (Ctrl+Shift+H)">
+              <span class="material-symbols-outlined">code</span> Copiar Código HTML
+            </button>
             <button type="button" id="btnSitejetKit" class="dropdown-item" role="menuitem" title="Abrir Kit SEO & Schema para Sitejet Builder (Ctrl+Shift+K)">
               <span class="material-symbols-outlined">rocket_launch</span> Kit SEO Sitejet
             </button>
@@ -668,7 +671,7 @@
   </footer>
 
   <!-- Script JS Modularizado ES6 con Cache-Busting -->
-  <script type="module" src="js/app.js?v=10.1"></script>
+  <script type="module" src="js/app.js?v=10.2"></script>
 </body>
 </html>
 

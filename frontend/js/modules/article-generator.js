@@ -38,7 +38,34 @@ export function initArticleGenerator(state, callbacks) {
       return;
     }
 
-    const rawText = sourceText ? sourceText.value.trim() : "";
+    let rawText = sourceText ? sourceText.value.trim() : "";
+    if (!rawText) {
+      const urlVal = urlInput ? urlInput.value.trim() : "";
+      if (urlVal) {
+        toast.info("Extrayendo contenido de la URL antes de redactar...");
+        const btnScrape = document.getElementById("btnScrape");
+        if (btnScrape) {
+          btnScrape.click();
+          // Esperar hasta que sourceText se pueble
+          await new Promise((resolve) => {
+            const checkInt = setInterval(() => {
+              if (sourceText && sourceText.value.trim().length > 20) {
+                clearInterval(checkInt);
+                resolve(true);
+              }
+            }, 300);
+            setTimeout(() => {
+              clearInterval(checkInt);
+              resolve(false);
+            }, 15000);
+          });
+          if (sourceText) {
+            rawText = sourceText.value.trim();
+          }
+        }
+      }
+    }
+
     if (!rawText) {
       toast.warning("Por favor ingresa o extrae un texto o notas base para redactar el artículo.");
       return;

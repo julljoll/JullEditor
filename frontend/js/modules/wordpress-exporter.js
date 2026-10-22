@@ -67,6 +67,18 @@ export function generateWordPressHtml(state) {
   tempDiv.querySelectorAll(".source-summary-text").forEach(el => {
     el.setAttribute("style", "color: #222222; font-size: 15px; line-height: 1.5;");
   });
+
+  // Tarjeta de Resumen Estructurado / Abstract Científico Universitario
+  tempDiv.querySelectorAll(".academic-abstract-card").forEach(el => {
+    el.setAttribute("style", "background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid #0284c7; padding: 16px 20px; margin: 20px 0; border-radius: 0 6px 6px 0; font-family: Arial, sans-serif;");
+  });
+  tempDiv.querySelectorAll(".academic-abstract-label").forEach(el => {
+    el.setAttribute("style", "font-size: 12px; font-weight: 700; color: #0284c7; text-transform: uppercase; margin-bottom: 8px; letter-spacing: 0.5px; font-family: monospace; border-bottom: 1px dashed #bae6fd; padding-bottom: 4px;");
+  });
+  tempDiv.querySelectorAll(".academic-abstract-text").forEach(el => {
+    el.setAttribute("style", "color: #1e293b; font-size: 15px; line-height: 1.6; text-align: justify;");
+  });
+
   tempDiv.querySelectorAll(".paragraph-takeaway").forEach(el => {
     el.setAttribute("style", "background: #e8f8ed; border-left: 3px solid #008726; padding: 10px 14px; margin: 14px 0; border-radius: 0 6px 6px 0; color: #005a19; font-size: 15px; font-family: Arial, sans-serif;");
   });
@@ -102,6 +114,30 @@ export function generateWordPressHtml(state) {
     el.setAttribute("style", "font-weight: 700; color: #b89000; margin-bottom: 10px; text-transform: uppercase; font-family: monospace; font-size: 13px;");
   });
 
+  // Tablas
+  tempDiv.querySelectorAll("table").forEach(el => {
+    el.setAttribute("style", "width: 100%; border-collapse: collapse; margin: 20px 0 24px 0; font-family: Arial, sans-serif; font-size: 14.5px;");
+  });
+  tempDiv.querySelectorAll("th").forEach(el => {
+    el.setAttribute("style", "background: #008726; color: #ffffff; padding: 10px 14px; text-align: left; font-weight: 700; border: 1px solid #00681d; font-family: Arial, sans-serif;");
+  });
+  tempDiv.querySelectorAll("td").forEach(el => {
+    el.setAttribute("style", "padding: 10px 14px; border: 1px solid #e2e8f0; color: #222222; font-family: Arial, sans-serif; line-height: 1.5;");
+  });
+
+  // Listas y código
+  tempDiv.querySelectorAll("ul, ol").forEach(el => {
+    el.setAttribute("style", "margin: 14px 0 18px 24px; padding-left: 10px; color: #222222; font-family: Arial, sans-serif; line-height: 1.65;");
+  });
+  tempDiv.querySelectorAll("li").forEach(el => {
+    el.setAttribute("style", "margin-bottom: 8px; font-size: 15.5px; color: #222222;");
+  });
+  tempDiv.querySelectorAll("code").forEach(el => {
+    if (!el.closest("pre")) {
+      el.setAttribute("style", "background: #f1f5f9; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13.5px; border: 1px solid #e2e8f0;");
+    }
+  });
+
   tempDiv.querySelectorAll(".seo-badge-container").forEach(el => {
     el.setAttribute("style", "display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 18px; padding: 12px; background: #f8f9fa; border: 1px solid #e2e8f0; border-radius: 6px;");
   });
@@ -123,11 +159,13 @@ export function generateWordPressHtml(state) {
     }
   }
 
-  return bannerTag + tempDiv.innerHTML + schemaEmbedHtml;
+  const wrappedHtml = `<div class="granite-article-wrapper" style="max-width: 100%; font-family: Arial, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; color: #222222; line-height: 1.65;">\n${bannerTag}${tempDiv.innerHTML}\n</div>${schemaEmbedHtml}`;
+  return wrappedHtml;
 }
 
 export function initWordPressExporter(state) {
   const btnCopyWordPress = document.getElementById("btnCopyWordPress");
+  const btnCopyRawHtml = document.getElementById("btnCopyRawHtml");
   const btnDownloadSelectedImage = document.getElementById("btnDownloadSelectedImage");
   const btnCopy = document.getElementById("btnCopy");
   const btnDownloadHtml = document.getElementById("btnDownloadHtml");
@@ -136,6 +174,22 @@ export function initWordPressExporter(state) {
   const articleView = document.getElementById("articleView");
   const previewTitle = document.getElementById("previewTitle");
   const previewSnippet = document.getElementById("previewSnippet");
+
+  if (btnCopyRawHtml) {
+    btnCopyRawHtml.addEventListener("click", async () => {
+      if (!articleView || !articleView.innerHTML || !state.currentRawMarkdown) {
+        toast.warning("No hay ningún artículo generado para copiar.");
+        return;
+      }
+      const rawHtml = generateWordPressHtml(state);
+      try {
+        await navigator.clipboard.writeText(rawHtml);
+        toast.success("¡Código HTML completo copiado al portapapeles! Listo para pegar en bloques de código o CMS.");
+      } catch (e) {
+        toast.error("Error al copiar código HTML.");
+      }
+    });
+  }
 
   if (btnCopyWordPress) {
     btnCopyWordPress.addEventListener("click", async () => {

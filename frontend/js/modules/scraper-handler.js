@@ -17,11 +17,25 @@ export function initScraperHandler(state) {
 
   if (!btnScrape) return;
 
+  if (urlInput) {
+    urlInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        e.preventDefault();
+        btnScrape.click();
+      }
+    });
+  }
+
   btnScrape.addEventListener("click", async () => {
-    const url = urlInput.value.trim();
+    let url = (urlInput ? urlInput.value.trim() : "");
     if (!url) {
       toast.warning("Por favor ingresa una URL válida.");
       return;
+    }
+
+    if (!url.startsWith("http://") && !url.startsWith("https://")) {
+      url = "https://" + url;
+      if (urlInput) urlInput.value = url;
     }
 
     btnScrape.disabled = true;
@@ -36,18 +50,22 @@ export function initScraperHandler(state) {
       });
 
       if (!res.ok) {
-        const errorData = await res.json();
-        throw new Error(errorData.detail || "Error extrayendo artículo");
+        let errMessage = "Error extrayendo artículo";
+        try {
+          const errorData = await res.json();
+          errMessage = errorData.detail || errorData.message || errMessage;
+        } catch (_) {}
+        throw new Error(errMessage);
       }
 
       const data = await res.json();
       if (sourceTitle) {
         sourceTitle.value = data.title || "";
-        sourceTitle.dispatchEvent(new Event("input"));
+        sourceTitle.dispatchEvent(new Event("input", { bubbles: true }));
       }
       if (sourceText) {
         sourceText.value = data.text || "";
-        sourceText.dispatchEvent(new Event("input"));
+        sourceText.dispatchEvent(new Event("input", { bubbles: true }));
       }
 
       // Guardar metadatos en el objeto state compartido
@@ -73,7 +91,7 @@ export function initScraperHandler(state) {
         if (btnDownloadSelectedImage) btnDownloadSelectedImage.style.display = "none";
       }
 
-      toast.success(`Artículo extraído con éxito (${data.word_count} palabras).`);
+      toast.success(`Artículo extraído con éxito (${data.word_count.toLocaleString()} palabras).`);
 
       btnScrape.innerHTML = '<span class="material-symbols-outlined">check_circle</span> Extraído';
       setTimeout(() => {

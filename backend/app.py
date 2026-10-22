@@ -242,19 +242,23 @@ async def seo_audit_endpoint(req: SeoAuditRequest):
 @app.post("/api/scrape")
 async def scrape_url_endpoint(req: ScrapeRequest):
     """Extrae y limpia el contenido textual de una URL externa con validación anti-SSRF."""
-    if not req.url or not req.url.startswith(("http://", "https://")):
-        raise HTTPException(status_code=400, detail="Por favor proporciona una URL válida que empiece con http:// o https://")
+    target_url = (req.url or "").strip()
+    if not target_url:
+        raise HTTPException(status_code=400, detail="Por favor proporciona una URL válida.")
     
-    if not is_safe_url(req.url):
+    if not target_url.startswith(("http://", "https://")):
+        target_url = f"https://{target_url}"
+    
+    if not is_safe_url(target_url):
         raise HTTPException(status_code=400, detail="URL no permitida por razones de seguridad (protección anti-SSRF).")
 
     try:
-        article_data = await extract_article_from_url(req.url)
+        article_data = await extract_article_from_url(target_url)
         return article_data
     except ValueError as ve:
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
-        logger.error(f"Error procesando URL {req.url}: {e}")
+        logger.error(f"Error procesando URL {target_url}: {e}")
         raise HTTPException(status_code=500, detail=f"Error al procesar la URL: {str(e)}")
 
 @app.post("/api/parse-docling-md")

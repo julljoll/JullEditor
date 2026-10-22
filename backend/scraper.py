@@ -54,32 +54,72 @@ def is_safe_url(url: str) -> bool:
 async def extract_article_from_url(url: str) -> Dict[str, Any]:
     """
     Descarga una página web y extrae el texto central, título y metadatos relevantes.
+    Incorpora soporte multi-etapa (HTTPX -> urllib -> Playwright).
     """
+    url = url.strip()
+    if not url.startswith(("http://", "https://")):
+        url = f"https://{url}"
+
     if not is_safe_url(url):
         logger.warning(f"URL rechazada por seguridad SSRF: {url}")
         raise ValueError("La URL proporcionada no es segura o apunta a una dirección interna o no permitida.")
+
     headers = {
         "User-Agent": USER_AGENT,
-        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
-        "Accept-Language": "es-ES,es;q=0.9,en;q=0.8",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8",
+        "Accept-Language": "es-ES,es;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Accept-Encoding": "gzip, deflate",
+        "Cache-Control": "max-age=0",
+        "Sec-Ch-Ua": '"Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"',
+        "Sec-Ch-Ua-Mobile": "?0",
+        "Sec-Ch-Ua-Platform": '"Windows"',
+        "Sec-Fetch-Dest": "document",
+        "Sec-Fetch-Mode": "navigate",
+        "Sec-Fetch-Site": "none",
+        "Sec-Fetch-User": "?1",
+        "Upgrade-Insecure-Requests": "1"
     }
     
     html_content = ""
-    timeout = httpx.Timeout(connect=6.0, read=15.0, write=5.0, pool=10.0)
+    timeout = httpx.Timeout(connect=8.0, read=18.0, write=5.0, pool=10.0)
     
     # 1. Intento primario con HTTPX
     try:
-        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True) as client:
+        async with httpx.AsyncClient(timeout=timeout, follow_redirects=True, verify=False) as client:
             response = await client.get(url, headers=headers)
-            if response.status_code == 200:
+            if response.status_code in (200, 201, 202, 203):
                 html_content = response.text
                 logger.info(f"HTML descargado con éxito vía HTTPX para: {url} ({len(html_content)} bytes)")
+            elif response.text and len(response.text) > 1000:
+                html_content = response.text
+                logger.info(f"HTML obtenido con status {response.status_code} pero con contenido usable: {url} ({len(html_content)} bytes)")
             else:
                 logger.warning(f"HTTPX retornó status {response.status_code} para: {url}")
     except Exception as e:
         logger.warning(f"HTTPX falló para {url}: {e}")
         
-    # 2. Fallback con Playwright si el HTML fue muy pobre o falló
+    # 2. Fallback secundario con urllib.request (evita bloqueos de fingerprints HTTPX)
+    if not html_content or len(html_content) < 500:
+        try:
+            logger.info(f"Iniciando fallback con urllib para: {url}")
+            import ssl
+            import gzip
+            import urllib.request
+            ctx = ssl.create_default_context()
+            ctx.check_hostname = False
+            ctx.verify_mode = ssl.CERT_NONE
+            req = urllib.request.Request(url, headers=headers)
+            with urllib.request.urlopen(req, context=ctx, timeout=15) as resp:
+                raw_bytes = resp.read()
+                try:
+                    html_content = gzip.decompress(raw_bytes).decode('utf-8', errors='ignore')
+                except Exception:
+                    html_content = raw_bytes.decode('utf-8', errors='ignore')
+                logger.info(f"urllib extrajo {len(html_content)} bytes para: {url}")
+        except Exception as ue:
+            logger.info(f"Nota urllib fallback: {ue}")
+
+    # 3. Fallback terciario con Playwright si está disponible
     if not html_content or len(html_content) < 500:
         try:
             logger.info(f"Iniciando fallback con Playwright para: {url}")
@@ -96,7 +136,7 @@ async def extract_article_from_url(url: str) -> Dict[str, Any]:
 
     if not html_content:
         logger.error(f"No fue posible acceder al contenido de la URL: {url}")
-        raise ValueError(f"No fue posible acceder al contenido de la URL: {url}")
+        raise ValueError(f"No fue posible acceder al contenido de la URL: {url}. Verifica que el sitio permita acceso público o copia y pega el texto directamente en 'Pegar Texto'.")
 
     return parse_html_to_clean_article(html_content, url)
 
@@ -213,7 +253,7 @@ def parse_html_to_clean_article(html: str, url: str) -> Dict[str, Any]:
                     image_url = urljoin(url, src.strip())
                     break
 
-    # 4. Eliminar elementos irrelevantes
+    # 4. Eliminar elementos de ruido estructural sin eliminar contenedores principales
     tags_to_remove = [
         "script", "style", "nav", "footer", "header", "aside", "form",
         "noscript", "iframe", "svg", "button", "input", "select", "dialog"
@@ -222,22 +262,19 @@ def parse_html_to_clean_article(html: str, url: str) -> Dict[str, Any]:
         for match in soup.find_all(tag):
             match.decompose()
 
-    noise_classes = [
-        "cookie", "banner", "sidebar", "ad-container", "advertisement",
-        "social-share", "newsletter", "comments", "related-posts", "author-bio"
-    ]
-    for cls in noise_classes:
-        for element in soup.find_all(attrs={"class": re.compile(cls, re.I)}):
-            element.decompose()
-
-    # 5. Buscar contenedor principal con mayor densidad de texto (heurística de legibilidad)
+    # 5. Localizar candidato a contenedor principal ANTES de borrar elementos por clase
     candidates = []
+    for art in soup.find_all("article"):
+        candidates.append(art)
+        
     main_elem = soup.find("main") or soup.find(attrs={"role": "main"})
     if main_elem:
         candidates.append(main_elem)
         
-    candidates.extend(soup.find_all("article"))
-    for elem in soup.find_all(attrs={"class": re.compile(r"post-content|article-body|entry-content|story-body|content-body|c-article-body|blog-post", re.I)}):
+    for elem in soup.find_all(attrs={"class": re.compile(r"post-content|article-body|entry-content|story-body|content-body|c-article-body|blog-post|single-post|rich-text|article__content", re.I)}):
+        candidates.append(elem)
+
+    for elem in soup.find_all(attrs={"id": re.compile(r"article|content|main-content|story|post", re.I)}):
         candidates.append(elem)
         
     if soup.body:
@@ -247,22 +284,32 @@ def parse_html_to_clean_article(html: str, url: str) -> Dict[str, Any]:
         if not container:
             return 0
         p_elems = container.find_all("p")
-        return sum(len(p.get_text().strip()) for p in p_elems if len(p.get_text().strip()) > 20)
+        return sum(len(p.get_text().strip()) for p in p_elems if len(p.get_text().strip()) > 15)
 
     content_container = max(candidates, key=score_container) if candidates else (soup.body or soup)
 
+    # 6. Eliminar elementos publicitarios puntuales sin destruir contenedores padre con layout classes
+    noise_patterns = re.compile(r"\b(ad-box|advertisement|ad-container|social-share|share-buttons|cookie-notice|cookie-banner|newsletter-signup|comments-area)\b", re.I)
+    for element in list(content_container.find_all(attrs={"class": noise_patterns})):
+        if len(element.get_text().strip()) < 300 and not element.find(["h1", "h2", "article"]):
+            element.decompose()
+
+    # 7. Extraer párrafos y encabezados con texto significativo
     extracted_paragraphs = []
     if content_container:
-        for elem in content_container.find_all(["p", "h2", "h3", "li", "blockquote"]):
+        for elem in content_container.find_all(["p", "h2", "h3", "h4", "li", "blockquote"]):
             text = elem.get_text().strip()
-            if len(text) > 25 and not any(noise in text.lower() for noise in ["suscríbete", "cookies", "todos los derechos reservados", "política de privacidad"]):
+            if len(text) > 15 and not any(noise in text.lower() for noise in [
+                "suscríbete", "cookies", "todos los derechos reservados", 
+                "política de privacidad", "aviso legal", "configuración de cookies"
+            ]):
                 extracted_paragraphs.append(text)
     
     clean_text = "\n\n".join(extracted_paragraphs)
     
     if not clean_text or len(clean_text) < 100:
-        lines = [line.strip() for line in soup.get_text().splitlines() if len(line.strip()) > 30]
-        clean_text = "\n\n".join(lines[:40])
+        lines = [line.strip() for line in (content_container or soup).get_text().splitlines() if len(line.strip()) > 25]
+        clean_text = "\n\n".join(lines[:60])
 
     word_count = len(clean_text.split())
     logger.info(f"Extracción completada: '{title}' ({word_count} palabras, imagen: {'Sí' if image_url else 'No'})")

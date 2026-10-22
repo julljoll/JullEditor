@@ -405,6 +405,18 @@ export function generateSitejetRichTextHtml(state, options = {}) {
     if (el.parentNode) el.parentNode.replaceChild(bq, el);
   });
 
+  // Tarjeta de Resumen Estructurado (Abstract) para Sitejet
+  tempDiv.querySelectorAll(".academic-abstract-card").forEach(el => {
+    const textEl = el.querySelector(".academic-abstract-text");
+    const labelEl = el.querySelector(".academic-abstract-label");
+    const text = textEl ? textEl.innerHTML : el.innerHTML;
+    const label = labelEl ? labelEl.innerText.replace(/^[^\w\s]+/g, "").trim() : "RESUMEN ESTRUCTURADO (ABSTRACT)";
+    const bq = document.createElement("blockquote");
+    bq.setAttribute("style", "background: #f0f9ff; border: 1px solid #bae6fd; border-left: 4px solid #0284c7; padding: 16px 20px; margin: 20px 0; border-radius: 0 6px 6px 0; font-family: Arial, sans-serif;");
+    bq.innerHTML = `<p style="font-size: 12px; font-weight: 700; color: #0284c7; text-transform: uppercase; margin: 0 0 6px 0; letter-spacing: 0.5px; font-family: monospace; border-bottom: 1px dashed #bae6fd; padding-bottom: 4px;">🎓 ${label.toUpperCase()}</p><p style="color: #1e293b; font-size: 15px; line-height: 1.6; text-align: justify; margin: 0;">${text}</p>`;
+    if (el.parentNode) el.parentNode.replaceChild(bq, el);
+  });
+
   tempDiv.querySelectorAll(".paragraph-takeaway").forEach(el => {
     el.setAttribute("style", "background: #e8f8ed; border-left: 3px solid #1A6B1A; padding: 10px 14px; margin: 14px 0; border-radius: 0 6px 6px 0; color: #005a19; font-size: 15px; font-family: Arial, sans-serif;");
   });
@@ -431,6 +443,30 @@ export function generateSitejetRichTextHtml(state, options = {}) {
 
   tempDiv.querySelectorAll(".toc-card, nav.toc-card").forEach(el => {
     el.setAttribute("style", "background: #f8f9fa; border: 1px solid #e2e8f0; border-left: 4px solid #8A6800; padding: 16px 20px; margin: 18px 0 24px 0; border-radius: 0 6px 6px 0; font-family: Arial, sans-serif;");
+  });
+
+  // Tablas en Sitejet
+  tempDiv.querySelectorAll("table").forEach(el => {
+    el.setAttribute("style", "width: 100%; border-collapse: collapse; margin: 20px 0 24px 0; font-family: Arial, sans-serif; font-size: 14.5px;");
+  });
+  tempDiv.querySelectorAll("th").forEach(el => {
+    el.setAttribute("style", "background: #1A6B1A; color: #ffffff; padding: 10px 14px; text-align: left; font-weight: 700; border: 1px solid #0f460f; font-family: Arial, sans-serif;");
+  });
+  tempDiv.querySelectorAll("td").forEach(el => {
+    el.setAttribute("style", "padding: 10px 14px; border: 1px solid #e2e8f0; color: #222222; font-family: Arial, sans-serif; line-height: 1.5;");
+  });
+
+  // Listas y código
+  tempDiv.querySelectorAll("ul, ol").forEach(el => {
+    el.setAttribute("style", "margin: 14px 0 18px 24px; padding-left: 10px; color: #222222; font-family: Arial, sans-serif; line-height: 1.65;");
+  });
+  tempDiv.querySelectorAll("li").forEach(el => {
+    el.setAttribute("style", "margin-bottom: 8px; font-size: 15px; color: #222222;");
+  });
+  tempDiv.querySelectorAll("code").forEach(el => {
+    if (!el.closest("pre")) {
+      el.setAttribute("style", "background: #f1f5f9; color: #0f172a; padding: 2px 6px; border-radius: 4px; font-family: monospace; font-size: 13.5px; border: 1px solid #e2e8f0;");
+    }
   });
 
   tempDiv.querySelectorAll(".seo-badge-container").forEach(el => {

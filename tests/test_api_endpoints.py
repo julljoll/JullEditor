@@ -176,7 +176,7 @@ REQUIRED_IDS = [
     "tabDocling", "tabText", "tabUrl", "sourceTitle", "sourceText", "toneSelect",
     "wordCountTarget", "editorialMode", "jurisdictionSelect", "modelSelect", "tempSlider",
     "customInstructions", "btnGenerate", "btnStop", "btnCopySitejet", "btnSitejetKit",
-    "btnCopyWordPress", "btnCopy", "btnDownloadHtml", "btnPrint", "btnClear",
+    "btnCopyWordPress", "btnCopyRawHtml", "btnCopy", "btnDownloadHtml", "btnPrint", "btnClear",
     "btnToggleColumns", "btnReadingMode", "articleContainer", "articleView",
     "seoScore", "combinedScoreBadge", "previewTitle", "terminalStatus"
 ]
@@ -222,7 +222,70 @@ def test_style_css_has_academic_abstract_and_print_rules():
     assert "@media print" in css
     assert ".no-print" in css
 
+def test_html_export_modules_contain_inline_styles():
+    """Verifica que los módulos de exportación inyecten estilos inline para WordPress y Sitejet."""
+    wp_js = client.get("/js/modules/wordpress-exporter.js").text
+    assert "btnCopyRawHtml" in wp_js
+    assert ".academic-abstract-card" in wp_js
+    assert "granite-article-wrapper" in wp_js
+    assert "border-collapse" in wp_js
+
+    sj_js = client.get("/js/modules/sitejet-exporter.js").text
+    assert ".academic-abstract-card" in sj_js
+    assert "border-collapse" in sj_js
+
+def test_scraper_parse_html_resilience():
+    """Verifica que el parser HTML no descomponga contenedores con clases como no-sidebar o has-sidebar."""
+    from backend.scraper import parse_html_to_clean_article
+    html = '''
+    <html lang="es">
+    <head><title>Título de Prueba Scraper</title></head>
+    <body class="page-template no-sidebar has-comments">
+      <div class="site-main sidebar-layout">
+        <article class="entry-content">
+          <h1>Análisis Forense y Cadena de Custodia Digital</h1>
+          <p>La preservación de evidencia digital exige la fijación del hash SHA-256 desde la adquisición.</p>
+          <p>El Manual Único de Cadena de Custodia del Ministerio Público venezolano establece el procedimiento técnico.</p>
+        </article>
+      </div>
+    </body>
+    </html>
+    '''
+    result = parse_html_to_clean_article(html, "https://noticias.example.com/articulo-forense")
+    assert result["status"] == "success"
+    assert "Análisis Forense" in result["title"]
+    assert result["word_count"] > 15
+    assert "SHA-256" in result["text"]
+    assert "Cadena de Custodia" in result["text"]
 
 
+def test_frontend_ingest_tabs_structure():
+    """Verifica que el HTML contenga las 3 opciones de ingesta con sus IDs y atributos correctos."""
+    from bs4 import BeautifulSoup
+    with open("frontend/index.html", "r", encoding="utf-8") as f:
+        soup = BeautifulSoup(f.read(), "html.parser")
+
+    tabs = soup.select(".ingest-tab")
+    assert len(tabs) == 3, f"Se esperaban 3 pestañas de ingesta, se encontraron {len(tabs)}"
+    modes = [t.get("data-mode") for t in tabs]
+    assert modes == ["docling", "text", "url"], f"Modos inesperados: {modes}"
+
+    assert soup.select_one("#doclingUploadSection") is not None
+    assert soup.select_one("#urlSection") is not None
+    assert soup.select_one("#sourceTitle") is not None
+    assert soup.select_one("#sourceText") is not None
+    assert soup.select_one("#urlInput") is not None
+    assert soup.select_one("#btnScrape") is not None
+    assert soup.select_one("#fileDoclingInput") is not None
+    assert soup.select_one("#doclingDropzone") is not None
 
 
+def test_javascript_modules_syntax():
+    """Verifica que ningún archivo JS tenga errores de sintaxis o variables redeclaradas."""
+    import subprocess
+    import glob
+    js_files = glob.glob("frontend/js/**/*.js", recursive=True) + glob.glob("frontend/js/*.js")
+    assert len(js_files) > 5, "Deben existir archivos JavaScript en el frontend"
+    for js_path in js_files:
+        proc = subprocess.run(["node", "--check", js_path], capture_output=True, text=True)
+        assert proc.returncode == 0, f"Error de sintaxis en {js_path}: {proc.stderr}"
