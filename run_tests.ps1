@@ -1,7 +1,7 @@
-# Script para ejecutar la suite de pruebas completa de Granite Blog Writer v3.0
+# Script para ejecutar la suite de pruebas completa de JullEditor v3.0
 
 Write-Host "=========================================================================" -ForegroundColor Cyan
-Write-Host "   EJECUTANDO SUITE COMPLETA DE PRUEBAS - GRANITE BLOG WRITER v3.0" -ForegroundColor Cyan
+Write-Host "   EJECUTANDO SUITE COMPLETA DE PRUEBAS - JULL EDITOR v3.0" -ForegroundColor Cyan
 Write-Host "=========================================================================" -ForegroundColor Cyan
 Write-Host ""
 

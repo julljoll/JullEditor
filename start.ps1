@@ -1,11 +1,11 @@
 <#
 .SYNOPSIS
-Iniciador Profesional de Granite Blog Writer en PowerShell
+Iniciador Profesional de JullEditor en PowerShell
 #>
 
-$Host.UI.RawUI.WindowTitle = "Granite Cyber-Legal Blog Writer (Local CPU)"
+$Host.UI.RawUI.WindowTitle = "JullEditor (Cyber-Legal Local CPU)"
 Write-Host "=========================================================================" -ForegroundColor Yellow
-Write-Host "   INICIANDO GRANITE BLOG WRITER (CYBER-LEGAL BLUEPRINT v2.1)" -ForegroundColor Yellow
+Write-Host "   INICIANDO JULL EDITOR (CYBER-LEGAL BLUEPRINT v3.0)" -ForegroundColor Yellow
 Write-Host "=========================================================================" -ForegroundColor Yellow
 Write-Host ""
 

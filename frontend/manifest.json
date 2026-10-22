@@ -1,6 +1,6 @@
 {
-  "name": "Granite Blog Writer & LegalTech",
-  "short_name": "Granite Blog",
+  "name": "JullEditor — Redacción Editorial & LegalTech",
+  "short_name": "JullEditor",
   "description": "Sistema de Redacción Editorial y LegalTech con IBM Granite Local",
   "start_url": "/",
   "display": "standalone",

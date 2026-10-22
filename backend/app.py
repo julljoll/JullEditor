@@ -76,7 +76,7 @@ THEME_TEMPERATURES = {
 async def lifespan(app: FastAPI):
     """Ciclo de vida del servidor: diagnóstico y warmup inicial, cleanup ordenado al apagar."""
     logger.info("=" * 60)
-    logger.info("Granite Blog Writer v3.0 — Motor Activo (CPU/GPU)")
+    logger.info("JullEditor v3.0 — Motor Activo (CPU/GPU)")
     logger.info(f"Ollama URL: {OLLAMA_BASE_URL} | Modelo Predeterminado: {DEFAULT_GRANITE_MODEL}")
     logger.info(f"Ventana Contexto: {NUM_CTX} | Hilos CPU: {NUM_THREAD}")
     logger.info("=" * 60)
@@ -100,11 +100,11 @@ async def lifespan(app: FastAPI):
             await active_client.aclose()
         except Exception:
             pass
-    logger.info("Granite Blog Writer v3.0 finalizado correctamente.")
+    logger.info("JullEditor v3.0 finalizado correctamente.")
 
 app = FastAPI(
-    title="Granite Blog Article Generator API",
-    description="Motor local de redacción de artículos con IBM Granite y diseño Cyber-Legal optimizado para CPU, SEO estricto y RAG verificado",
+    title="JullEditor API",
+    description="JullEditor: Motor local de redacción de artículos con IBM Granite y diseño Cyber-Legal optimizado para CPU, SEO estricto y RAG verificado",
     version="3.0.0",
     lifespan=lifespan
 )
