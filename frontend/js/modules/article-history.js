@@ -22,7 +22,7 @@ export function initArticleHistory(state) {
       const data = await res.json();
 
       if (!data.articles || data.articles.length === 0) {
-        historyContainer.innerHTML = '<div class="p-3 text-muted" style="font-size:0.8rem; text-align:center; font-style:italic;">No hay artículos guardados aún en RAG/articulos/.</div>';
+        historyContainer.innerHTML = '<div class="p-3 text-muted" style="font-size:0.8rem; text-align:center; font-style:italic;">No hay artículos guardados aún en Articulos Generados/.</div>';
         return;
       }
 

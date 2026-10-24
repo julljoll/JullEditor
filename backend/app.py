@@ -417,8 +417,8 @@ async def extract_sentencia_endpoint(req: ExtractSentenciaRequest):
 @app.post("/api/save-generated-article")
 async def save_generated_article_endpoint(req: SaveArticleRequest):
     """
-    Guarda automáticamente una copia en formato Markdown (.md) del artículo
-    redactado por IBM Granite en el directorio RAG/articulos/.
+    Guarda automáticamente una copia en formato Markdown (.md) y HTML (.html) del artículo
+    redactado por IBM Granite en el directorio 'Articulos Generados/', titulado con el nombre del artículo.
     """
     try:
         metadata = {
@@ -439,11 +439,11 @@ async def save_generated_article_endpoint(req: SaveArticleRequest):
         return res
     except Exception as e:
         logger.error(f"Error guardando artículo generado: {e}")
-        raise HTTPException(status_code=500, detail=f"Error guardando artículo en RAG/articulos: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error guardando artículo en Articulos Generados: {str(e)}")
 
 @app.get("/api/articles-history")
 async def get_articles_history(limit: int = 20, offset: int = 0):
-    """Retorna la lista de artículos previamente generados y archivados en RAG/articulos/."""
+    """Retorna la lista de artículos previamente generados y archivados en 'Articulos Generados/'."""
     try:
         articles = list_articles_history(limit=limit, offset=offset)
         return {
@@ -466,6 +466,27 @@ async def get_single_article(filename: str):
         "filename": filename,
         "content": content
     }
+
+PRELOADED_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "preloaded.json")
+
+@app.get("/api/preloaded-file")
+async def get_preloaded_file():
+    """
+    Retorna la información de un archivo Markdown precargado por el selector CLI
+    (crear_articulo.bat / cli_generator.py) para que la interfaz web lo cargue automáticamente.
+    """
+    if os.path.exists(PRELOADED_FILE_PATH):
+        try:
+            with open(PRELOADED_FILE_PATH, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            try:
+                os.remove(PRELOADED_FILE_PATH)
+            except Exception:
+                pass
+            return {"status": "success", "has_file": True, "data": data}
+        except Exception as e:
+            logger.warning(f"Error leyendo archivo de precarga: {e}")
+    return {"status": "success", "has_file": False, "data": None}
 
 @app.post("/api/generate-header-image")
 async def generate_header_image_endpoint(req: GenerateHeaderImageRequest):

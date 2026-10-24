@@ -1,7 +1,7 @@
 ---
 title: "Principio de Intervención Mínima y Sobreseimiento Penal en Casación TSJ"
-date: "2026-10-22 18:42:47"
-slug: "principio_de_intervencion_minima_y_sobreseimiento_penal_en_c"
+date: "2026-10-23 22:22:04"
+slug: "Principio de Intervención Mínima y Sobreseimiento Penal en Casación TSJ"
 article_type: "sentencia_tsj"
 theme: "forensic_law"
 model: "granite3.3:8b"
@@ -10,7 +10,8 @@ editorial_mode: "magazine"
 word_count: 1679
 reading_time_min: 8
 source_url: "Informacion_docling_rag/Jurisprudencias/SCP-268-23-05-2024 principio de intervención mínima.md"
-generator: "Granite Blog Writer & LegalTech RAG System"
+html_file: "Principio de Intervención Mínima y Sobreseimiento Penal en Casación TSJ.html"
+generator: "Granite Blog Writer & LegalTech System"
 ---
 
 # Principio de Intervención Mínima y Sobreseimiento Penal en Casación TSJ

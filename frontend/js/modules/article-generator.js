@@ -265,7 +265,8 @@ export function initArticleGenerator(state, callbacks) {
         });
         if (saveRes.ok) {
           const saveData = await saveRes.json();
-          ragSavedArticleMsg = ` · ARCHIVADO EN ${saveData.path}`;
+          const htmlMsg = saveData.html_filename ? ` (.md + .html)` : "";
+          ragSavedArticleMsg = ` · ARCHIVADO EN ${saveData.path}${htmlMsg}`;
           if (callbacks && callbacks.onArticleSaved) {
             callbacks.onArticleSaved();
           }

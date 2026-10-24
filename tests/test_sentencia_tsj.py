@@ -311,6 +311,12 @@ La sentencia analizada constituye un valioso recordatorio de que los tribunales 
     assert legal_res.get("score", 0) >= 80, f"Score Legal debe ser >= 80, obtenido {legal_res.get('score')}"
     print("  ✓ Auditoría superada con éxito (Scores >= 80%).")
 
+    # Cleanup test output files
+    if os.path.exists(saved_file):
+        os.remove(saved_file)
+    if save_result.get("absolute_html_path") and os.path.exists(save_result["absolute_html_path"]):
+        os.remove(save_result["absolute_html_path"])
+
     print("\n" + "=" * 70)
     print("¡TODOS LOS TESTS COMPLETADOS Y VERIFICADOS CON ÉXITO! (100% PASS)")
     print("=" * 70)

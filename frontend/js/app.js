@@ -264,4 +264,49 @@ document.addEventListener("DOMContentLoaded", () => {
       toast.info("Editor limpiado.");
     });
   }
+
+  // 12. Carga automática de archivo precargado desde el lanzador CLI / .bat
+  fetch("/api/preloaded-file")
+    .then((res) => res.json())
+    .then((payload) => {
+      if (payload && payload.has_file && payload.data) {
+        const d = payload.data;
+        const sourceTitleEl = document.getElementById("sourceTitle");
+        const sourceTextEl = document.getElementById("sourceText");
+        const tempSliderEl = document.getElementById("tempSlider");
+        const tempValueLabelEl = document.getElementById("tempValueLabel");
+
+        if (sourceTitleEl && d.title) {
+          sourceTitleEl.value = d.title;
+          sourceTitleEl.dispatchEvent(new Event("input"));
+        }
+        if (sourceTextEl && d.content) {
+          sourceTextEl.value = d.content;
+          sourceTextEl.dispatchEvent(new Event("input"));
+        }
+        if (tempSliderEl && d.temperature !== undefined) {
+          tempSliderEl.value = d.temperature;
+          if (tempValueLabelEl) tempValueLabelEl.textContent = `${d.temperature} (Rigor Factual TSJ)`;
+        }
+        if (d.theme) {
+          const pill = document.querySelector(`.theme-pill[data-theme="${d.theme}"]`);
+          if (pill) pill.click();
+        }
+        if (d.tone) {
+          const toneSel = document.getElementById("toneSelect");
+          if (toneSel) toneSel.value = d.tone;
+        }
+        if (d.jurisdiction) {
+          const jurSel = document.getElementById("jurisdictionSelect");
+          if (jurSel) jurSel.value = d.jurisdiction;
+        }
+        if (d.target_words) {
+          const wordSel = document.getElementById("wordCountTarget");
+          if (wordSel) wordSel.value = String(d.target_words);
+        }
+        toast.success(`Documento TSJ precargado: ${d.filename}`);
+      }
+    })
+    .catch(() => {});
 });
+

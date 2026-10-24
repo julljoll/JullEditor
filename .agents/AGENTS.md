@@ -38,9 +38,11 @@ Todo artículo generado debe cumplir con la estructura canónica del proyecto:
 - **Derechos de Autor y Atribución**: Cita de la fuente original al pie.
 - **Doble Bloque Schema.org JSON-LD**: `TechArticle` (con 15 campos) y `FAQPage`.
 
-## 4. Arquitectura de Persistencia RAG Local (`RAG/`)
+## 4. Arquitectura de Persistencia de Artículos (`Articulos Generados/`)
 
-1. **Almacenamiento de Fuentes en `RAG/inputs/`**:
-   - Todo archivo `.md` o `.json` cargado desde la interfaz se persiste automáticamente en `RAG/inputs/` con timestamp para alimentar la memoria viva local de IBM Granite.
-2. **Auto-Guardado de Artículos Terminados en `RAG/articulos/`**:
-   - Al finalizar la generación, el backend genera y guarda automáticamente una copia `.md` en `RAG/articulos/` con frontmatter YAML (título, slug, fecha, tema, palabras, modelo), asegurando un historial pericial inmutable y listo para CMS.
+1. **Almacenamiento de Fuentes en `Articulos Generados/inputs/`**:
+   - Todo archivo `.md` o `.json` cargado desde la interfaz se persiste automáticamente en `Articulos Generados/inputs/` con timestamp para alimentar la memoria viva local de IBM Granite.
+2. **Auto-Guardado Dual de Artículos Terminados en `Articulos Generados/`**:
+   - Al finalizar la generación, el backend genera y guarda automáticamente cada artículo en dos formatos simultáneos dentro de `Articulos Generados/`, nombrado directamente con el título del artículo:
+     - Formato `.md`: `{Titulo_del_Articulo}.md` con Frontmatter YAML estructurado (título, slug, fecha, tema, palabras, modelo, archivo HTML).
+     - Formato `.html`: `{Titulo_del_Articulo}.html` como documento HTML5 autónomo, responsivo y completamente estilizado con diseño Cyber-Legal, Schema.org JSON-LD scripts y reglas de impresión, listo para navegador o publicación.

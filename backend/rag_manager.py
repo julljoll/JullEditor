@@ -1,12 +1,14 @@
 """
-Módulo Gestor de RAG Local y Persistencia de Archivos para IBM Granite.
-Gestiona el almacenamiento de fuentes de entrada (.md y .json de Docling) en RAG/inputs/
-y el auto-guardado de artículos finalizados en RAG/articulos/.
+Módulo Gestor de Persistencia y Artículos para IBM Granite.
+Gestiona el almacenamiento de fuentes de entrada (.md y .json de Docling) en 'Articulos Generados/inputs/'
+y el auto-guardado de todos los artículos finalizados en 'Articulos Generados/' en formatos .md y .html
+titulados directamente con el nombre del artículo.
 Carga corpus legal desde backend/data/legal_corpus_ve.json e indexa con caché Informacion_docling_rag/.
 """
 
 import os
 import re
+import html
 import json
 import glob
 import unicodedata
@@ -16,11 +18,13 @@ from backend.logger_config import get_logger
 
 logger = get_logger("rag_manager")
 
-# Rutas base del RAG dentro del workspace
+# Rutas base de persistencia dentro del workspace
 WORKSPACE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-RAG_BASE_DIR = os.path.join(WORKSPACE_ROOT, "RAG")
-RAG_INPUTS_DIR = os.path.join(RAG_BASE_DIR, "inputs")
-RAG_ARTICLES_DIR = os.path.join(RAG_BASE_DIR, "articulos")
+ARTICLES_GENERATED_DIR = os.path.join(WORKSPACE_ROOT, "Articulos Generados")
+RAG_BASE_DIR = ARTICLES_GENERATED_DIR  # Alias de compatibilidad
+RAG_INPUTS_DIR = os.path.join(ARTICLES_GENERATED_DIR, "inputs")
+RAG_ARTICLES_DIR = ARTICLES_GENERATED_DIR  # Guardado directo en "Articulos Generados"
+LEGACY_ARTICLES_DIR = os.path.join(ARTICLES_GENERATED_DIR, "articulos")
 DOCLING_RAG_DIR = os.path.join(WORKSPACE_ROOT, "Informacion_docling_rag")
 LEGAL_CORPUS_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "legal_corpus_ve.json")
 
@@ -29,13 +33,36 @@ _CACHED_LEGAL_CORPUS: Optional[List[Dict[str, Any]]] = None
 _CACHED_DOCLING_FILES: Optional[List[Dict[str, Any]]] = None
 
 def ensure_rag_directories():
-    """Garantiza la existencia de las carpetas RAG/inputs y RAG/articulos."""
+    """Garantiza la existencia de la carpeta 'Articulos Generados' y sus subcarpetas."""
+    os.makedirs(ARTICLES_GENERATED_DIR, exist_ok=True)
     os.makedirs(RAG_INPUTS_DIR, exist_ok=True)
-    os.makedirs(RAG_ARTICLES_DIR, exist_ok=True)
+    os.makedirs(LEGACY_ARTICLES_DIR, exist_ok=True)
+
+def sanitize_title_to_filename(title: str, max_length: int = 140) -> str:
+    """
+    Convierte el título del artículo en un nombre de archivo limpio y legible.
+    Preserva acentos y espacios, pero reemplaza caracteres no permitidos en Windows
+    (/, \\, :, *, ?, \", <, >, |) y caracteres de control.
+    Ejemplo: 'Sentencia TSJ: Principio de Intervención Mínima' -> 'Sentencia TSJ - Principio de Intervención Mínima'
+    """
+    if not title or not title.strip():
+        return "Articulo_Sin_Titulo"
+    
+    clean = title.strip()
+    clean = re.sub(r'^#+\s*', '', clean)
+    clean = clean.replace(":", " -")
+    clean = re.sub(r'[\\/*?"<>|#]', "", clean)
+    clean = re.sub(r'[\r\n\t]+', " ", clean)
+    clean = re.sub(r'\s+', " ", clean).strip(". ")
+    
+    if len(clean) > max_length:
+        clean = clean[:max_length].rstrip(". ")
+        
+    return clean if clean else "Articulo_Sin_Titulo"
 
 def sanitize_filename(text: str, max_length: int = 80) -> str:
     """
-    Convierte una cadena en un nombre de archivo seguro y limpio en minúsculas.
+    Convierte una cadena en un nombre de archivo seguro y limpio en minúsculas (slug).
     Ejemplo: 'Regulación de IA en Venezuela' -> 'regulacion_de_ia_en_venezuela'
     """
     if not text:
@@ -46,9 +73,223 @@ def sanitize_filename(text: str, max_length: int = 80) -> str:
     clean = re.sub(r'[^a-zA-Z0-9]+', '_', only_ascii).strip('_').lower()
     return clean[:max_length] if clean else "documento"
 
+def markdown_to_standalone_html(title: str, markdown_content: str, metadata: Optional[Dict[str, Any]] = None) -> str:
+    """
+    Convierte un artículo en Markdown en un documento HTML5 autónomo, responsivo y completamente
+    estilizado con tipografía Cyber-Legal, tablas, callouts, Schema.org JSON-LD scripts y reglas de impresión.
+    """
+    meta = metadata or {}
+    text = markdown_content.strip()
+    
+    # Extraer frontmatter si existe
+    if text.startswith("---"):
+        parts = text.split("---", 2)
+        if len(parts) >= 3:
+            text = parts[2].strip()
+            
+    # Proteger bloques de código y extraer Schema.org JSON-LD
+    code_blocks = []
+    schema_scripts = []
+    
+    def repl_code(match):
+        lang = (match.group(1) or "").strip().lower()
+        code = match.group(2)
+        clean_code = html.escape(code)
+        
+        # Si es JSON-LD Schema.org, crear script nativo
+        if "schema.org" in code:
+            schema_scripts.append(f'<script type="application/ld+json">\n{code.strip()}\n</script>')
+            return f'\n<div class="code-block schema-block"><div class="code-header">⚡ DATOS ESTRUCTURADOS SCHEMA.ORG (JSON-LD)</div><pre><code>{clean_code}</code></pre></div>\n'
+            
+        return f'\n<div class="code-block"><pre><code>{clean_code}</code></pre></div>\n'
+        
+    text = re.sub(r'```([a-zA-Z0-9_\-]+)?\s*\n([\s\S]*?)```', repl_code, text)
+    
+    # Inline code
+    text = re.sub(r'`([^`\n]+)`', lambda m: f'<code>{html.escape(m.group(1))}</code>', text)
+    
+    # Callouts especiales de formato SEO Blog / TSJ
+    text = re.sub(
+        r'(?:^|\n)>\s*\*\*📌 Resumen Pr[aá]ctico de la Fuente Original:\*\*\s*([\s\S]*?)(?=\n\n|\n>|\n##|$)',
+        lambda m: f'\n<div class="callout callout-summary"><strong>📌 Resumen Práctico de la Fuente Original:</strong><p>{m.group(1).replace(">", "").strip()}</p></div>\n',
+        text,
+        flags=re.IGNORECASE
+    )
+    
+    text = re.sub(
+        r'(?:^|\n)>\s*\*\*⚡ Resumen Ejecutivo en 30 Segundos:\*\*\s*([\s\S]*?)(?=\n\n|\n>|\n##|$)',
+        lambda m: f'\n<div class="callout callout-exec"><strong>⚡ Resumen Ejecutivo en 30 Segundos:</strong><p>{m.group(1).replace(">", "").strip()}</p></div>\n',
+        text,
+        flags=re.IGNORECASE
+    )
+
+    text = re.sub(
+        r'(?:^|\n)>\s*\*\*Meta descripci[oó]n:\*\*\s*(.+?)(?=\n\n|$)',
+        lambda m: f'\n<div class="callout callout-meta"><strong>🔍 Meta Descripción (SEO CTR):</strong> {m.group(1).strip()}</div>\n',
+        text,
+        flags=re.IGNORECASE
+    )
+
+    text = re.sub(
+        r'(?:^|\n)>\s*\*\*📋\s*RESUMEN ESTRUCTURADO \(ABSTRACT\):\*\*\s*([\s\S]*?)(?=\n\n|\n>|\n##|$)',
+        lambda m: f'\n<div class="callout callout-abstract"><strong>📋 Resumen Estructurado (Abstract):</strong><p>{m.group(1).replace(">", "").strip()}</p></div>\n',
+        text,
+        flags=re.IGNORECASE
+    )
+
+    # Conclusiones / Ideas clave
+    text = re.sub(
+        r'(?:^|\n)\*\*Conclusi[oó]n del p[aá]rrafo:\*\*\s*(.+?)(?=\n|$)',
+        lambda m: f'\n<div class="takeaway"><strong>⚡ Conclusión del párrafo:</strong> {m.group(1).strip()}</div>\n',
+        text,
+        flags=re.IGNORECASE
+    )
+
+    text = re.sub(
+        r'(?:^|\n)\*\*Idea clave:\*\*\s*(.+?)(?=\n|$)',
+        lambda m: f'\n<div class="takeaway"><strong>💡 Idea clave:</strong> {m.group(1).strip()}</div>\n',
+        text,
+        flags=re.IGNORECASE
+    )
+    
+    # Headings
+    text = re.sub(r'^####\s+(.+)$', r'<h4>\1</h4>', text, flags=re.MULTILINE)
+    text = re.sub(r'^###\s+(.+)$', r'<h3>\1</h3>', text, flags=re.MULTILINE)
+    text = re.sub(r'^##\s+(.+)$', r'<h2>\1</h2>', text, flags=re.MULTILINE)
+    text = re.sub(r'^#\s+(.+)$', r'<h1>\1</h1>', text, flags=re.MULTILINE)
+
+    # Negrita e itálica
+    text = re.sub(r'\*\*(.+?)\*\*', r'<strong>\1</strong>', text)
+    text = re.sub(r'\*([^\*\n]+)\*', r'<em>\1</em>', text)
+    
+    # Enlaces
+    text = re.sub(r'\[([^\]]+)\]\(([^)]+)\)', r'<a href="\2" target="_blank" rel="noopener">\1</a>', text)
+
+    # Tablas Markdown
+    def convert_table(match):
+        lines = [ln.strip() for ln in match.group(0).strip().splitlines() if ln.strip()]
+        if len(lines) < 2:
+            return match.group(0)
+        
+        header_cols = [c.strip() for c in lines[0].strip('|').split('|')]
+        body_rows = lines[2:] if len(lines) > 2 and re.match(r'^[\|\s\-:]+$', lines[1]) else lines[1:]
+        
+        th_html = "".join(f"<th>{c}</th>" for c in header_cols)
+        tr_html = []
+        for r in body_rows:
+            cols = [c.strip() for c in r.strip('|').split('|')]
+            td_html = "".join(f"<td>{c}</td>" for c in cols)
+            tr_html.append(f"<tr>{td_html}</tr>")
+            
+        return f'<div class="table-container"><table><thead><tr>{th_html}</tr></thead><tbody>{"".join(tr_html)}</tbody></table></div>'
+
+    text = re.sub(r'(?:^\|.+?\|\s*$\n?){2,}', convert_table, text, flags=re.MULTILINE)
+
+    # Listas no ordenadas
+    text = re.sub(r'(?:^[-*]\s+.+$\n?)+', lambda m: '<ul>' + ''.join(f'<li>{line[2:].strip()}</li>' for line in m.group(0).strip().splitlines() if line.strip()) + '</ul>\n', text, flags=re.MULTILINE)
+
+    # Párrafos para texto plano
+    blocks = text.split("\n\n")
+    html_blocks = []
+    for b in blocks:
+        b_clean = b.strip()
+        if not b_clean:
+            continue
+        if b_clean.startswith(("<h1", "<h2", "<h3", "<h4", "<div", "<ul", "<ol", "<table", "<blockquote", "<pre")):
+            html_blocks.append(b_clean)
+        else:
+            html_blocks.append(f"<p>{b_clean.replace(chr(10), '<br>')}</p>")
+            
+    body_content = "\n\n".join(html_blocks)
+    schema_injections = "\n".join(schema_scripts)
+    
+    css = """
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #1e293b;
+      --gold: #d4af37;
+      --cyan: #38bdf8;
+      --accent-green: #34d399;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.75;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .article-container {
+      max-width: 860px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 48px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    h1 { font-size: 2.1rem; color: #fff; margin-top: 0; border-bottom: 2px solid var(--gold); padding-bottom: 14px; line-height: 1.3; }
+    h2 { font-size: 1.5rem; color: var(--gold); margin-top: 38px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    h3 { font-size: 1.25rem; color: var(--cyan); margin-top: 26px; }
+    p { margin: 16px 0; font-size: 1.05rem; }
+    strong { color: #fff; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .callout { background: #1a2234; border-left: 4px solid var(--gold); padding: 16px 20px; margin: 24px 0; border-radius: 0 8px 8px 0; }
+    .callout-exec { border-left-color: var(--cyan); background: #132238; }
+    .callout-meta { border-left-color: var(--accent-green); background: #0f291e; font-size: 0.95rem; }
+    .callout-abstract { border-left-color: #a855f7; background: #231533; }
+    .takeaway { background: #162032; border: 1px solid #223554; padding: 12px 18px; margin: 18px 0; border-radius: 6px; font-size: 0.98rem; }
+    .table-container { overflow-x: auto; margin: 24px 0; }
+    table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); }
+    th { background: #1e293b; color: var(--gold); padding: 12px; text-align: left; border: 1px solid var(--border); font-size: 0.95rem; }
+    td { padding: 10px 12px; border: 1px solid var(--border); font-size: 0.95rem; }
+    tr:nth-child(even) { background: #131c2e; }
+    tr:nth-child(odd) { background: #0e1524; }
+    pre { background: #070a10; padding: 16px; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+    code { font-family: Consolas, "Courier New", monospace; font-size: 0.9rem; color: #fb923c; }
+    .code-header { font-size: 0.8rem; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
+    ul, ol { padding-left: 28px; }
+    li { margin: 8px 0; }
+    .footer-credits { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted); text-align: center; }
+    @media print {
+      body { background: #fff; color: #000; }
+      .article-container { border: none; box-shadow: none; padding: 0; }
+      h1, h2, h3 { color: #000; }
+      .callout { background: #f8fafc; color: #000; border-left-color: #333; }
+    }
+    """
+    
+    html_out = f"""<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{html.escape(title)}</title>
+  <meta name="generator" content="JullEditor — IBM Granite 3.3 Cyber-Legal">
+  <style>
+{css}
+  </style>
+  {schema_injections}
+</head>
+<body>
+  <main class="article-container">
+    {body_content}
+    <div class="footer-credits">
+      ⚖️ Generado y Archivado por JullEditor v3.0 · IBM Granite 3.3 Local · Rigor Factual 0.0
+    </div>
+  </main>
+</body>
+</html>"""
+    return html_out
+
 def save_rag_source(filename: str, content: str) -> Dict[str, Any]:
     """
-    Guarda un archivo .md o .json subido por el usuario en RAG/inputs/.
+    Guarda un archivo .md o .json subido por el usuario en 'Articulos Generados/inputs/'.
     Retorna metadatos de la operación y la ruta local persistida.
     """
     ensure_rag_directories()
@@ -61,7 +302,7 @@ def save_rag_source(filename: str, content: str) -> Dict[str, Any]:
     if not ext:
         ext = ".md"
     
-    clean_base = sanitize_filename(name_root)
+    clean_base = sanitize_title_to_filename(name_root)
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     target_filename = f"{clean_base}_{timestamp}{ext}"
     target_path = os.path.join(RAG_INPUTS_DIR, target_filename)
@@ -81,17 +322,17 @@ def save_rag_source(filename: str, content: str) -> Dict[str, Any]:
             "saved_at": datetime.now().isoformat()
         }
     except Exception as e:
-        logger.error(f"Error guardando fuente en RAG/inputs: {e}", exc_info=True)
+        logger.error(f"Error guardando fuente en Articulos Generados/inputs: {e}", exc_info=True)
         return {
             "status": "error",
-            "message": f"Error guardando en RAG/inputs: {str(e)}"
+            "message": f"Error guardando en Articulos Generados/inputs: {str(e)}"
         }
 
 def save_final_article(title: str, markdown_content: str, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
     """
-    Guarda automáticamente el artículo generado en RAG/articulos/ en formato .md
-    con Frontmatter YAML de metadatos para auditoría y publicación en CMS/WordPress.
-    Aplica el scrubber anti-alucinaciones legales.
+    Guarda automáticamente el artículo generado en 'Articulos Generados/' en formato .md y .html
+    titulados directamente con el nombre del artículo.
+    Aplica el scrubber anti-alucinaciones legales y añade Frontmatter YAML para auditoría y publicación.
     """
     ensure_rag_directories()
     
@@ -102,7 +343,6 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
     cleaned_content = clean_legal_hallucinations(markdown_content)
     meta = metadata or {}
     now = datetime.now()
-    date_str = now.strftime("%Y-%m-%d")
     
     article_title = title.strip() if title else ""
     if not article_title:
@@ -112,9 +352,13 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
         else:
             article_title = "Articulo Blog Granite"
             
-    slug = sanitize_filename(article_title, max_length=60)
-    target_filename = f"{date_str}_{slug}.md"
-    target_path = os.path.join(RAG_ARTICLES_DIR, target_filename)
+    # Guardar cada artículo con el nombre del título
+    clean_title = sanitize_title_to_filename(article_title)
+    target_filename_md = f"{clean_title}.md"
+    target_filename_html = f"{clean_title}.html"
+    
+    target_path_md = os.path.join(RAG_ARTICLES_DIR, target_filename_md)
+    target_path_html = os.path.join(RAG_ARTICLES_DIR, target_filename_html)
     
     words = cleaned_content.split()
     word_count = len(words)
@@ -130,7 +374,7 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
             f"---\n"
             f"title: \"{article_title.replace('\"', '\\\"')}\"\n"
             f"date: \"{now.strftime('%Y-%m-%d %H:%M:%S')}\"\n"
-            f"slug: \"{slug}\"\n"
+            f"slug: \"{clean_title}\"\n"
             f"article_type: \"{article_type}\"\n"
             f"theme: \"{meta.get('theme', 'cybersecurity')}\"\n"
             f"model: \"{meta.get('model', 'granite3.3:8b')}\"\n"
@@ -139,7 +383,8 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
             f"word_count: {word_count}\n"
             f"reading_time_min: {reading_time}\n"
             f"source_url: \"{meta.get('source_url', '')}\"\n"
-            f"generator: \"Granite Blog Writer & LegalTech RAG System\"\n"
+            f"html_file: \"{target_filename_html}\"\n"
+            f"generator: \"Granite Blog Writer & LegalTech System\"\n"
             f"---\n\n"
         )
         full_content = yaml_frontmatter + cleaned_content
@@ -147,46 +392,68 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
         full_content = cleaned_content
 
     try:
-        with open(target_path, "w", encoding="utf-8") as f:
+        # 1. Guardar archivo Markdown (.md)
+        with open(target_path_md, "w", encoding="utf-8") as f:
             f.write(full_content)
             
-        relative_path = os.path.relpath(target_path, WORKSPACE_ROOT)
-        logger.info(f"Artículo final guardado en RAG/articulos: {relative_path}")
+        # 2. Guardar archivo HTML (.html)
+        html_content = markdown_to_standalone_html(article_title, cleaned_content, meta)
+        with open(target_path_html, "w", encoding="utf-8") as f:
+            f.write(html_content)
+            
+        relative_path_md = os.path.relpath(target_path_md, WORKSPACE_ROOT)
+        relative_path_html = os.path.relpath(target_path_html, WORKSPACE_ROOT)
+        logger.info(f"Artículo final guardado en Articulos Generados: {relative_path_md} y {relative_path_html}")
         return {
             "status": "success",
-            "filename": target_filename,
-            "path": relative_path.replace("\\", "/"),
-            "absolute_path": target_path,
+            "filename": target_filename_md,
+            "html_filename": target_filename_html,
+            "path": relative_path_md.replace("\\", "/"),
+            "html_path": relative_path_html.replace("\\", "/"),
+            "absolute_path": target_path_md,
+            "absolute_html_path": target_path_html,
             "title": article_title,
             "word_count": word_count,
             "saved_at": now.isoformat()
         }
     except Exception as e:
-        logger.error(f"Error guardando artículo en RAG/articulos: {e}", exc_info=True)
+        logger.error(f"Error guardando artículo en Articulos Generados: {e}", exc_info=True)
         return {
             "status": "error",
-            "message": f"Error guardando artículo final en RAG/articulos: {str(e)}"
+            "message": f"Error guardando artículo final en Articulos Generados: {str(e)}"
         }
 
 def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
     """
-    Lista los artículos archivados en RAG/articulos/ ordenados por fecha descendente.
+    Lista los artículos archivados en 'Articulos Generados/' ordenados por fecha descendente.
     Parsea el frontmatter YAML de cada archivo para proveer metadatos a la UI.
     """
     ensure_rag_directories()
-    md_files = glob.glob(os.path.join(RAG_ARTICLES_DIR, "*.md"))
-    md_files.sort(key=os.path.getmtime, reverse=True)
-    
-    paginated_files = md_files[offset:offset + limit]
+    root_md = glob.glob(os.path.join(RAG_ARTICLES_DIR, "*.md"))
+    legacy_md = glob.glob(os.path.join(LEGACY_ARTICLES_DIR, "*.md"))
+    seen_paths = set()
+    all_files = []
+    for p in root_md + legacy_md:
+        norm = os.path.normpath(p)
+        if norm not in seen_paths:
+            seen_paths.add(norm)
+            all_files.append(p)
+            
+    all_files.sort(key=os.path.getmtime, reverse=True)
+    paginated_files = all_files[offset:offset + limit]
     articles = []
     
     for filepath in paginated_files:
         filename = os.path.basename(filepath)
+        stem = os.path.splitext(filename)[0]
+        html_sibling = os.path.join(os.path.dirname(filepath), f"{stem}.html")
+        has_html = os.path.exists(html_sibling)
+        
         try:
             with open(filepath, "r", encoding="utf-8") as f:
                 content = f.read(2048)
                 
-            title = filename
+            title = stem
             theme = "cybersecurity"
             article_type = "blog_post"
             date = datetime.fromtimestamp(os.path.getmtime(filepath)).strftime("%Y-%m-%d %H:%M")
@@ -209,6 +476,7 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
                             elif k == "word_count": word_count = int(v) if v.isdigit() else 0
                             elif k == "model": model = v
                             
+            rel_path = os.path.relpath(filepath, WORKSPACE_ROOT).replace("\\", "/")
             articles.append({
                 "filename": filename,
                 "title": title,
@@ -217,10 +485,13 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
                 "date": date,
                 "word_count": word_count,
                 "model": model,
-                "path": f"RAG/articulos/{filename}"
+                "path": rel_path,
+                "has_html": has_html,
+                "html_path": rel_path.replace(".md", ".html") if has_html else None
             })
         except Exception as e:
             logger.warning(f"Error leyendo metadatos de {filename}: {e}")
+            rel_path = os.path.relpath(filepath, WORKSPACE_ROOT).replace("\\", "/")
             articles.append({
                 "filename": filename,
                 "title": filename,
@@ -228,7 +499,9 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
                 "date": "N/A",
                 "word_count": 0,
                 "model": "granite",
-                "path": f"RAG/articulos/{filename}"
+                "path": rel_path,
+                "has_html": False,
+                "html_path": None
             })
             
     return articles
@@ -236,13 +509,18 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
 def get_article_content(filename: str) -> Optional[str]:
     """Obtiene el contenido Markdown completo de un artículo archivado."""
     safe_name = os.path.basename(filename)
-    filepath = os.path.join(RAG_ARTICLES_DIR, safe_name)
-    if os.path.exists(filepath):
-        try:
-            with open(filepath, "r", encoding="utf-8") as f:
-                return f.read()
-        except Exception as e:
-            logger.error(f"Error leyendo contenido de artículo {safe_name}: {e}")
+    candidates = [
+        os.path.join(RAG_ARTICLES_DIR, safe_name),
+        os.path.join(LEGACY_ARTICLES_DIR, safe_name),
+        os.path.join(WORKSPACE_ROOT, "RAG", "articulos", safe_name),
+    ]
+    for filepath in candidates:
+        if os.path.exists(filepath):
+            try:
+                with open(filepath, "r", encoding="utf-8") as f:
+                    return f.read()
+            except Exception as e:
+                logger.error(f"Error leyendo contenido de artículo {safe_name}: {e}")
     return None
 
 # ==============================================================================
