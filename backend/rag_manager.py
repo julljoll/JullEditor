@@ -280,7 +280,7 @@ def markdown_to_standalone_html(title: str, markdown_content: str, metadata: Opt
   <main class="article-container">
     {body_content}
     <div class="footer-credits">
-      ⚖️ Generado y Archivado por JullEditor v3.0 · IBM Granite 3.3 Local · Rigor Factual 0.0
+      ⚖️ Generado y Archivado por JullEditor v3.1.0 · IBM Granite 3.3 Local · Rigor Factual 0.0
     </div>
   </main>
 </body>

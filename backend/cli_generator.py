@@ -1,5 +1,5 @@
 """
-Generador CLI Interactivo en Python Puro para JullEditor v3.0.
+Generador CLI Interactivo en Python Puro para JullEditor.
 Permite seleccionar archivos Markdown / Docling / Sentencias TSJ,
 configurar parámetros idénticos a la interfaz web (con defaults:
 Sentencia TSJ, Revista Digital, Temp=0.0, VE, Granite 8B)
@@ -20,6 +20,7 @@ from typing import Optional, Dict, Any, List
 import httpx
 
 from backend.logger_config import get_logger
+from backend.version import __version__
 from backend.docling_parser import parse_docling_markdown
 from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
 from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
@@ -45,7 +46,7 @@ def clear_screen():
 
 def print_banner():
     print("=" * 83)
-    print("   ⚖️  JULL EDITOR v3.0 — ESTACIÓN PERICIAL TSJ & BLOG (SOLO PYTHON)")
+    print(f"   ⚖️  JULL EDITOR v{__version__} — ESTACIÓN PERICIAL TSJ & BLOG (SOLO PYTHON)")
     print("   IBM Granite 3.3 Local · Rigor Factual 0.0 · Ciberseguridad & TSJ Venezuela")
     print("=" * 83)
     print()

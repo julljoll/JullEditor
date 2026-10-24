@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Release-v3.0.0_Cyber--Legal-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.0.0" />
+  <img src="https://img.shields.io/badge/Release-v3.1.0-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.1.0" />
   <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3_(2B%20%7C%208B)-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite 3.3" />
   <img src="https://img.shields.io/badge/Runtime-Ollama_CPU_(0ms_Network)-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama CPU" />
   <img src="https://img.shields.io/badge/Backend-FastAPI_Async_SSE-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
@@ -29,6 +29,7 @@
 9. [Laboratorio de Compatibilidad Sitejet Builder](#-9-laboratorio-de-compatibilidad-sitejet-builder)
 10. [Despliegue en la Nube (Google Colab & Oracle Cloud)](#-10-despliegue-en-la-nube-google-colab--oracle-cloud)
 11. [Preguntas Frecuentes (FAQ)](#-11-preguntas-frecuentes-faq)
+12. [Versionado SemVer](#-12-versionado-semver)
 
 ---
 
@@ -376,7 +377,7 @@ Para validar la perfecta renderización en **Sitejet Builder** (constructor de s
 
 ## ☁️ 10. Despliegue en la Nube (Google Colab & Oracle Cloud)
 
-Granite Blog Writer v3.0 está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
+Granite Blog Writer v3.1.0 está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
 
 ### 🚀 Opción A: Google Colab (Ejecución Instantánea con Aceleración GPU)
 Ideal para redacción de alta velocidad sin consumir recursos locales de tu máquina:
@@ -446,6 +447,31 @@ En áreas técnicas y jurídicas (YMYL), temperaturas mayores a 0.5 aumentan exp
 • <strong>granite3.3:8b (Recomendado):</strong> Mayor riqueza léxica, razonamiento dogmático superior y redacción pericial profunda. Requiere ~8-10 GB de RAM disponible.<br>
 • <strong>granite3.3:2b:</strong> Ultrarrápido, ideal para ordenadores portátiles o equipos con 8 GB de RAM total. Proporciona excelente síntesis técnica con un consumo inferior a 2.5 GB de RAM.
 </details>
+
+---
+
+## 🏷️ 12. Versionado SemVer
+
+Este proyecto adhiere estrictamente a [Semantic Versioning 2.0.0](https://semver.org/lang/es/): formato `MAJOR.MINOR.PATCH` (con sufijos opcionales `-PRERELEASE` y `+BUILD`). La versión canónica vive en `backend/version.py` (`__version__`) y se propaga automáticamente a FastAPI (`/api/health`, OpenAPI), banner CLI, marca de agua de artículos y `pyproject.toml`.
+
+**GitHub muestra la versión actual en el panel derecho del repositorio leyendo las *Tags* y *Releases*.** Para publicar una nueva versión:
+
+```bash
+# 1. Actualizar backend/version.py y pyproject.toml según SemVer:
+#    - MAJOR: cambios incompatibles de API/arquitectura
+#    - MINOR: funcionalidad retrocompatible (p.ej. paridad CLI/GUI → 3.1.0)
+#    - PATCH: correcciones retrocompatibles
+# 2. Documentar en CHANGELOG.md (formato Keep a Changelog)
+# 3. Etiquetar (la tag debe empezar con "v" + la versión exacta) y subir:
+git commit -am "chore(release): v3.1.0"
+git tag -a v3.1.0 -m "JullEditor v3.1.0 — Paridad CLI/GUI y fuente única de versión (SemVer)"
+git push origin main --follow-tags
+# 4. (Opcional) Crear Release en GitHub desde esa tag para que aparezca
+#    como "Latest" en la página del repositorio.
+```
+
+> **Actual:** `v3.1.0` (2026-10-25) — paridad 1:1 entre `crear_articulo.bat` y la interfaz web, sincronización de ajustes avanzados `.bat → GUI` y versionado centralizado bajo SemVer.
+
 
 ---
 

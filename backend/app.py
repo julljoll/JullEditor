@@ -21,6 +21,7 @@ from typing import Optional, List, Dict, Any
 from dotenv import load_dotenv
 
 from backend.logger_config import get_logger
+from backend.version import __version__
 from backend.system_profiler import detect_system_resources
 from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
 from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
@@ -76,7 +77,7 @@ THEME_TEMPERATURES = {
 async def lifespan(app: FastAPI):
     """Ciclo de vida del servidor: diagnóstico y warmup inicial, cleanup ordenado al apagar."""
     logger.info("=" * 60)
-    logger.info("JullEditor v3.0 — Motor Activo (CPU/GPU)")
+    logger.info("JullEditor v3.1.0 — Motor Activo (CPU/GPU)")
     logger.info(f"Ollama URL: {OLLAMA_BASE_URL} | Modelo Predeterminado: {DEFAULT_GRANITE_MODEL}")
     logger.info(f"Ventana Contexto: {NUM_CTX} | Hilos CPU: {NUM_THREAD}")
     logger.info("=" * 60)
@@ -100,12 +101,12 @@ async def lifespan(app: FastAPI):
             await active_client.aclose()
         except Exception:
             pass
-    logger.info("JullEditor v3.0 finalizado correctamente.")
+    logger.info("JullEditor v3.1.0 finalizado correctamente.")
 
 app = FastAPI(
     title="JullEditor API",
     description="JullEditor: Motor local de redacción de artículos con IBM Granite y diseño Cyber-Legal optimizado para CPU, SEO estricto y RAG verificado",
-    version="3.0.0",
+    version=__version__,
     lifespan=lifespan
 )
 
@@ -277,7 +278,7 @@ async def health_check():
                         "queue_busy": queue_busy,
                         "jurisdiction": DEFAULT_JURISDICTION,
                         "latency_ms": latency_ms,
-                        "version": "3.0.0"
+                        "version": __version__
                     }
         except Exception as e:
             last_err = e
@@ -299,7 +300,7 @@ async def health_check():
         "queue_busy": queue_busy,
         "jurisdiction": DEFAULT_JURISDICTION,
         "latency_ms": round((time.time() - start_time) * 1000),
-        "version": "3.0.0",
+        "version": __version__,
         "models": []
     }
 

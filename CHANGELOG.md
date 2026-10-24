@@ -6,6 +6,21 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [3.1.0] - 2026-10-25
+
+Incremento de **MINOR** conforme a [SemVer 2.0.0](https://semver.org/lang/es/): nueva funcionalidad retrocompatible (paridad CLI/GUI) sin romper la API pública.
+
+### 🟢 Nuevas Funcionalidades (New Features)
+- **Paridad 1:1 CLI ↔ GUI**: `crear_articulo.bat` (`backend/cli_generator.py`) ahora replica exactamente los controles de `frontend/index.html`: las 15 voces/jurisdicciones del selector de tono, las 4 jurisdicciones con "Auto" predeterminado, y los ajustes avanzados (temperatura, modelo `granite3.3:8b/2b`, extensión 600–2000 palabras e instrucciones personalizadas).
+- **Sincronización `.bat → Web`**: al elegir el modo servidor web desde el asistente CLI, la GUI precarga también modelo, estilo editorial e instrucciones personalizadas (antes solo título, tema, tono, jurisdicción, temperatura y palabras).
+- **Fuente única de versión (`backend/version.py`)**: constante `__version__` canónica bajo SemVer, consumida por FastAPI (`/api/health`, OpenAPI), el banner CLI y la marca de agua de artículos; sincronizada con `pyproject.toml`.
+
+### 🔴 Correcciones (Bug Fixes)
+- Validación en bucle de las selecciones de tono y jurisdicción en el CLI (entradas inválidas ya no abortan la sesión).
+- Detección automática de país en el RAG legal cuando la jurisdicción es "Auto", según el tono elegido (mismo criterio que `app.py`).
+
+---
+
 ## [3.0.0] - 2026-10-23
 
 ### 🔴 Correcciones Críticas (Bug Fixes)

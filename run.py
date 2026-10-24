@@ -1,5 +1,5 @@
 """
-Lanzador y Gestor Principal Multiplataforma en Python Puro para JullEditor v3.0.
+Lanzador y Gestor Principal Multiplataforma en Python Puro para JullEditor v3.1.0.
 Sustituye completamente scripts de PowerShell (.ps1) y Batch (.bat),
 ofreciendo diagnóstico de hardware, control del ciclo de vida de Ollama,
 gestión de puertos y ejecución de pruebas de forma 100% nativa en Python.
@@ -141,7 +141,7 @@ def check_ollama_service() -> bool:
 
 def run_tests():
     """Ejecuta la suite de pruebas completa en Pytest."""
-    print_header("EJECUTANDO SUITE COMPLETA DE PRUEBAS — JULL EDITOR v3.0")
+    print_header("EJECUTANDO SUITE COMPLETA DE PRUEBAS — JULL EDITOR v3.1.0")
     cmd = [sys.executable, "-m", "pytest", "tests/", "-v", "--tb=short"]
     res = subprocess.run(cmd, cwd=str(WORKSPACE_ROOT))
     if res.returncode == 0:
@@ -157,7 +157,7 @@ def run_tests():
 
 def run_web(port: int = DEFAULT_PORT):
     """Lanza el servidor web FastAPI con recarga y abre el navegador."""
-    print_header("INICIANDO JULL EDITOR v3.0 (CYBER-LEGAL LOCAL CPU)")
+    print_header("INICIANDO JULL EDITOR v3.1.0 (CYBER-LEGAL LOCAL CPU)")
     ensure_env_file()
     diagnose_hardware()
     check_ollama_service()
