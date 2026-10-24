@@ -423,72 +423,107 @@ def prompt_editorial_config(parsed_doc: Dict[str, Any], is_tsj: bool) -> Dict[st
     selected_mode = "magazine" if mode_in == "1" else "classic"
 
     print()
-    print("🎙️ PASO 4/6: PERFIL DE VOZ / TONO")
+    print("🎙️ PASO 4/6: PERFIL DE VOZ / TONO (IDÉNTICO AL SELECT 'toneSelect' DE index.html)")
     print("-----------------------------------------------------------------------------------")
-    print("  [1] 🏛️ Analista Jurisprudencial TSJ (Revista Digital Educativa) [* Predeterminada]")
-    print("  [2] 🎓 Revista Científica Arbitrada (Derecho & Computación Forense — Univ.)")
-    print("  [3] ⚖️ Abogado VE — Doctrinal (Forense / TSJ)")
-    print("  [4] ⚖️ Abogado VE — Litigante (Ruta Procesal / Lapsos)")
-    print("  [5] ⚖️ Abogado CO — Doctrinal (Precedente Constitucional)")
-    print("  [6] 🌐 Consultor Jurídico Corporativo / Conversacional")
-    tone_in = input("Selecciona tono [1-6] (Enter para 1): ").strip() or "1"
-    tone_map = {
-        "1": "analista_tsj_revista",
-        "2": "revista_cientifica_law_tech",
-        "3": "abogado_ve_doctrinal",
-        "4": "abogado_ve_litigante",
-        "5": "abogado_co_doctrinal",
-        "6": "conversational",
-    }
-    selected_tone = tone_map.get(tone_in, "analista_tsj_revista")
+    print("  ── JURÍDICOS VENEZUELA ──")
+    print("  [1]  📰 Analista Jurisprudencial TSJ — Revista Digital Educativa [* Predeterminado]")
+    print("  [2]  🎓 Revista Científica Arbitrada (Derecho & Computación Forense — Univ.)")
+    print("  [3]  ⚖️ Abogado VE — Doctrinal (Forense / TSJ · Recomendado 2026)")
+    print("  [4]  ⚖️ Abogado VE — Litigante (Ruta Procesal / Lapsos)")
+    print("  [5]  ⚖️ Abogado VE — Explicativo (Claro / Divulgación)")
+    print("  [6]  👤 Jull (Venezolano Técnico-Científico)")
+    print("  [7]  👤 Jull (Venezolano Explicativo)")
+    print("  ── JURÍDICOS COLOMBIA ──")
+    print("  [8]  ⚖️ Abogado CO — Doctrinal (Precedente / Corte Const.)")
+    print("  [9]  ⚖️ Abogado CO — Litigante (Tutela / Términos)")
+    print("  [10] ⚖️ Abogado CO — Explicativo (Habeas Data / Ciudadano)")
+    print("  ── GENÉRICOS ──")
+    print("  [11] 🏢 Consultor Jurídico Corporativo (Compliance / Riesgos)")
+    print("  [12] 💬 Conversacional Ágil")
+    print("  [13] 🔬 Analítico Pericial")
+    print("  [14] 📚 Didáctico / Pedagógico")
+    print("  [15] 💼 Ejecutivo / Directivo")
+    tone_options = [
+        "analista_tsj_revista",
+        "revista_cientifica_law_tech",
+        "abogado_ve_doctrinal",
+        "abogado_ve_litigante",
+        "abogado_ve_explicativo",
+        "jull",
+        "jull_explicativo",
+        "abogado_co_doctrinal",
+        "abogado_co_litigante",
+        "abogado_co_explicativo",
+        "consultor_corporativo",
+        "conversational",
+        "analytical",
+        "didactic",
+        "executive",
+    ]
+    while True:
+        tone_in = input("Selecciona tono [1-15] (Enter para 1): ").strip() or "1"
+        if tone_in.isdigit() and 1 <= int(tone_in) <= len(tone_options):
+            selected_tone = tone_options[int(tone_in) - 1]
+            break
+        print("[AVISO] Opción no válida. Ingresa un número entre 1 y 15.")
 
     print()
-    print("⚖️ PASO 5/6: JURISDICCIÓN & ENFOQUE NORMATIVO")
+    print("⚖️ PASO 5/6: JURISDICCIÓN & ENFOQUE NORMATIVO (select 'jurisdictionSelect')")
     print("-----------------------------------------------------------------------------------")
-    print("  [1] 🇻🇪 Venezuela (CRBV, Delitos Inf., Infogobierno, TSJ) [* Predeterminada]")
-    print("  [2] 🇨🇴 Colombia (C.P. 1991, Ley 1273, Ley 1581 Datos)")
-    print("  [3] 🌐 Internacional / Global (ISO, NIST, UE)")
-    print("  [4] 🔄 Auto (Detectar por contenido)")
-    jur_in = input("Selecciona jurisdicción [1-4] (Enter para 1): ").strip() or "1"
+    print("  [1] 🔄 Auto (Detectar por fuente y notas) [* Predeterminada en index.html]")
+    print("  [2] 🇻🇪 Venezuela (CRBV, Delitos Inf., Infogobierno, TSJ)")
+    print("  [3] 🇨🇴 Colombia (C.P. 1991, Ley 1273, Ley 1581 Datos)")
+    print("  [4] 🌐 Internacional / Global (ISO, NIST, UE)")
     jur_map = {
-        "1": "venezuela",
-        "2": "colombia",
-        "3": "international",
-        "4": "auto",
+        "1": "auto",
+        "2": "venezuela",
+        "3": "colombia",
+        "4": "international",
     }
-    selected_jurisdiction = jur_map.get(jur_in, "venezuela")
+    while True:
+        jur_in = input("Selecciona jurisdicción [1-4] (Enter para 1-Auto): ").strip() or "1"
+        if jur_in in jur_map:
+            selected_jurisdiction = jur_map[jur_in]
+            break
+        print("[AVISO] Opción no válida. Ingresa un número entre 1 y 4.")
 
     print()
-    print("⚙️ PASO 6/6: PARÁMETROS TÉCNICOS DE INFERENCIA")
+    print("⚙️ PASO 6/6: PARÁMETROS TÉCNICOS DE INFERENCIA (Ajustes Avanzados de index.html)")
     print("-----------------------------------------------------------------------------------")
-    print("  * Temperatura: 0.0 (Cero Alucinación / Rigor Factual Absoluto) [*]")
-    print(f"  * Modelo:      {DEFAULT_MODEL} [*]")
-    print("  * Extensión:   ~1000 palabras (Pilar SEO 2026) [*]")
+    print("  * Temperatura: 0.0 (Cero Alucinación / Rigor Factual TSJ) [*]")
+    print(f"  * Modelo:      {DEFAULT_MODEL} (granite3.3:8b Recomendado 16GB) [*]")
+    print("  * Extensión:   1000 palabras (Pilar SEO 2026 · Recomendado) [*]")
     print("-----------------------------------------------------------------------------------")
     adv = input("¿Deseas personalizar estos parámetros técnicos? [s/N]: ").strip().lower()
 
     selected_temp = 0.0
     selected_words = 1000
     selected_model = DEFAULT_MODEL
+    selected_custom_instructions = ""
 
     if adv in ("s", "si", "y", "yes"):
+        # Slider tempSlider: min 0.05, max 1.0, step 0.05 (default web 0.2; CLI mantiene 0.0 anti-alucinación)
         temp_input = input("Temperatura [0.0 - 1.0] (Enter para 0.0): ").strip()
         try:
             if temp_input:
-                selected_temp = max(0.0, min(1.0, float(temp_input)))
+                selected_temp = max(0.0, min(1.0, float(temp_input.replace(",", "."))))
         except ValueError:
             selected_temp = 0.0
 
-        model_input = input(f"Modelo Ollama [1] {DEFAULT_MODEL} [2] granite3.3:2b (Enter para 1): ").strip()
+        # select modelSelect: granite3.3:8b | granite3.3:2b
+        model_input = input(f"Modelo Ollama [1] {DEFAULT_MODEL} (8b Rec.) [2] granite3.3:2b (Rápido CPU) (Enter para 1): ").strip()
         if model_input == "2":
             selected_model = "granite3.3:2b"
 
-        words_input = input("Extensión objetivo [600 / 1000 / 1500 / 2000] (Enter para 1000): ").strip()
-        try:
-            if words_input:
-                selected_words = int(words_input)
-        except ValueError:
-            selected_words = 1000
+        # select wordCountTarget: 600 Corto | 1000 Pilar SEO | 1500 Largo | 2000 Pilar Extenso
+        words_input = input("Extensión [1]~600 Corto [2]~1000 PilarSEO[*] [3]~1500 Largo [4]~2000 Extenso (Enter para 2): ").strip() or "2"
+        words_map = {"1": 600, "2": 1000, "3": 1500, "4": 2000}
+        selected_words = words_map.get(words_input, 1000)
+
+        # input customInstructions (Opcional en index.html)
+        selected_custom_instructions = input(
+            "Instrucciones Personalizadas (Enter para omitir). Ej: responder intención de búsqueda, incluir ejemplos prácticos: "
+        ).strip()
 
     return {
         "theme": selected_theme,
@@ -498,6 +533,7 @@ def prompt_editorial_config(parsed_doc: Dict[str, Any], is_tsj: bool) -> Dict[st
         "temperature": selected_temp,
         "model": selected_model,
         "target_words": selected_words,
+        "custom_instructions": selected_custom_instructions,
     }
 
 
@@ -621,6 +657,7 @@ def save_preloaded_session(source_file: Path, config: Dict[str, Any], parsed: Di
         "temperature": config["temperature"],
         "model": config["model"],
         "target_words": config["target_words"],
+        "custom_instructions": config.get("custom_instructions", ""),
     }
     with open(PRELOADED_FILE, "w", encoding="utf-8") as f:
         json.dump(payload, f, ensure_ascii=False, indent=2)
@@ -710,15 +747,27 @@ def main():
         run_web_server()
         return 0
 
+    # Sincronización con index.html: si jurisdicción es Auto y el tono define país (VE/CO),
+    # la detección automática del backend usa ese sesgo (igual que el frontend al enviar 'auto').
+    if config["jurisdiction"] == "auto":
+        tone = config["tone"]
+        if "_ve_" in tone or tone.startswith("abogado_ve"):
+            config["_rag_jur_code"] = "ve"
+        elif "_co_" in tone or tone.startswith("abogado_co"):
+            config["_rag_jur_code"] = "co"
+
     # 5. Generación Directa CLI
     if not check_and_start_ollama():
         print("\n[ERROR] No es posible continuar sin Ollama en ejecución.")
         return 1
 
-    # RAG Context
+    # RAG Context (igual criterio que el backend web: corpus legal VE/CO según jurisdicción)
     rag_context = ""
     if config["jurisdiction"] in ("venezuela", "colombia", "auto"):
-        jur_code = "ve" if config["jurisdiction"] == "venezuela" else ("co" if config["jurisdiction"] == "colombia" else "ve")
+        jur_code = {
+            "venezuela": "ve",
+            "colombia": "co",
+        }.get(config["jurisdiction"], config.get("_rag_jur_code", "ve"))
         try:
             rag_context = retrieve_legal_context(
                 query_text=f"{article_title} {content_text[:2000]}",
@@ -729,7 +778,9 @@ def main():
         except Exception:
             rag_context = ""
 
-    # Construir prompt
+    custom_instr = config.get("custom_instructions", "")
+
+    # Construir prompt (misma ruta de decisión que app.py / article-generator.js)
     if is_tsj or config["theme"] == "sentencia_tsj" or config["tone"] == "analista_tsj_revista":
         prompt = build_sentencia_tsj_prompt(
             article_source_text=content_text,
@@ -737,6 +788,7 @@ def main():
             source_url=f"Archivo local: {source_path.name}",
             sentencia_metadata=tsj_meta,
             legal_rag_context=rag_context,
+            custom_instructions=custom_instr,
             target_words=config["target_words"],
         )
     else:
@@ -747,6 +799,7 @@ def main():
             theme=config["theme"],
             tone=config["tone"],
             target_words=config["target_words"],
+            custom_instructions=custom_instr,
             legal_rag_context=rag_context,
             jurisdiction=config["jurisdiction"],
             editorial_mode=config["editorial_mode"],

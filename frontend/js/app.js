@@ -304,6 +304,29 @@ document.addEventListener("DOMContentLoaded", () => {
           const wordSel = document.getElementById("wordCountTarget");
           if (wordSel) wordSel.value = String(d.target_words);
         }
+        if (d.model) {
+          const modelSel = document.getElementById("modelSelect");
+          if (modelSel) modelSel.value = d.model;
+        }
+        if (d.editorial_mode) {
+          const modeSel = document.getElementById("editorialMode");
+          if (modeSel) {
+            modeSel.value = d.editorial_mode;
+            const magBtn = document.getElementById("segmentModeMagazine");
+            const clsBtn = document.getElementById("segmentModeClassic");
+            if (magBtn && clsBtn) {
+              const isMag = d.editorial_mode === "magazine";
+              magBtn.classList.toggle("active", isMag);
+              clsBtn.classList.toggle("active", !isMag);
+              magBtn.setAttribute("aria-checked", String(isMag));
+              clsBtn.setAttribute("aria-checked", String(!isMag));
+            }
+          }
+        }
+        if (d.custom_instructions) {
+          const customEl = document.getElementById("customInstructions");
+          if (customEl) customEl.value = d.custom_instructions;
+        }
         toast.success(`Documento TSJ precargado: ${d.filename}`);
       }
     })
