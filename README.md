@@ -2,17 +2,17 @@
 
 <p align="center">
   <strong>Estación Editorial y Pericial de Redacción de Artículos Científicos, Blog y LegalTech con IBM Granite 3.3 Local (CPU-Only)</strong><br>
-  <em>Optimizada para Ciberseguridad Forense, Cadena de Custodia, Inteligencia Artificial, Derecho Digital y Jurisdicciones de Venezuela 🇻🇪 y Colombia 🇨🇴.</em>
+  <em>Optimizada para Ciberseguridad Forense, Cadena de Custodia, Inteligencia Artificial, Derecho Digital, con enfoque exclusivo en la jurisdicción de Venezuela 🇻🇪.</em>
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Release-v3.1.0-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.1.0" />
+  <img src="https://img.shields.io/badge/Release-v3.2.0-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.2.0" />
   <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3_(2B%20%7C%208B)-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite 3.3" />
   <img src="https://img.shields.io/badge/Runtime-Ollama_CPU_(0ms_Network)-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama CPU" />
   <img src="https://img.shields.io/badge/Backend-FastAPI_Async_SSE-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
   <img src="https://img.shields.io/badge/Tests-57%2F57_PASSED_(100%25)-00FF41?style=for-the-badge&logo=pytest&logoColor=black" alt="Pytest 57/57" />
   <img src="https://img.shields.io/badge/Cloud-Google_Colab_%7C_Oracle_Cloud-F80000?style=for-the-badge&logo=googlecolab&logoColor=white" alt="Google Colab & Oracle Cloud" />
-  <img src="https://img.shields.io/badge/Jurisdicci%C3%B3n-Venezuela_%F0%9F%87%BB%F0%9F%87%AA_%7C_Colombia_%F0%9F%87%A8%F0%9F%87%B4-0055A5?style=for-the-badge" alt="Venezuela & Colombia Legal" />
+  <img src="https://img.shields.io/badge/Jurisdicci%C3%B3n-Venezuela_%F0%9F%87%BB%F0%9F%87%AA-0055A5?style=for-the-badge" alt="Venezuela Legal" />
 </p>
 
 ---
@@ -73,7 +73,7 @@ flowchart TD
     subgraph PROMPT["3. Orquestador de Prompts y Perfiles"]
         D --> E{"Perfil Seleccionado"}
         E -->|"Revista Científica"| P1["Estructura Doctoral (12 Bloques)<br/>Abstract Bilingüe + APA 7 + TSJ"]
-        E -->|"Doctrinal / Litigante"| P2["Perfil Jurídico VE / CO<br/>Fórmulas Procesales + Glosario"]
+        E -->|"Doctrinal / Litigante"| P2["Perfil Jurídico Venezuela<br/>Fórmulas Procesales + Glosario"]
         E -->|"Tech / Ciberseguridad"| P3["Wireframe SEO / GEO 2026<br/>Answer-First + FAQ"]
     end
 
@@ -138,7 +138,6 @@ Haz clic en una de las píldoras temáticas:
 * **Perfil de Voz / Tono:**
   * 🎓 **Revista Científica Arbitrada (Derecho & Computación Forense — Nivel Universidad):** Autocalibra la extensión a 1.500 palabras y temperatura 0.2 con estructura doctoral de 12 bloques.
   * ⚖️ **Abogado Venezuela:** Doctrinal (Forense/TSJ), Litigante (Rutas procesales), Explicativo (Divulgación).
-  * ⚖️ **Abogado Colombia:** Doctrinal (Precedente Corte Constitucional), Litigante (Acción de Tutela), Explicativo.
   * 🌐 **Corporativo y Divulgación:** Consultor Corporativo, Conversacional, Analítico, Didáctico, Ejecutivo.
 * **Extensión Objetivo:** Desde 600 palabras (Resumen Ejecutivo) hasta 2.000 palabras (Tratado Extenso). *Recomendado SEO: Pilar de 1.000 palabras*.
 * **Temperatura:** Predeterminada en `0.2` para máxima fidelidad fáctica.
@@ -181,13 +180,6 @@ El sistema cuenta con un índice RAG local precargado con **96 fuentes normativa
    • Manual Único de Cadena de Custodia de Evidencias Físicas (MP / CICPC, Versión 2017)
    • Centro Nacional de Informática Forense (CENIF, G.O. Nº 39.847) y SUSCERTE / VenCERT
    • Línea Jurisprudencial TSJ: Sala Constitucional, Sala de Casación Penal y Civil
-
-🇨🇴 REPÚBLICA DE COLOMBIA:
-   • Constitución Política de Colombia de 1991 (Arts. 15 y 20)
-   • Ley 1273 de 2009 (Protección de la Información y Delitos Informáticos)
-   • Ley 1581 de 2012 y Ley 1266 de 2008 (Habeas Data y Datos Personales)
-   • Ley 527 de 1999 (Comercio Electrónico, Mensajes de Datos y Firmas Digitales)
-   • Código General del Proceso (CGP) y Precedentes de la Corte Constitucional
 
 🌐 ESTÁNDARES INTERNACIONALES FORENSES:
    • ISO/IEC 27037:2012 (Directrices para la identificación, recolección, adquisición y preservación de evidencia digital)
@@ -271,7 +263,7 @@ py -m pytest -v
 ```
 **Resultado esperado:**
 * **48 pruebas pasando (100% verde)** en menos de 3 segundos.
-* Cobertura completa: endpoints de FastAPI, rechazo anti-SSRF, parseo de Docling, perfiles jurídicos de Venezuela y Colombia, perfil de revista científica arbitrada, tokens dark-only CSS y reglas de impresión.
+* Cobertura completa: endpoints de FastAPI, rechazo anti-SSRF, parseo de Docling, perfiles jurídicos de Venezuela, perfil de revista científica arbitrada, tokens dark-only CSS y reglas de impresión.
 
 ### Paso 2: Comprobar el Endpoint de Salud (Healthcheck)
 Ejecuta en tu terminal o abre en el navegador:
@@ -309,7 +301,7 @@ curl http://127.0.0.1:8000/api/health
 ├── backend/                      # Servidor FastAPI y motores periciales
 │   ├── app.py                    # Endpoints FastAPI, CORS, streaming SSE y healthcheck
 │   ├── prompts.py                # Ensamblado de prompts, wireframe SEO y estructura doctoral
-│   ├── legal_profiles.py         # Perfiles de voz VE/CO, revista científica y glosario forense
+│   ├── legal_profiles.py         # Perfiles de voz jurídica venezolana, revista científica y glosario forense
 │   ├── legal_validator.py        # Validador de calidad jurídica, calcos y ética profesional
 │   ├── seo_validator.py          # Validador determinista SEO, legibilidad y Schema.org
 │   ├── rag_manager.py            # Gestor RAG, recuperación ponderada e historial inmutable
@@ -351,7 +343,7 @@ curl http://127.0.0.1:8000/api/health
 ├── Informacion_docling_rag/      # 96 documentos normativos indexados (12 categorías jurídicas)
 ├── tests/                        # Suite de 48 pruebas automatizadas (pytest)
 │   ├── test_api_endpoints.py     # Pruebas de API, SSRF, UI, tokens dark y print styles
-│   ├── test_legal_profiles.py    # Pruebas de perfiles VE/CO, revista científica y glosarios
+│   ├── test_legal_profiles.py    # Pruebas de perfiles jurídicos, revista científica y glosarios
 │   ├── test_prompts.py           # Pruebas de inyección de prompts y reglas GEO 2026
 │   ├── test_docling_parser.py    # Pruebas de extracción y limpieza Docling
 │   └── test_rag_manager.py       # Pruebas de recuperación RAG y persistencia YAML
@@ -377,7 +369,7 @@ Para validar la perfecta renderización en **Sitejet Builder** (constructor de s
 
 ## ☁️ 10. Despliegue en la Nube (Google Colab & Oracle Cloud)
 
-Granite Blog Writer v3.1.0 está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
+Granite Blog Writer v3.2.0 está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
 
 ### 🚀 Opción A: Google Colab (Ejecución Instantánea con Aceleración GPU)
 Ideal para redacción de alta velocidad sin consumir recursos locales de tu máquina:
@@ -463,14 +455,14 @@ Este proyecto adhiere estrictamente a [Semantic Versioning 2.0.0](https://semver
 #    - PATCH: correcciones retrocompatibles
 # 2. Documentar en CHANGELOG.md (formato Keep a Changelog)
 # 3. Etiquetar (la tag debe empezar con "v" + la versión exacta) y subir:
-git commit -am "chore(release): v3.1.0"
-git tag -a v3.1.0 -m "JullEditor v3.1.0 — Paridad CLI/GUI y fuente única de versión (SemVer)"
+git commit -am "chore(release): v3.2.0"
+git tag -a v3.2.0 -m "JullEditor v3.2.0 — Paridad CLI/GUI y fuente única de versión (SemVer)"
 git push origin main --follow-tags
 # 4. (Opcional) Crear Release en GitHub desde esa tag para que aparezca
 #    como "Latest" en la página del repositorio.
 ```
 
-> **Actual:** `v3.1.0` (2026-10-25) — paridad 1:1 entre `crear_articulo.bat` y la interfaz web, sincronización de ajustes avanzados `.bat → GUI` y versionado centralizado bajo SemVer.
+> **Actual:** `v3.2.0` (2026-10-25) — paridad 1:1 entre `crear_articulo.bat` y la interfaz web, sincronización de ajustes avanzados `.bat → GUI` y versionado centralizado bajo SemVer.
 
 
 ---

@@ -11,11 +11,11 @@ GitHub toma la versión desde las Tags/Releases del repositorio, por lo que
 esta constante debe mantenerse sincronizada con el tag etiquetado (v{VERSION}).
 """
 
-__version__ = "3.1.0"
+__version__ = "3.2.0"
 
 # Componentes individuales según SemVer 2.0.0
 MAJOR = 3
-MINOR = 1
+MINOR = 2
 PATCH = 0
 PRERELEASE = None  # p.ej. "rc.1"
 BUILD_META = None  # p.ej. "build.20261025"

@@ -219,9 +219,8 @@ document.addEventListener("DOMContentLoaded", () => {
   if (jurisdictionSelect && terminalJurisdiction) {
     jurisdictionSelect.addEventListener("change", () => {
       const jur = jurisdictionSelect.value;
-      if (jur === "co") terminalJurisdiction.innerText = "COLOMBIA 🇨🇴";
-      else if (jur === "ve") terminalJurisdiction.innerText = "VENEZUELA 🇻🇪";
-      else terminalJurisdiction.innerText = "AUTO (VE/CO) ⚖️";
+      if (jur === "ve" || jur === "venezuela") terminalJurisdiction.innerText = "VENEZUELA 🇻🇪";
+      else terminalJurisdiction.innerText = "AUTO (VE) ⚖️";
     });
   }
 

@@ -6,6 +6,18 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [3.2.0] - 2026-10-25
+
+### Cambiado
+- **Foco exclusivo en Venezuela 🇻🇪**: la jurisdicción local soportada por el proyecto pasa a ser únicamente Venezuela (ruptura funcional intencional respecto a la GUI).
+- **GUI (`frontend/index.html`)**: eliminadas las 3 voces "Abogado CO" del selector de tono (15 → 12 perfiles) y la opción "🇨🇴 Colombia" del selector de jurisdicción (4 → 3 opciones: Auto / Venezuela / Internacional).
+- **CLI `.bat` (`backend/cli_generator.py`)**: menú espejo de la interfaz — tonos [1-12], jurisdicciones [1-3]; la detección "Auto" y el RAG legal se resuelven siempre con corpus venezolano.
+- **`frontend/js/app.js`**: terminal de jurisdicción simplificado a "VENEZUELA 🇻🇪 / AUTO (VE)"; etiquetas de estructura y SEO tips actualizadas a "Marco Legal Venezuela".
+- **README.md**: badge, subtítulo, diagrama de flujo y marco normativo actualizados al enfoque monojurisdiccional VE.
+
+### Conservado
+- Los motores internos (`legal_profiles.py`, `prompts.py`, `rag_manager.py`) mantienen la infraestructura multi-jurisdicción como capacidad técnica latente; solo se retiraron del menú de usuario. La carpeta de corpus `Informacion_docling_rag/Colombia` permanece disponible para futuras reactivaciones.
+
 ## [3.1.0] - 2026-10-25
 
 Incremento de **MINOR** conforme a [SemVer 2.0.0](https://semver.org/lang/es/): nueva funcionalidad retrocompatible (paridad CLI/GUI) sin romper la API pública.

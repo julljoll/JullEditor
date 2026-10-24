@@ -4,7 +4,7 @@ chcp 65001 >nul
 title JullEditor — Explorador Informacion_docling_rag & Creador de Artículos TSJ
 
 :: =========================================================================
-:: JullEditor v3.1.0 — Explorador en Vivo de Informacion_docling_rag
+:: JullEditor v3.2.0 — Explorador en Vivo de Informacion_docling_rag
 :: Muestra el contenido de Informacion_docling_rag, permite seleccionar
 :: el documento a trabajar y se actualiza automáticamente al agregar archivos.
 :: =========================================================================

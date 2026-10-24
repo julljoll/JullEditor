@@ -434,16 +434,12 @@ def prompt_editorial_config(parsed_doc: Dict[str, Any], is_tsj: bool) -> Dict[st
     print("  [5]  ⚖️ Abogado VE — Explicativo (Claro / Divulgación)")
     print("  [6]  👤 Jull (Venezolano Técnico-Científico)")
     print("  [7]  👤 Jull (Venezolano Explicativo)")
-    print("  ── JURÍDICOS COLOMBIA ──")
-    print("  [8]  ⚖️ Abogado CO — Doctrinal (Precedente / Corte Const.)")
-    print("  [9]  ⚖️ Abogado CO — Litigante (Tutela / Términos)")
-    print("  [10] ⚖️ Abogado CO — Explicativo (Habeas Data / Ciudadano)")
     print("  ── GENÉRICOS ──")
-    print("  [11] 🏢 Consultor Jurídico Corporativo (Compliance / Riesgos)")
-    print("  [12] 💬 Conversacional Ágil")
-    print("  [13] 🔬 Analítico Pericial")
-    print("  [14] 📚 Didáctico / Pedagógico")
-    print("  [15] 💼 Ejecutivo / Directivo")
+    print("  [8]  🏢 Consultor Jurídico Corporativo (Compliance / Riesgos)")
+    print("  [9]  💬 Conversacional Ágil")
+    print("  [10] 🔬 Analítico Pericial")
+    print("  [11] 📚 Didáctico / Pedagógico")
+    print("  [12] 💼 Ejecutivo / Directivo")
     tone_options = [
         "analista_tsj_revista",
         "revista_cientifica_law_tech",
@@ -452,9 +448,6 @@ def prompt_editorial_config(parsed_doc: Dict[str, Any], is_tsj: bool) -> Dict[st
         "abogado_ve_explicativo",
         "jull",
         "jull_explicativo",
-        "abogado_co_doctrinal",
-        "abogado_co_litigante",
-        "abogado_co_explicativo",
         "consultor_corporativo",
         "conversational",
         "analytical",
@@ -462,31 +455,29 @@ def prompt_editorial_config(parsed_doc: Dict[str, Any], is_tsj: bool) -> Dict[st
         "executive",
     ]
     while True:
-        tone_in = input("Selecciona tono [1-15] (Enter para 1): ").strip() or "1"
+        tone_in = input("Selecciona tono [1-12] (Enter para 1): ").strip() or "1"
         if tone_in.isdigit() and 1 <= int(tone_in) <= len(tone_options):
             selected_tone = tone_options[int(tone_in) - 1]
             break
-        print("[AVISO] Opción no válida. Ingresa un número entre 1 y 15.")
+        print("[AVISO] Opción no válida. Ingresa un número entre 1 y 12.")
 
     print()
     print("⚖️ PASO 5/6: JURISDICCIÓN & ENFOQUE NORMATIVO (select 'jurisdictionSelect')")
     print("-----------------------------------------------------------------------------------")
-    print("  [1] 🔄 Auto (Detectar por fuente y notas) [* Predeterminada en index.html]")
+    print("  [1] 🔄 Auto (Detectar por fuente y notas · Enfoque Venezuela) [* Predeterminada en index.html]")
     print("  [2] 🇻🇪 Venezuela (CRBV, Delitos Inf., Infogobierno, TSJ)")
-    print("  [3] 🇨🇴 Colombia (C.P. 1991, Ley 1273, Ley 1581 Datos)")
-    print("  [4] 🌐 Internacional / Global (ISO, NIST, UE)")
+    print("  [3] 🌐 Internacional / Global (ISO, NIST, UE)")
     jur_map = {
         "1": "auto",
         "2": "venezuela",
-        "3": "colombia",
-        "4": "international",
+        "3": "international",
     }
     while True:
-        jur_in = input("Selecciona jurisdicción [1-4] (Enter para 1-Auto): ").strip() or "1"
+        jur_in = input("Selecciona jurisdicción [1-3] (Enter para 1-Auto): ").strip() or "1"
         if jur_in in jur_map:
             selected_jurisdiction = jur_map[jur_in]
             break
-        print("[AVISO] Opción no válida. Ingresa un número entre 1 y 4.")
+        print("[AVISO] Opción no válida. Ingresa un número entre 1 y 3.")
 
     print()
     print("⚙️ PASO 6/6: PARÁMETROS TÉCNICOS DE INFERENCIA (Ajustes Avanzados de index.html)")
@@ -748,27 +739,20 @@ def main():
         run_web_server()
         return 0
 
-    # Sincronización con index.html: si jurisdicción es Auto y el tono define país (VE/CO),
-    # la detección automática del backend usa ese sesgo (igual que el frontend al enviar 'auto').
+    # Sincronización con index.html: la jurisdicción "Auto" se resuelve siempre con
+    # sesgo Venezuela (única jurisdicción local soportada por el proyecto).
     if config["jurisdiction"] == "auto":
-        tone = config["tone"]
-        if "_ve_" in tone or tone.startswith("abogado_ve"):
-            config["_rag_jur_code"] = "ve"
-        elif "_co_" in tone or tone.startswith("abogado_co"):
-            config["_rag_jur_code"] = "co"
+        config["_rag_jur_code"] = "ve"
 
     # 5. Generación Directa CLI
     if not check_and_start_ollama():
         print("\n[ERROR] No es posible continuar sin Ollama en ejecución.")
         return 1
 
-    # RAG Context (igual criterio que el backend web: corpus legal VE/CO según jurisdicción)
+    # RAG Context (igual criterio que el backend web: corpus legal Venezuela según jurisdicción)
     rag_context = ""
-    if config["jurisdiction"] in ("venezuela", "colombia", "auto"):
-        jur_code = {
-            "venezuela": "ve",
-            "colombia": "co",
-        }.get(config["jurisdiction"], config.get("_rag_jur_code", "ve"))
+    if config["jurisdiction"] in ("venezuela", "auto"):
+        jur_code = "ve"
         try:
             rag_context = retrieve_legal_context(
                 query_text=f"{article_title} {content_text[:2000]}",
