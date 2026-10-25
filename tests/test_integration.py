@@ -33,7 +33,7 @@ def test_health_endpoint_contract():
     assert "default_model" in data
     assert "num_ctx" in data
     assert "latency_ms" in data
-    assert data["version"] == "3.0.0"
+    assert data["version"] == __import__("backend.version", fromlist=["__version__"]).__version__
 
 def test_validation_error_422_clean_response():
     """

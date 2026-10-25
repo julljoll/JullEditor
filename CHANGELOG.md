@@ -6,6 +6,23 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [3.3.0] - 2026-10-25
+
+Incremento de **MINOR** conforme a [SemVer 2.0.0](https://semver.org/lang/es/): nueva funcionalidad retrocompatible (Fase 1 del `PLAN_OPTIMIZACION.md` — núcleo 100% Python) sin rupturas de API.
+
+### Añadido
+- **`backend/editorial_catalog.py`**: fuente única de verdad para todas las opciones editoriales (5 temas/especialidades, 12 tonos VE, 3 jurisdicciones, modelos Granite, estilos y ajustes avanzados). CLI, TUI, GUI web y API consumen ahora el mismo catálogo.
+- **`backend/tui_app.py`**: interfaz TUI canónica construida con Textual (`python run.py --tui`), espejo 1:1 del flujo editorial web en terminal 100% Python: selección de especialidad, estilo, voz, jurisdicción, temperatura/modelo/extensión/instrucciones personalizadas, generación streaming y guardado en `Articulos Generados/`.
+- **API `GET /api/editorial-options`** (`backend/app.py`): expone el catálogo unificado para que el frontend se alimente dinámicamente desde Python.
+- **Lanzador `--tui`** en `run.py` junto a `--cli`, `--file`, `--test` y `--port`.
+
+### Cambiado
+- **`backend/cli_generator.py`**: refactorizado para importar tonos, jurisdicciones, temas y modelos desde `editorial_catalog`, garantizando consistencia absoluta entre `.bat`, TUI, web y API (misma lógica, misma lista de opciones).
+- **Puentes `.bat`** (`crear_articulo.bat`, `start.bat`): encabezados actualizados a v3.3.0; mantienen su rol de launcher sin lógica propia hacia `python run.py`.
+- **Versionado centralizado**: `backend/version.py`, `pyproject.toml`, README (badge y estado de versiones) sincronizados a `3.3.0`.
+
+---
+
 ## [3.2.1] - 2026-10-25
 
 ### Cambios
