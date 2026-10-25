@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>2026-10-14_doclang_a_markup_language_for_llms</title>
+  <meta name="generator" content="JullEditor — IBM Granite 3.3 Cyber-Legal">
+  <style>
+
+    :root {
+      --bg: #0b0f19;
+      --card-bg: #111827;
+      --text: #e2e8f0;
+      --text-muted: #94a3b8;
+      --border: #1e293b;
+      --gold: #d4af37;
+      --cyan: #38bdf8;
+      --accent-green: #34d399;
+      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      line-height: 1.75;
+      margin: 0;
+      padding: 40px 20px;
+    }
+    .article-container {
+      max-width: 860px;
+      margin: 0 auto;
+      background: var(--card-bg);
+      padding: 48px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+    }
+    h1 { font-size: 2.1rem; color: #fff; margin-top: 0; border-bottom: 2px solid var(--gold); padding-bottom: 14px; line-height: 1.3; }
+    h2 { font-size: 1.5rem; color: var(--gold); margin-top: 38px; border-bottom: 1px solid var(--border); padding-bottom: 8px; }
+    h3 { font-size: 1.25rem; color: var(--cyan); margin-top: 26px; }
+    p { margin: 16px 0; font-size: 1.05rem; }
+    strong { color: #fff; }
+    a { color: var(--cyan); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    .callout { background: #1a2234; border-left: 4px solid var(--gold); padding: 16px 20px; margin: 24px 0; border-radius: 0 8px 8px 0; }
+    .callout-exec { border-left-color: var(--cyan); background: #132238; }
+    .callout-meta { border-left-color: var(--accent-green); background: #0f291e; font-size: 0.95rem; }
+    .callout-abstract { border-left-color: #a855f7; background: #231533; }
+    .takeaway { background: #162032; border: 1px solid #223554; padding: 12px 18px; margin: 18px 0; border-radius: 6px; font-size: 0.98rem; }
+    .table-container { overflow-x: auto; margin: 24px 0; }
+    table { width: 100%; border-collapse: collapse; border: 1px solid var(--border); }
+    th { background: #1e293b; color: var(--gold); padding: 12px; text-align: left; border: 1px solid var(--border); font-size: 0.95rem; }
+    td { padding: 10px 12px; border: 1px solid var(--border); font-size: 0.95rem; }
+    tr:nth-child(even) { background: #131c2e; }
+    tr:nth-child(odd) { background: #0e1524; }
+    pre { background: #070a10; padding: 16px; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+    code { font-family: Consolas, "Courier New", monospace; font-size: 0.9rem; color: #fb923c; }
+    .code-header { font-size: 0.8rem; font-weight: 700; color: var(--gold); margin-bottom: 6px; }
+    ul, ol { padding-left: 28px; }
+    li { margin: 8px 0; }
+    .footer-credits { margin-top: 48px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.85rem; color: var(--text-muted); text-align: center; }
+    @media print {
+      body { background: #fff; color: #000; }
+      .article-container { border: none; box-shadow: none; padding: 0; }
+      h1, h2, h3 { color: #000; }
+      .callout { background: #f8fafc; color: #000; border-left-color: #333; }
+    }
+    
+  </style>
+  
+</head>
+<body>
+  <main class="article-container">
+    <h1>DocLang: Un Sublenguaje de XML para IA</h1>
+
+<h2>📑 Tabla de Contenidos</h2>
+
+<p>1. <strong>Introducción</strong><br>2. <strong>El Necesario: Documentos en Formats Obsoletos</strong><br>3. <strong>Docling: El Paradoja Resuelto</strong><br>   - <strong>Origen y Éxito</strong><br>   - <strong>Integración con Plataformas de IA</strong><br>4. <strong>DocLang: La Complementaria</strong><br>   - <strong>Definición y Beneficios</strong><br>   - <strong>Estructura y Semántica</strong><br>5. <strong>Por Qué XML?</strong><br>   - <strong>Semántico-Tokenización</strong><br>   - <strong>Compatibilidad y Completitud</strong><br>6. <strong>El Origen de DocLang</strong><br>   - <strong>Idea y Desarrollo</strong><br>7. <strong>Desafíos Ahead</strong><br>   - <strong>Adopción y Ecosistema</strong><br>   - <strong>Equilibrio entre Complejidad y Consistencia</strong><br>   - <strong>Costo de Migración</strong><br>   - <strong>Gobierno del Estándar</strong><br>8. <strong>El Camino hacia la Adopción Masiva</strong><br>   - <strong>Facilidad de Uso y Mejora Objeta</strong><br>   - <strong>Evidencias y Ejemplos de Implementación</strong><br>9. <strong>DocLang y Docling: Complementariedad</strong><br>10. <strong>Conclusión y Debate</strong><br>    - <strong>CTA: ¿Qué opinas sobre el futuro de la representación de documentos para IA?</strong></p>
+
+<h2>> <strong>Meta descripción:</strong></h2>
+Descubre DocLang, un sublenguaje de XML que transforma la forma en que las herramientas de inteligencia artificial procesan datos estructurados. Este formato innovador, basado en Docling, permite una mayor precisión y eficiencia en el análisis de documentos, reduciendo latencias y costos de inferencia.
+
+<h2><strong>Resumen Práctico de la Fuente Original</strong></h2>
+IBM ha desarrollado Docling, un lenguaje de marcado abierto para procesar documentos en diversas formatas (PDF, PPT, XLSX, MP4), convirtiéndolos en un formato interno serializable en DocLang, una dialecto restringido del XML. Este nuevo lenguaje se diseña para ser más interpretable por modelos de lenguaje de larga cadena (LLM) y ofrece ventajas como mayor precisión, menor latencia y costos inferenciales reducidos.
+
+<h2><strong>Resumen Ejecutivo en 30 Segundos</strong></h2>
+IBM introduce DocLang, un sublenguaje de XML que mejora la comprensión de documentos por parte de los modelos de IA. Este formato, basado en Docling, reduce errores de interpretación y aumenta la precisión al proporcionar una representación más directa para LLM, logrando menores costos de inferencia y latencias.
+
+<h2><strong>Introducción</strong></h2>
+La transformación digital ha sido impulsada por el AI, pero los datos en formatos antiguos o propietarios a menudo permanecen inaccesibles para las empresas. Docling, la herramienta de IBM para marcado de documentos, ha facilitado el acceso a nuevos conocimientos ocultos en documentos antiguos, desde informes anuales hasta presentaciones de PowerPoint. Con 32 millones de descargas y 64,000 estrellas en GitHub, Docling es la creación más exitosa de código abierto de IBM.
+
+<h2><strong>El Necesario: Documentos en Formats Obsoletos</strong></h2>
+Los formatos de documentos actuales fueron diseñados para propósitos distintos; PDF y DOCX, por ejemplo, no están optimizados para una comprensión automática por parte de un sistema de IA. Al pasar estos documentos a través de una pipeline de IA, se pierden detalles como la ubicación de los puntos en las gráficas, las captions de figuras y el metadatodocumento, limitando la precisión del modelo.
+
+<h2><strong>Docling: El Paradoja Resuelto</strong></h2>
+Docling transforma documentos en un formato interno serializable en DocLang, una versión simplificada del XML que es más amigable para los modelos de lenguaje de larga cadena (LLM). Este enfoque no solo mejora la precisión, sino que también reduce el tiempo de inferencia y minimiza errores sintácticos.
+
+<h2><strong>Por Qué XML?</strong></h2>
+DocLang adopta un semántico-tokenización clara, donde cada token tiene una apertura y cierre explicitos (por ejemplo, <text> y </text>), lo que permite al modelo aprender directamente la estructura sin necesidad de recuperarla. Además, DocLang mantiene un vocabulario sintáctico limitado y emplea elementos para representar propiedades semánticas, minimizando el número de tokens necesarios.
+
+<h2><strong>El Origen de DocLang</strong></h2>
+DocLang surge del análisis de tablas en documentos, llevando a la creación de Optimized Table Structure Language (OTSL). La idea principal: diseñar un vocabulario minimalista y propósito específico para que el modelo se concentre en la comprensión semántica, reduciendo errores sintácticos.
+
+<h2><strong>Desafíos Ahead</strong></h2>
+La adopción de DocLang depende del ecosistema que lo adopte. Una especificación sin implementaciones es solo un documento; la adopción es crucial para el éxito. Equilibrar la completitud y consistencia con la flexibilidad para manejar la complejidad real de los documentos es otro desafío. Además, la migración de sistemas existentes a un nuevo formato implica costos y reentrenamiento, pero se espera que las mejoras en precisión justifiquen estos costos.
+
+<h2><strong>El Camino hacia la Adopción Masiva</strong></h2>
+Para fomentar la adopción de DocLang, se centra en hacerlo libre, abierto y neutromente gobernado bajo la supervisión de la Fundación Linux. Se busca que DocLang sea una salida natural de herramientas ya utilizadas por los usuarios, minimizando el costo migratorio. Además, se enfatiza la evidencia empírica demostrando cómo DocLang mejora tanto la precisión como los costos operativos de los modelos de IA.
+
+<h2><strong>Conclusión y Debate</strong></h2>
+¿DocLang eventualmente hará obsoleta a Docling? No, complementarán el uno al otro. Docling transforma documentos complejos en datos estructurados, mientras que DocLang proporciona un estándar de representación para esos datos. La adopción de DocLang hará que Docling sea más valioso, ya que su salida se convierte en una forma de referencia universal para los sistemas posteriores.
+
+<h2><strong>Conclusión del párrafo</strong></h2>
+DocLang no solo representa un avance en la gestión de documentos estructurados para IA, sino que también marca el camino hacia una mayor precisión y eficiencia en el procesamiento de datos. Su implementación abierta y su diseño centrado en la utilidad lo convierten en un elemento crucial para futuras innovaciones en el campo del aprendizaje automático.
+
+<h2><strong>Referencias</strong></h2>
+<ul><li><a href="https://research.ibm.com/blog/doclang-ai-native-doc-standard" target="_blank" rel="noopener">IBM Research Blog: DocLang</a></li></ul>
+
+<h2><strong>Sobre el Autor</strong></h2>
+[Nombre del Autor], con [Título Profesional] y [Organización]. Experiencia en [Área de Conocimiento].
+
+<h2><strong>Conclusión y Debate</strong></h2>
+¿Crees que DocLang representa un cambio significativo en la forma en que las empresas manejan datos estructurados para IA? ¿Qué desafíos y oportunidades ves para su adopción masiva? Comparte tus pensamientos en los comentarios.
+
+<h2><strong>FAQPage</strong></h2>
+<h3>P/R: ¿Cuáles son las principales ventajas de DocLang sobre los formatos XML tradicionales?</h3>
+<strong>R:</strong> DocLang ofrece una semántica más directa y amigable para LLM, lo que reduce errores sintácticos y mejora la precisión. Además, su estructura simplificada minimiza el número de tokens necesarios, reduciendo latencias y costos inferenciales.
+
+<h3>P/R: ¿DocLang se adapta a diferentes tipos de documentos (no solo textos)?</h3>
+<strong>R:</strong> Sí, DocLang no está limitado a documentos textuales; también puede manejar audio transcripciones, imágenes y segmentos de video, lo cual es crucial en entornos multimodales.
+
+<h3>P/R: ¿DocLang se basa en un formato específico o es completamente nuevo?</h3>
+<strong>R:</strong> DocLang se basa en XML pero introduce una estructura simplificada y semántica, manteniendo la compatibilidad con el estándar XML existente.
+
+<h2><strong>Conclusión del artículo</strong></h2>
+DocLang representa un paso adelante significativo hacia la mejora de la interacción entre documentos estructurados y modelos de IA, ofreciendo una alternativa más eficiente y precisa para el procesamiento de datos. Su enfoque abierto y diseño centrado en la utilidad lo convierte en un elemento clave en el futuro del aprendizaje automático y la gestión de documentos digitales.
+    <div class="footer-credits">
+      ⚖️ Generado y Archivado por JullEditor v3.0 · IBM Granite 3.3 Local · Rigor Factual 0.0
+    </div>
+  </main>
+</body>
+</html>

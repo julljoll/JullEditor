@@ -1,0 +1,9 @@
+# Dependencias para Google Colab (Sin navegadores pesados ni Playwright)
+fastapi>=0.115.0,<1.0.0
+uvicorn[standard]>=0.30.6,<1.0.0
+httpx>=0.27.2,<1.0.0
+beautifulsoup4>=4.12.3
+python-dotenv>=1.0.1
+pydantic>=2.9.2,<3.0.0
+aiofiles>=24.1.0
+pyngrok>=7.1.0

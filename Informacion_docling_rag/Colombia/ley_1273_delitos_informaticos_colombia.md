@@ -1,0 +1,21 @@
+# LEY 1273 DE 2009 — REPÚBLICA DE COLOMBIA
+**Por medio de la cual se modifica el Código Penal, se crea un nuevo bien jurídico tutelado - denominado "de la protección de la información y de los datos"- y se preservan integralmente los sistemas que utilicen las tecnologías de la información y las comunicaciones, entre otras disposiciones.**
+*Diario Oficial No. 47.223 de 5 de enero de 2009*
+
+## TÍTULO VII BIS: DE LA PROTECCIÓN DE LA INFORMACIÓN Y DE LOS DATOS
+
+### CAPÍTULO PRIMERO: De los atentados contra la confidencialidad, la integridad y la disponibilidad de los datos y de los sistemas informáticos
+
+- **Artículo 269A: Acceso abusivo a un sistema informático.** El que, sin autorización o extralimitando la que se le haya conferido, acceda en todo o en parte a un sistema informático protegido o no con medida de seguridad, o se mantenga dentro del mismo en contra de la voluntad de quien tenga el legítimo derecho a excluirlo, incurrirá en pena de prisión de cuarenta y ocho (48) a noventa y seis (96) meses y en multa de 100 a 1000 salarios mínimos legales mensuales vigentes.
+- **Artículo 269B: Obstaculización ilegítima de sistema informático o red de telecomunicación.** El que, sin estar facultado para ello, impida u obstaculice el funcionamiento o el acceso normal a un sistema informático, a los datos informáticos allí contenidos, o a una red de telecomunicaciones, incurrirá en pena de prisión de cuarenta y ocho (48) a noventa y seis (96) meses y en multa de 100 a 1000 salarios mínimos legales mensuales vigentes.
+- **Artículo 269C: Interceptación de datos informáticos.** El que, sin orden judicial previa, intercepte datos informáticos en su origen, destino o en el interior de un sistema informático, o las emisiones electromagnéticas provenientes de un sistema informático que los trasporte incurrirá en pena de prisión de treinta y seis (36) a setenta y dos (72) meses.
+- **Artículo 269D: Daño informático.** El que, sin estar facultado para ello, destruya, dañe, borre, deteriore, altere o suprima datos informáticos, o un sistema de tratamiento de información o sus partes o componentes lógicos, incurrirá en pena de prisión de cuarenta y ocho (48) a noventa y seis (96) meses y multa de 100 a 1000 salarios mínimos legales mensuales vigentes.
+- **Artículo 269E: Uso de software malicioso.** El que, sin estar facultado para ello, produzca, trafique, adquiera, distribuya, venda, envíe, introduzca o extraiga del territorio nacional o en red de telecomunicaciones software malicioso u otros programas de computación de efectos dañinos, incurrirá en pena de prisión de cuarenta y ocho (48) a noventa y seis (96) meses y multa de 100 a 1000 salarios mínimos legales mensuales vigentes.
+
+### CAPÍTULO SEGUNDO: De los atentados informáticos y otras infracciones
+
+- **Artículo 269F: Violación de datos personales.** El que, sin estar facultado para ello, con provecho propio o de un tercero, obtenga, compile, sustraiga, ofrezca, venda, intercambie, envíe, compre, intercepte, divulgue, modifique o emplee códigos personales, datos personales contenidos en ficheros, archivos, bases de datos o medios semejantes, incurrirá en pena de prisión de cuarenta y ocho (48) a noventa y seis (96) meses y multa de 100 a 1000 salarios mínimos legales mensuales vigentes.
+- **Artículo 269G: Suplantación de sitios web para capturar datos personales (Phishing).** El que con objeto ilícito y poseyendo o no un programa informático diseñado para el efecto, diseñe, desarrolle, trafique, venda, ejecute, programe o envíe páginas electrónicas, enlaces o avisos de engaño a fin de desviar a usuarios de sitios en Internet a sitios falsos, con el fin de capturar datos personales, incurrirá en pena de prisión de cuarenta y ocho (48) a noventa y seis (96) meses y multa de 100 a 1000 salarios mínimos legales mensuales vigentes.
+- **Artículo 269H: Circunstancias de agravación punitiva.** Las penas se aumentarán de la mitad a las tres cuartas partes si la conducta se comete sobre redes o sistemas del Estado, del sector financiero, sobre datos de salud, con fines terroristas, o por servidor público en ejercicio de sus funciones.
+- **Artículo 269I: Hurto por medios informáticos y semejantes.**
+- **Artículo 269J: Transferencia no consentida de activos.**

@@ -1,0 +1,56 @@
+[project]
+name = "julleditor"
+version = "3.3.1"
+description = "JullEditor — Generador profesional offline-first de artículos de blog con IBM Granite, análisis de sentencias TSJ, diseño Cyber-Legal LegalTech y despliegue multi-plataforma"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.30.6",
+    "httpx>=0.27.2",
+    "beautifulsoup4>=4.12.3",
+    "playwright>=1.47.0",
+    "python-dotenv>=1.0.1",
+    "pydantic>=2.9.2",
+    "aiofiles>=24.1.0",
+    "textual>=0.80,<9.0.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.3.3",
+    "pytest-asyncio>=0.24.0",
+]
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+# ============================================================
+# QA: configuración de linters (ruff) y tipos (mypy) — v3.3.1
+# Reglas bloqueantes: errores reales (F,E9) + higiene (I,UP).
+# BLE001/S110: tolerados a propósito — el pipeline offline-first
+# debe degradar con elegancia si Ollama/fuentes fallan.
+# ============================================================
+
+[tool.ruff]
+target-version = "py310"
+line-length = 120
+exclude = ["Informacion_docling_rag", "Articulos Generados", "Jurisprudencias", ".git", "__pycache__"]
+
+[tool.ruff.lint]
+select = ["E4", "E7", "E9", "F", "I", "UP", "B", "C4", "SIM", "RUF"]
+ignore = [
+    "E501",    # longitud gestionada por formatter, no bloqueante
+    "SIM105",  # contextlib.suppress menos legible para este equipo
+    "RUF001", "RUF002", "RUF003",  # emojis/unicode en español son intencionales (⚖️📌)
+]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/*" = ["B011"]
+
+[tool.mypy]
+python_version = "3.10"
+ignore_missing_imports = true
+follow_imports = "silent"
+show_error_codes = true

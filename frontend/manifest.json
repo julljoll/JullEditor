@@ -1,0 +1,17 @@
+{
+  "name": "JullEditor — Redacción Editorial & LegalTech",
+  "short_name": "JullEditor",
+  "description": "Sistema de Redacción Editorial y LegalTech con IBM Granite Local",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0B0E12",
+  "theme_color": "#0B0E12",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "64x64 128x128 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}
