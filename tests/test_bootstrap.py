@@ -58,8 +58,11 @@ class TestOllama:
             calls.append(cmd)
             return type("R", (), {"returncode": 0})()
 
-        # winget falla (no instalado) -> fallback al instalador oficial; tras él, ollama aparece
-        with mock.patch.object(b, "is_ollama_installed", side_effect=[False, False, True]), \
+        # Secuencia real de llamadas a is_ollama_installed():
+        #   1) ensure_ollama_installed() -> False (falta Ollama)
+        #   2) install_ollama_windows(): chequeo post-winget -> False
+        #   3) install_ollama_windows(): chequeo post-instalador oficial -> True
+        with mock.patch.object(b, "is_ollama_installed", side_effect=[False, True]), \
              mock.patch.object(b, "_run_quiet", side_effect=fake_run), \
              mock.patch("urllib.request.urlretrieve", return_value=None), \
              mock.patch.object(b.platform, "system", return_value="Windows"), \

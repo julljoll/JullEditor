@@ -6,6 +6,22 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [3.4.0] - 2026-10-25
+
+### Añadido
+- **Auto-arranque inteligente del `.bat`** (`backend/bootstrap.py`, 100% Python): al iniciar `crear_articulo.bat` analiza la computadora (CPU/RAM/SO vía `system_profiler`) y verifica/instala automáticamente todo lo necesario para correr el proyecto:
+  - **Python**: si no existe, `crear_articulo.bat` lo instala de una vez (`winget install Python.Python.3.12 --silent` con fallback al instalador oficial python.org silencioso con `PrependPath=1`).
+  - **Dependencias**: detecta paquetes faltantes de `requirements.txt` y los instala con `pip install -r`.
+  - **Ollama**: si falta, se instala según el SO (Windows: winget → instalador oficial `OllamaSetup.exe /SILENT`; Linux/macOS: script oficial `curl | sh` o Homebrew) y arranca `ollama serve` si el servicio no responde.
+  - **Modelo Granite acorde al hardware**: `granite3.3:8b` si RAM ≥ 8 GB, `granite3.3:2b` si < 8 GB; solo ejecuta `ollama pull` si el modelo no está ya descargado.
+- Bandera `python run.py --no-bootstrap` para omitir la auto-instalación (entornos controlados/CI).
+- Suite de tests ampliada: `tests/test_bootstrap.py` (15 casos: parser de requirements, skip de pull, degradación sin Ollama, etc.) — **79/79 pruebas verdes**.
+
+### Corregido
+- Mock obsoleto en `test_windows_fallback_to_official_installer` (secuencia real de llamadas a `is_ollama_installed`).
+- `diagnose_hardware()` delega ahora en `system_profiler` (eliminado bloque ctypes duplicado en `run.py`).
+- `.gitignore` endurecido: `__pycache__/`, `*.pyc`, cachés de pytest/ruff/mypy; artefactos binarios retirados del índice.
+
 ## [3.3.1] - 2026-10-25
 
 Incremento de **PATCH** conforme a [SemVer 2.0.0](https://semver.org/lang/es/): correcciones retrocompatibles de calidad y pruebas (ciclo QA completo) sin cambios funcionales ni de API.

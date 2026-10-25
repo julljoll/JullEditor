@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Release-v3.3.1-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.3.1" />
+  <img src="https://img.shields.io/badge/Release-v3.4.0-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.4.0" />
   <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3_(2B%20%7C%208B)-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite 3.3" />
   <img src="https://img.shields.io/badge/Runtime-Ollama_CPU_(0ms_Network)-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama CPU" />
   <img src="https://img.shields.io/badge/Backend-FastAPI_Async_SSE-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
@@ -247,7 +247,7 @@ Haz doble clic en **`start.bat`** o **`crear_articulo.bat`**. Ambos son simples 
 ```bash
 python run.py                    # Servidor web FastAPI + navegador (equivale a start.bat)
 python run.py --cli              # Generador interactivo de artículos jurídico-científicos (equivale a crear_articulo.bat)
-python run.py --tui              # Interfaz TUI Textual canónica (v3.3.1): flujo editorial completo en terminal Python
+python run.py --tui              # Interfaz TUI Textual canónica (v3.4.0): flujo editorial completo en terminal Python
 python run.py --file <ruta.md>   # CLI precargando un documento del corpus
 python run.py --test             # Suite completa de pruebas con pytest
 ```
@@ -471,7 +471,7 @@ git push origin main --follow-tags
 #    como "Latest" en la página del repositorio.
 ```
 
-> **Actual:** `v3.3.1` (2026-10-25) — QA integral: todas las ramas unificadas en `main`, suite ruff/mypy sin bloqueos (F,E9), 64/64 tests, compatibilidad Python 3.10+. Previas: `v3.3.0` — Fase 1 del plan de optimización: `editorial_catalog.py` como fuente única de verdad (temas, 12 tonos VE, jurisdicciones, modelos) compartida por CLI `.bat`, TUI Textual (`python run.py --tui`), GUI web y API `/api/editorial-options`. Previas: `v3.2.1` — lenguaje unificado a Python (.bat sin lógica); `v3.2.0` — Venezuela exclusivo; `v3.1.0` — versionado SemVer centralizado.
+> **Actual:** `v3.4.0` (2026-10-25) — Auto-arranque inteligente del `.bat`: analiza la computadora y verifica/instala Python, dependencias, Ollama y descarga el modelo Granite acorde al hardware (8b/2b por RAM); 79/79 tests. Previas: `v3.3.1` — QA integral: ramas unificadas en `main`, ruff/mypy verdes, compatibilidad Python 3.10+. Previas: `v3.3.0` — Fase 1 del plan de optimización: `editorial_catalog.py` como fuente única de verdad (temas, 12 tonos VE, jurisdicciones, modelos) compartida por CLI `.bat`, TUI Textual (`python run.py --tui`), GUI web y API `/api/editorial-options`. Previas: `v3.2.1` — lenguaje unificado a Python (.bat sin lógica); `v3.2.0` — Venezuela exclusivo; `v3.1.0` — versionado SemVer centralizado.
 
 
 ---

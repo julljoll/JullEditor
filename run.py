@@ -146,7 +146,7 @@ def run_linters() -> int:
 
 def run_tests():
     """Ejecuta linters + suite de pruebas completa en Pytest con cobertura."""
-    print_header("EJECUTANDO SUITE COMPLETA DE PRUEBAS — JULL EDITOR v3.3.1")
+    print_header("EJECUTANDO SUITE COMPLETA DE PRUEBAS — JULL EDITOR v3.4.0")
     run_linters()
     cmd = [sys.executable, "-m", "pytest", "tests/", "-v", "--tb=short", "-p", "no:libtmux"]
     # Cobertura opcional (solo si pytest-cov está disponible)
