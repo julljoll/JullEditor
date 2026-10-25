@@ -174,10 +174,10 @@ class GenerateRequest(BaseModel):
     source_section: Optional[str] = Field("", max_length=200)
     theme: str = Field("cybersecurity", max_length=50)
     tone: str = Field("conversational", max_length=50)
-    target_words: int = Field(1000, ge=300, le=4000)
+    target_words: int = Field(1000, ge=200, le=4000)
     custom_instructions: Optional[str] = Field("", max_length=1000)
     model: Optional[str] = Field(None, max_length=100)
-    temperature: Optional[float] = Field(None, ge=0.1, le=1.5)
+    temperature: Optional[float] = Field(None, ge=0.0, le=1.5)
     jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | international")
     editorial_mode: Optional[str] = Field("magazine", pattern="^(magazine|classic)$", description="magazine | classic")
     sentencia_metadata: Optional[Dict[str, Any]] = Field(None, description="Metadatos estructurados de sentencia TSJ")
@@ -212,7 +212,7 @@ class GenerateRequest(BaseModel):
             return None
         try:
             val = float(v)
-            return max(0.1, min(val, 1.5))
+            return max(0.0, min(val, 1.5))
         except (ValueError, TypeError):
             return None
 
@@ -241,11 +241,35 @@ class GenerateHeaderImageRequest(BaseModel):
 
 class SeoAuditRequest(BaseModel):
     markdown: str = Field(..., max_length=2000000, description="Contenido Markdown del artículo")
-    jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | colombia | international")
+    jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | international")
 
 # ==============================================================================
 # ENDPOINTS API
 # ==============================================================================
+
+
+@app.get("/api/editorial-options")
+async def editorial_options():
+    """Catálogo editorial unificado (fuente única de verdad en Python).
+
+    La GUI web consume este endpoint para poblar sus selects; así ninguna
+    opción de negocio vive en JavaScript (PLAN v4.0 — Fase 1)."""
+    from backend import editorial_catalog as cat
+    return {
+        "themes": [{"code": c, "icon": i, "label": l} for c, i, l in cat.THEMES],
+        "editorial_modes": [{"code": c, "label": l} for c, l in cat.EDITORIAL_MODES],
+        "tones": [{"code": c, "label": l} for c, l in cat.TONES],
+        "jurisdictions": [{"code": c, "label": l} for c, l in cat.JURISDICTIONS],
+        "models": [{"code": c, "label": l} for c, l in cat.MODELS],
+        "word_count_targets": [{"words": w, "label": l} for w, l in cat.WORD_COUNT_TARGETS],
+        "defaults": {
+            "tone": cat.DEFAULT_TONE,
+            "jurisdiction": cat.DEFAULT_JURISDICTION,
+            "temperature": cat.DEFAULT_TEMPERATURE,
+            "model": cat.DEFAULT_MODEL,
+            "target_words": cat.DEFAULT_WORD_COUNT,
+        },
+    }
 
 @app.get("/api/health")
 async def health_check():

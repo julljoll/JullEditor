@@ -1,6 +1,6 @@
 @echo off
 chcp 65001 >nul
-title JullEditor v3.2.1 (Cyber-Legal Local CPU)
+title JullEditor v3.3.0 (Cyber-Legal Local CPU)
 
 :: Puente de 1 clic hacia el orquestador 100% Python (run.py).
 :: Sin logica propia: solo localiza Python y ejecuta python run.py

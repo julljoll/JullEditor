@@ -1,5 +1,5 @@
 """
-Lanzador y Gestor Principal Multiplataforma en Python Puro para JullEditor v3.2.0.
+Lanzador y Gestor Principal Multiplataforma en Python Puro para JullEditor v3.3.0.
 Sustituye completamente scripts de PowerShell (.ps1) y Batch (.bat),
 ofreciendo diagnóstico de hardware, control del ciclo de vida de Ollama,
 gestión de puertos y ejecución de pruebas de forma 100% nativa en Python.
@@ -8,6 +8,7 @@ Uso:
   python run.py              # Inicia servidor web FastAPI + abre navegador
   python run.py --test       # Ejecuta la suite de pruebas completa con pytest
   python run.py --cli        # Inicia el generador interactivo por terminal (TSJ)
+  python run.py --tui        # Interfaz TUI Textual (canónica): flujo editorial completo
   python run.py --file <md>  # Inicia CLI precargando el archivo especificado
   python run.py --port 8000  # Especifica un puerto personalizado
 """
@@ -139,10 +140,37 @@ def check_ollama_service() -> bool:
     return False
 
 
+def run_linters() -> int:
+    """Análisis estático con ruff (no bloqueante si no está instalado)."""
+    try:
+        import ruff  # noqa: F401
+        has_ruff = True
+    except ImportError:
+        has_ruff = subprocess.run(
+            [sys.executable, "-m", "ruff", "--version"],
+            capture_output=True,
+        ).returncode == 0
+    if not has_ruff:
+        print("   [AVISO] ruff no está instalado; omite el lint (pip install ruff).")
+        return 0
+    res = subprocess.run(
+        [sys.executable, "-m", "ruff", "check", "backend/", "run.py", "--select", "E9,F"],
+        cwd=str(WORKSPACE_ROOT),
+    )
+    return res.returncode
+
+
 def run_tests():
-    """Ejecuta la suite de pruebas completa en Pytest."""
-    print_header("EJECUTANDO SUITE COMPLETA DE PRUEBAS — JULL EDITOR v3.2.0")
-    cmd = [sys.executable, "-m", "pytest", "tests/", "-v", "--tb=short"]
+    """Ejecuta linters + suite de pruebas completa en Pytest con cobertura."""
+    print_header("EJECUTANDO SUITE COMPLETA DE PRUEBAS — JULL EDITOR v3.3.0")
+    run_linters()
+    cmd = [sys.executable, "-m", "pytest", "tests/", "-v", "--tb=short", "-p", "no:libtmux"]
+    # Cobertura opcional (solo si pytest-cov está disponible)
+    cov_probe = subprocess.run(
+        [sys.executable, "-m", "pytest", "--help"], capture_output=True, text=True
+    )
+    if "--cov" in cov_probe.stdout:
+        cmd += ["--cov=backend", "--cov-report=term-missing"]
     res = subprocess.run(cmd, cwd=str(WORKSPACE_ROOT))
     if res.returncode == 0:
         print("\n" + "=" * 80)
@@ -157,7 +185,7 @@ def run_tests():
 
 def run_web(port: int = DEFAULT_PORT):
     """Lanza el servidor web FastAPI con recarga y abre el navegador."""
-    print_header("INICIANDO JULL EDITOR v3.2.0 (CYBER-LEGAL LOCAL CPU)")
+    print_header("INICIANDO JULL EDITOR v3.3.0 (CYBER-LEGAL LOCAL CPU)")
     ensure_env_file()
     diagnose_hardware()
     check_ollama_service()
@@ -187,6 +215,7 @@ def main():
     parser = argparse.ArgumentParser(description="JullEditor — Orquestador 100% Python")
     parser.add_argument("--test", action="store_true", help="Ejecutar la suite de pruebas unitarias y de integración")
     parser.add_argument("--cli", action="store_true", help="Ejecutar el generador interactivo por terminal (modo Sentencia TSJ)")
+    parser.add_argument("--tui", action="store_true", help="Interfaz TUI Textual (canónica v3.3+): flujo editorial completo en Python")
     parser.add_argument("--file", type=str, default=None, help="Ruta de un archivo .md para precargar en el CLI o la web")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Puerto TCP del servidor web (por defecto {DEFAULT_PORT})")
 
@@ -194,6 +223,9 @@ def main():
 
     if args.test:
         run_tests()
+    elif args.tui:
+        from backend.tui_app import main as tui_main
+        sys.exit(tui_main([args.file] if args.file else []))
     elif args.cli or args.file:
         from backend.cli_generator import main as cli_main
         if args.file:

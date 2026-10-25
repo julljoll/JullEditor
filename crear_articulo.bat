@@ -1,12 +1,14 @@
 @echo off
+setlocal enabledelayedexpansion
 chcp 65001 >nul
-title JullEditor v3.2.1 - Generador de Articulos Juridico-Cientificos (Venezuela)
+title JullEditor v3.3.0 - Generador de Articulos Juridico-Cientificos (Venezuela)
 
 :: =========================================================================
-:: JullEditor v3.2.1 — Puente de 1 clic hacia el motor 100% Python
+:: JullEditor v3.3.0 — Puente de 1 clic hacia el motor 100% Python
 :: Este archivo NO contiene logica: solo localiza el interprete de Python
-:: y delega TODO en backend/cli_generator.py (misma logica que la GUI web).
-:: Flujos soportados: --cli (asistente interactivo), --test, --file <md>,
+:: y delega TODO en run.py -> backend/cli_generator.py / backend/tui_app.py
+:: (misma logica que la GUI web). Flujos soportados: --cli (asistente de
+:: texto), --tui (interfaz TUI Textual canonica), --test, --file <md>,
 :: o sin argumentos para abrir el menu principal del orquestador run.py.
 :: =========================================================================
 

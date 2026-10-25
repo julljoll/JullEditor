@@ -31,11 +31,12 @@ from backend.rag_manager import (
 )
 from backend.seo_validator import audit_article_seo
 from backend.legal_validator import audit_legal_quality
+from backend import editorial_catalog as cat
 
 logger = get_logger("cli_generator")
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-DEFAULT_MODEL = os.getenv("GRANITE_MODEL", "granite3.3:8b")
+DEFAULT_MODEL = os.getenv("GRANITE_MODEL", cat.DEFAULT_MODEL)
 WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
 PRELOADED_FILE = WORKSPACE_ROOT / "backend" / "data" / "preloaded.json"
 

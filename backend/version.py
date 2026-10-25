@@ -11,12 +11,10 @@ GitHub toma la versión desde las Tags/Releases del repositorio, por lo que
 esta constante debe mantenerse sincronizada con el tag etiquetado (v{VERSION}).
 """
 
-__version__ = "3.2.1"
-
 # Componentes individuales según SemVer 2.0.0
 MAJOR = 3
-MINOR = 2
-PATCH = 1
+MINOR = 3
+PATCH = 0
 PRERELEASE = None  # p.ej. "rc.1"
 BUILD_META = None  # p.ej. "build.20261025"
 
@@ -32,3 +30,5 @@ def get_version() -> str:
 def get_tag() -> str:
     """Devuelve la etiqueta Git correspondiente (convención GitHub: v + SemVer)."""
     return f"v{get_version()}"
+
+__version__ = get_version()
