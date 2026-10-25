@@ -6,6 +6,12 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [3.2.1] - 2026-10-25
+
+### Cambios
+- **Unificación del lenguaje a Python**: eliminados los scripts obsoletos `start.ps1`, `run_tests.ps1` y `deploy/oracle/setup.sh`; toda la lógica de arranque, pruebas y despliegue vive ahora en `run.py` (orquestador 100% Python).
+- **Puentes `.bat` sin lógica**: `crear_articulo.bat` y `start.bat` se simplificaron a launchers que solo localizan el intérprete Python y delegan en `python run.py [--cli|--test|--file|--port]`, conservando la paridad 1:1 con la GUI web (Venezuela exclusivo).
+- **README**: sección de inicio actualizada al flujo Python puro y nota explícita sobre el lenguaje del proyecto; sustituida la referencia al script Bash de Oracle por `python run.py --port`.
 ## [3.2.0] - 2026-10-25
 
 ### Cambiado

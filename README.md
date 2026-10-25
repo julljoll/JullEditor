@@ -6,7 +6,7 @@
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Release-v3.2.0-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.2.0" />
+  <img src="https://img.shields.io/badge/Release-v3.2.1-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.2.1" />
   <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3_(2B%20%7C%208B)-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite 3.3" />
   <img src="https://img.shields.io/badge/Runtime-Ollama_CPU_(0ms_Network)-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama CPU" />
   <img src="https://img.shields.io/badge/Backend-FastAPI_Async_SSE-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
@@ -243,11 +243,14 @@ pip install -r requirements.txt
 ```
 
 #### 4. Iniciar la Aplicación con 1 Clic
-Haz doble clic en **`start.bat`** (o ejecuta `.\start.ps1` en PowerShell):
-```powershell
-.\start.bat
+Haz doble clic en **`start.bat`** o **`crear_articulo.bat`**. Ambos son simples *puentes* de Windows que únicamente localizan el intérprete de Python y delegan toda la lógica al orquestador **100% Python** (`run.py`):
+```bash
+python run.py                    # Servidor web FastAPI + navegador (equivale a start.bat)
+python run.py --cli              # Generador interactivo de artículos jurídico-científicos (equivale a crear_articulo.bat)
+python run.py --file <ruta.md>   # CLI precargando un documento del corpus
+python run.py --test             # Suite completa de pruebas con pytest
 ```
-El iniciador verificará el entorno, levantará Ollama si no está activo, ejecutará el servidor FastAPI y abrirá automáticamente tu navegador en:  
+El lanzador verificará el entorno, levantará Ollama si no está activo, ejecutará el servidor FastAPI y abrirá automáticamente tu navegador en:  
 👉 **`http://127.0.0.1:8000`**
 
 ---
@@ -257,9 +260,9 @@ El iniciador verificará el entorno, levantará Ollama si no está activo, ejecu
 Para verificar que todos los subsistemas del proyecto funcionan al 100%, sigue estos sencillos pasos:
 
 ### Paso 1: Ejecutar la Batería Automatizada de Pruebas (Pytest)
-Abre PowerShell en la carpeta del proyecto y ejecuta:
-```powershell
-py -m pytest -v
+Ejecuta desde la raíz del proyecto (100% Python):
+```bash
+python run.py --test        # o directamente: python -m pytest -v
 ```
 **Resultado esperado:**
 * **48 pruebas pasando (100% verde)** en menos de 3 segundos.
@@ -349,8 +352,9 @@ curl http://127.0.0.1:8000/api/health
 │   └── test_rag_manager.py       # Pruebas de recuperación RAG y persistencia YAML
 ├── logs/                         # Registro histórico de actividad
 ├── requirements.txt              # Requerimientos de Python
-├── start.bat                     # Lanzador de 1 clic para Windows
-└── start.ps1                     # Script de inicio automatizado PowerShell
+├── run.py                        # Orquestador 100% Python (web / CLI / tests)
+├── crear_articulo.bat            # Puente de 1 clic → python run.py --cli (sin lógica propia)
+└── start.bat                     # Puente de 1 clic → python run.py (sin lógica propia)
 ```
 
 ---
@@ -369,7 +373,7 @@ Para validar la perfecta renderización en **Sitejet Builder** (constructor de s
 
 ## ☁️ 10. Despliegue en la Nube (Google Colab & Oracle Cloud)
 
-Granite Blog Writer v3.2.0 está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
+Granite Blog Writer v3.2.1 está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
 
 ### 🚀 Opción A: Google Colab (Ejecución Instantánea con Aceleración GPU)
 Ideal para redacción de alta velocidad sin consumir recursos locales de tu máquina:
@@ -389,9 +393,9 @@ Para desplegar un centro pericial accesible 24/7 en una instancia gratuita de Or
 git clone https://github.com/tu-usuario/Creador-de-Articulos-Blog-con-Granite.git /opt/granite-blog
 cd /opt/granite-blog
 
-# 2. Asignar permisos y ejecutar el script automatizado
-chmod +x deploy/oracle/setup.sh
-./deploy/oracle/setup.sh
+# 2. Instalar dependencias e iniciar con el orquestador 100% Python
+pip install -r requirements.txt
+python run.py --port 8000
 ```
 
 **Lo que realiza el script automáticamente:**
@@ -455,14 +459,14 @@ Este proyecto adhiere estrictamente a [Semantic Versioning 2.0.0](https://semver
 #    - PATCH: correcciones retrocompatibles
 # 2. Documentar en CHANGELOG.md (formato Keep a Changelog)
 # 3. Etiquetar (la tag debe empezar con "v" + la versión exacta) y subir:
-git commit -am "chore(release): v3.2.0"
-git tag -a v3.2.0 -m "JullEditor v3.2.0 — Paridad CLI/GUI y fuente única de versión (SemVer)"
+git commit -am "chore(release): v3.2.1"
+git tag -a v3.2.1 -m "JullEditor v3.2.1 — Lenguaje unificado Python (.bat sin lógica)"
 git push origin main --follow-tags
 # 4. (Opcional) Crear Release en GitHub desde esa tag para que aparezca
 #    como "Latest" en la página del repositorio.
 ```
 
-> **Actual:** `v3.2.0` (2026-10-25) — paridad 1:1 entre `crear_articulo.bat` y la interfaz web, sincronización de ajustes avanzados `.bat → GUI` y versionado centralizado bajo SemVer.
+> **Actual:** `v3.2.1` (2026-10-25) — lenguaje unificado a Python: los `.bat` son puentes sin lógica hacia `run.py`; se retiraron los scripts PowerShell/Bash obsoletos. Previa: `v3.2.0` — paridad 1:1 entre `crear_articulo.bat` y la interfaz web (Venezuela exclusivo) y versionado centralizado bajo SemVer.
 
 
 ---
