@@ -1,0 +1,11 @@
+logs/
+*.log
+__pycache__/
+*.pyc
+*.pyo
+.coverage
+.pytest_cache/
+.ruff_cache/
+mypy_cache/
+Articulos Generados/inputs/test_endpoint_*.md
+frontend/images/headers/header_banner_*.svg
