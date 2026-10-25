@@ -1,25 +1,3 @@
-# Entornos y configuración
-.env
-venv/
-.venv/
-env/
-*.env
-
-# Python cache
 __pycache__/
-*.py[cod]
-*$py.class
-*.so
-.pytest_cache/
-.coverage
-htmlcov/
-
-# Logs y temporales
-logs/*.log
-*.log
-scratch/
-
-# Artefactos generados de prueba
-frontend/images/headers/header_banner_*.svg
-!frontend/images/headers/.gitkeep
-RAG/inputs/test_endpoint_*.md
+*.pyc
+.env

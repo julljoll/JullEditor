@@ -13,13 +13,13 @@ Uso:
   python run.py --port 8000  # Especifica un puerto personalizado
 """
 
+import argparse
 import os
+import platform
+import socket
+import subprocess
 import sys
 import time
-import socket
-import argparse
-import platform
-import subprocess
 import webbrowser
 from pathlib import Path
 
@@ -121,7 +121,7 @@ def check_ollama_service() -> bool:
     except Exception:
         pass
 
-    print(f"[PASO 1] Iniciando servicio de Ollama en segundo plano (ollama serve)...")
+    print("[PASO 1] Iniciando servicio de Ollama en segundo plano (ollama serve)...")
     try:
         creation_flag = subprocess.CREATE_NO_WINDOW if platform.system() == "Windows" else 0
         subprocess.Popen(["ollama", "serve"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, creationflags=creation_flag)
@@ -130,7 +130,7 @@ def check_ollama_service() -> bool:
             try:
                 with urllib.request.urlopen(f"{OLLAMA_BASE_URL}/api/tags", timeout=1.5) as r:
                     if r.status == 200:
-                        print(f"[OK] Servicio de Ollama iniciado correctamente.")
+                        print("[OK] Servicio de Ollama iniciado correctamente.")
                         return True
             except Exception:
                 pass
@@ -199,10 +199,10 @@ def run_web(port: int = DEFAULT_PORT):
     import threading
     threading.Thread(target=open_browser_delayed, daemon=True).start()
 
-    print(f"\n=========================================================================")
+    print("\n=========================================================================")
     print(f"   Servidor Web Activo: http://127.0.0.1:{port}")
-    print(f"   Presiona CTRL+C para detener la aplicación")
-    print(f"=========================================================================\n")
+    print("   Presiona CTRL+C para detener la aplicación")
+    print("=========================================================================\n")
 
     cmd = [sys.executable, "-m", "uvicorn", "backend.app:app", "--host", "127.0.0.1", "--port", str(port), "--reload"]
     try:

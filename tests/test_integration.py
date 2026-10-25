@@ -4,8 +4,8 @@ Verifica endpoints de salud, diagnóstico del sistema, validación Pydantic sin 
 auditoría SEO determinista y ciclo de vida de la aplicación.
 """
 
-import pytest
 from fastapi.testclient import TestClient
+
 from backend.app import app
 from backend.system_profiler import detect_system_resources
 

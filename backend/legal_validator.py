@@ -4,14 +4,14 @@ Complementa a seo_validator.py con reglas de exactitud, léxico, ética y E-E-A-
 """
 
 import re
-from typing import Dict, Any, List
+from typing import Any
 
 from backend.legal_profiles import (
-    GLOSSARY,
     ANTI_CALCO,
-    PROMISE_PATTERNS,
-    FOREIGN_MARKERS,
     DISCLAIMER_PATTERN,
+    FOREIGN_MARKERS,
+    GLOSSARY,
+    PROMISE_PATTERNS,
 )
 
 _WORD = re.compile(r"\w+", re.UNICODE)
@@ -28,18 +28,18 @@ def _first_block_after_h1(markdown: str) -> str:
             if s.startswith("# ") or re.match(r"^#{1,3}\s*(?:\*{0,2}T[ií]tulo(?:\s*H1)?:\s*)", s, re.IGNORECASE):
                 seen_h1 = True
             continue
-        if not s or s.startswith(("#", ">", "|", "-", "*", "<", "`", "!", "[")) or s.startswith("**") or re.search(r"Meta Descripci[oó]n", s, re.I):
+        if not s or s.startswith(("#", ">", "|", "-", "*", "<", "`", "!", "[")) or s.startswith("**") or re.search(r"Meta Descripci[oó]n", s, re.IGNORECASE):
             continue
         return re.sub(r"[*_`\[\]()]", "", s).strip()
     return ""
 
 
-def audit_legal_quality(markdown: str, jurisdiction: str = "ve") -> Dict[str, Any]:
+def audit_legal_quality(markdown: str, jurisdiction: str = "ve") -> dict[str, Any]:
     """Audita un artículo. Devuelve score 0-100, incidencias y métricas."""
     j = jurisdiction if jurisdiction in ("ve", "co") else "intl"
     text = markdown or ""
     low = text.lower()
-    issues: List[Dict[str, str]] = []
+    issues: list[dict[str, str]] = []
     penalty = 0
 
     # 1. Léxico de glosario del país
@@ -56,13 +56,13 @@ def audit_legal_quality(markdown: str, jurisdiction: str = "ve") -> Dict[str, An
 
     # 2. Calcos
     for c in ANTI_CALCO:
-        if re.search(c["bad"], text, re.I):
+        if re.search(c["bad"], text, re.IGNORECASE):
             issues.append({"level": "warning", "rule": "calco", "message": f"Calco detectado: «{c['bad'].replace(chr(92), '')}». Preferir: {c['good']}."})
             penalty += 3
 
     # 3. Promesas de resultado (ética del abogado)
     for p in PROMISE_PATTERNS:
-        m = re.search(p, text, re.I)
+        m = re.search(p, text, re.IGNORECASE)
         if m:
             issues.append({"level": "error", "rule": "etica", "message": f"Promesa de resultado no permitida: «{m.group(0)}»."})
             penalty += 10
@@ -90,10 +90,10 @@ def audit_legal_quality(markdown: str, jurisdiction: str = "ve") -> Dict[str, An
         penalty += 4
 
     # 7. H2 como pregunta (≥ 50 %)
-    h2s = re.findall(r"^##\s+(.+)$", text, re.M)
+    h2s = re.findall(r"^##\s+(.+)$", text, re.MULTILINE)
     if not h2s:
         # Fallback si el modelo pequeño usó ### para las secciones
-        h2s = re.findall(r"^###\s+(?!T[ií]tulo)(.+)$", text, re.M)
+        h2s = re.findall(r"^###\s+(?!T[ií]tulo)(.+)$", text, re.MULTILINE)
     if h2s:
         question_h2 = sum(1 for h in h2s if "?" in h or h.lower().startswith(("qué", "que ", "cómo", "como ", "cuándo", "cuando", "cuál", "cual", "por qué", "quién", "dónde")))
         ratio = question_h2 / len(h2s)

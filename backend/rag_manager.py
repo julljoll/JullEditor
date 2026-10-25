@@ -6,14 +6,15 @@ titulados directamente con el nombre del artículo.
 Carga corpus legal desde backend/data/legal_corpus_ve.json e indexa con caché Informacion_docling_rag/.
 """
 
-import os
-import re
+import glob
 import html
 import json
-import glob
+import os
+import re
 import unicodedata
 from datetime import datetime
-from typing import Dict, Any, Optional, List
+from typing import Any
+
 from backend.logger_config import get_logger
 
 logger = get_logger("rag_manager")
@@ -29,8 +30,8 @@ DOCLING_RAG_DIR = os.path.join(WORKSPACE_ROOT, "Informacion_docling_rag")
 LEGAL_CORPUS_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "legal_corpus_ve.json")
 
 # Caché en memoria
-_CACHED_LEGAL_CORPUS: Optional[List[Dict[str, Any]]] = None
-_CACHED_DOCLING_FILES: Optional[List[Dict[str, Any]]] = None
+_CACHED_LEGAL_CORPUS: list[dict[str, Any]] | None = None
+_CACHED_DOCLING_FILES: list[dict[str, Any]] | None = None
 
 def ensure_rag_directories():
     """Garantiza la existencia de la carpeta 'Articulos Generados' y sus subcarpetas."""
@@ -73,12 +74,11 @@ def sanitize_filename(text: str, max_length: int = 80) -> str:
     clean = re.sub(r'[^a-zA-Z0-9]+', '_', only_ascii).strip('_').lower()
     return clean[:max_length] if clean else "documento"
 
-def markdown_to_standalone_html(title: str, markdown_content: str, metadata: Optional[Dict[str, Any]] = None) -> str:
+def markdown_to_standalone_html(title: str, markdown_content: str, metadata: dict[str, Any] | None = None) -> str:
     """
     Convierte un artículo en Markdown en un documento HTML5 autónomo, responsivo y completamente
     estilizado con tipografía Cyber-Legal, tablas, callouts, Schema.org JSON-LD scripts y reglas de impresión.
     """
-    meta = metadata or {}
     text = markdown_content.strip()
     
     # Extraer frontmatter si existe
@@ -88,11 +88,9 @@ def markdown_to_standalone_html(title: str, markdown_content: str, metadata: Opt
             text = parts[2].strip()
             
     # Proteger bloques de código y extraer Schema.org JSON-LD
-    code_blocks = []
     schema_scripts = []
     
     def repl_code(match):
-        lang = (match.group(1) or "").strip().lower()
         code = match.group(2)
         clean_code = html.escape(code)
         
@@ -287,7 +285,7 @@ def markdown_to_standalone_html(title: str, markdown_content: str, metadata: Opt
 </html>"""
     return html_out
 
-def save_rag_source(filename: str, content: str) -> Dict[str, Any]:
+def save_rag_source(filename: str, content: str) -> dict[str, Any]:
     """
     Guarda un archivo .md o .json subido por el usuario en 'Articulos Generados/inputs/'.
     Retorna metadatos de la operación y la ruta local persistida.
@@ -325,10 +323,10 @@ def save_rag_source(filename: str, content: str) -> Dict[str, Any]:
         logger.error(f"Error guardando fuente en Articulos Generados/inputs: {e}", exc_info=True)
         return {
             "status": "error",
-            "message": f"Error guardando en Articulos Generados/inputs: {str(e)}"
+            "message": f"Error guardando en Articulos Generados/inputs: {e!s}"
         }
 
-def save_final_article(title: str, markdown_content: str, metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
+def save_final_article(title: str, markdown_content: str, metadata: dict[str, Any] | None = None) -> dict[str, Any]:
     """
     Guarda automáticamente el artículo generado en 'Articulos Generados/' en formato .md y .html
     titulados directamente con el nombre del artículo.
@@ -370,22 +368,25 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
     
     yaml_frontmatter = ""
     if not cleaned_content.startswith("---"):
+        q = chr(34)  # comilla doble (compatible con Python 3.10 en f-strings)
+        bs = chr(92)  # barra invertida
+        safe_title = article_title.replace(q, bs + q)
         yaml_frontmatter = (
-            f"---\n"
-            f"title: \"{article_title.replace('\"', '\\\"')}\"\n"
-            f"date: \"{now.strftime('%Y-%m-%d %H:%M:%S')}\"\n"
-            f"slug: \"{clean_title}\"\n"
-            f"article_type: \"{article_type}\"\n"
-            f"theme: \"{meta.get('theme', 'cybersecurity')}\"\n"
-            f"model: \"{meta.get('model', 'granite3.3:8b')}\"\n"
-            f"tone: \"{meta.get('tone', 'conversational')}\"\n"
-            f"editorial_mode: \"{meta.get('editorial_mode', 'magazine')}\"\n"
-            f"word_count: {word_count}\n"
-            f"reading_time_min: {reading_time}\n"
-            f"source_url: \"{meta.get('source_url', '')}\"\n"
-            f"html_file: \"{target_filename_html}\"\n"
-            f"generator: \"Granite Blog Writer & LegalTech System\"\n"
-            f"---\n\n"
+            f"---{bs}n"
+            f"title: {q}{safe_title}{q}{bs}n"
+            f"date: {q}{now.strftime('%Y-%m-%d %H:%M:%S')}{q}{bs}n"
+            f"slug: {q}{clean_title}{q}{bs}n"
+            f"article_type: {q}{article_type}{q}{bs}n"
+            f"theme: {q}{meta.get('theme', 'cybersecurity')}{q}{bs}n"
+            f"model: {q}{meta.get('model', 'granite3.3:8b')}{q}{bs}n"
+            f"tone: {q}{meta.get('tone', 'conversational')}{q}{bs}n"
+            f"editorial_mode: {q}{meta.get('editorial_mode', 'magazine')}{q}{bs}n"
+            f"word_count: {word_count}{bs}n"
+            f"reading_time_min: {reading_time}{bs}n"
+            f"source_url: {q}{meta.get('source_url', '')}{q}{bs}n"
+            f"html_file: {q}{target_filename_html}{q}{bs}n"
+            f"generator: {q}Granite Blog Writer & LegalTech System{q}{bs}n"
+            f"---{bs}n{bs}n"
         )
         full_content = yaml_frontmatter + cleaned_content
     else:
@@ -420,10 +421,10 @@ def save_final_article(title: str, markdown_content: str, metadata: Optional[Dic
         logger.error(f"Error guardando artículo en Articulos Generados: {e}", exc_info=True)
         return {
             "status": "error",
-            "message": f"Error guardando artículo final en Articulos Generados: {str(e)}"
+            "message": f"Error guardando artículo final en Articulos Generados: {e!s}"
         }
 
-def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, Any]]:
+def list_articles_history(limit: int = 20, offset: int = 0) -> list[dict[str, Any]]:
     """
     Lista los artículos archivados en 'Articulos Generados/' ordenados por fecha descendente.
     Parsea el frontmatter YAML de cada archivo para proveer metadatos a la UI.
@@ -450,7 +451,7 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
         has_html = os.path.exists(html_sibling)
         
         try:
-            with open(filepath, "r", encoding="utf-8") as f:
+            with open(filepath, encoding="utf-8") as f:
                 content = f.read(2048)
                 
             title = stem
@@ -506,7 +507,7 @@ def list_articles_history(limit: int = 20, offset: int = 0) -> List[Dict[str, An
             
     return articles
 
-def get_article_content(filename: str) -> Optional[str]:
+def get_article_content(filename: str) -> str | None:
     """Obtiene el contenido Markdown completo de un artículo archivado."""
     safe_name = os.path.basename(filename)
     candidates = [
@@ -517,7 +518,7 @@ def get_article_content(filename: str) -> Optional[str]:
     for filepath in candidates:
         if os.path.exists(filepath):
             try:
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(filepath, encoding="utf-8") as f:
                     return f.read()
             except Exception as e:
                 logger.error(f"Error leyendo contenido de artículo {safe_name}: {e}")
@@ -527,7 +528,7 @@ def get_article_content(filename: str) -> Optional[str]:
 # MOTOR DE RECUPERACIÓN RAG DESDE JSON Y Informacion_docling_rag/
 # ==============================================================================
 
-def load_legal_corpus() -> List[Dict[str, Any]]:
+def load_legal_corpus() -> list[dict[str, Any]]:
     """Carga el corpus legal venezolano desde JSON con caché en memoria."""
     global _CACHED_LEGAL_CORPUS
     if _CACHED_LEGAL_CORPUS is not None:
@@ -535,7 +536,7 @@ def load_legal_corpus() -> List[Dict[str, Any]]:
         
     if os.path.exists(LEGAL_CORPUS_JSON):
         try:
-            with open(LEGAL_CORPUS_JSON, "r", encoding="utf-8") as f:
+            with open(LEGAL_CORPUS_JSON, encoding="utf-8") as f:
                 _CACHED_LEGAL_CORPUS = json.load(f)
                 logger.info(f"Corpus legal cargado desde JSON: {len(_CACHED_LEGAL_CORPUS)} bloques normativos.")
                 return _CACHED_LEGAL_CORPUS
@@ -545,7 +546,7 @@ def load_legal_corpus() -> List[Dict[str, Any]]:
     _CACHED_LEGAL_CORPUS = []
     return _CACHED_LEGAL_CORPUS
 
-def _get_docling_files_cache() -> List[Dict[str, Any]]:
+def _get_docling_files_cache() -> list[dict[str, Any]]:
     """Carga e indexa en memoria una sola vez los archivos de Informacion_docling_rag/."""
     global _CACHED_DOCLING_FILES
     if _CACHED_DOCLING_FILES is not None:
@@ -562,7 +563,7 @@ def _get_docling_files_cache() -> List[Dict[str, Any]]:
                 if file.endswith(('.md', '.txt')):
                     filepath = os.path.join(root, file)
                     try:
-                        with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
+                        with open(filepath, encoding='utf-8', errors='ignore') as f:
                             text = f.read()
                         rel_path = os.path.relpath(filepath, WORKSPACE_ROOT).replace('\\', '/')
                         cached.append({
@@ -580,7 +581,7 @@ def _get_docling_files_cache() -> List[Dict[str, Any]]:
     _CACHED_DOCLING_FILES = cached
     return _CACHED_DOCLING_FILES
 
-def search_docling_rag_files(query_text: str, top_k: int = 2) -> List[Dict[str, str]]:
+def search_docling_rag_files(query_text: str, top_k: int = 2) -> list[dict[str, str]]:
     """
     Busca fragmentos relevantes en los archivos Markdown reales dentro de Informacion_docling_rag/
     usando el índice en caché y extrayendo un fragmento contextualizado alrededor de la coincidencia.

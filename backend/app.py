@@ -5,40 +5,40 @@ Generador de Imágenes de Cabecera 16:9, Gestor RAG Local con caché,
 Validador SEO Backend, Concurrencia controlada y Streaming SSE.
 """
 
-import os
-import json
-import time
 import asyncio
+import json
+import os
+import time
 from contextlib import asynccontextmanager
-import httpx
-from fastapi import FastAPI, HTTPException, Request, Response, status
-from fastapi.middleware.cors import CORSMiddleware
-from fastapi.staticfiles import StaticFiles
-from fastapi.responses import StreamingResponse, FileResponse, JSONResponse
-from fastapi.exceptions import RequestValidationError
-from pydantic import BaseModel, Field, field_validator
-from typing import Optional, List, Dict, Any
-from dotenv import load_dotenv
+from typing import Any
 
-from backend.logger_config import get_logger
-from backend.version import __version__
-from backend.system_profiler import detect_system_resources
-from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
-from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
-from backend.scraper import extract_article_from_url, is_safe_url
+import httpx
+from dotenv import load_dotenv
+from fastapi import FastAPI, HTTPException, Request, Response, status
+from fastapi.exceptions import RequestValidationError
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
+from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field, field_validator
+
 from backend.docling_parser import parse_docling_markdown
 from backend.image_generator import generate_header_image
-from backend.seo_validator import audit_article_seo
-from backend.legal_validator import audit_legal_quality
 from backend.legal_profiles import resolve_jurisdiction
+from backend.legal_validator import audit_legal_quality
+from backend.logger_config import get_logger
+from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
 from backend.rag_manager import (
-    save_rag_source,
-    save_final_article,
-    retrieve_legal_context,
-    list_articles_history,
     get_article_content,
-    clean_legal_hallucinations
+    list_articles_history,
+    retrieve_legal_context,
+    save_final_article,
+    save_rag_source,
 )
+from backend.scraper import extract_article_from_url, is_safe_url
+from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
+from backend.seo_validator import audit_article_seo
+from backend.system_profiler import detect_system_resources
+from backend.version import __version__
 
 logger = get_logger("app")
 
@@ -61,7 +61,7 @@ HTTP_422_UNPROCESSABLE = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
 
 # Semáforo de concurrencia: 1 inferencia activa a la vez para no saturar CPU
 generation_semaphore = asyncio.Semaphore(1)
-active_client: Optional[httpx.AsyncClient] = None
+active_client: httpx.AsyncClient | None = None
 
 # Temperaturas predeterminadas por especialidad temática (Anti-alucinación y rigor fáctico 0.2 - 0.3)
 THEME_TEMPERATURES = {
@@ -166,21 +166,21 @@ class ScrapeRequest(BaseModel):
 
 class GenerateRequest(BaseModel):
     source_text: str = Field(..., min_length=10, max_length=120000, description="Texto fuente base")
-    source_title: Optional[str] = Field("", max_length=300)
-    source_url: Optional[str] = Field("", max_length=2048)
-    source_lang: Optional[str] = Field("", max_length=20)
-    source_author: Optional[str] = Field("", max_length=200)
-    source_date: Optional[str] = Field("", max_length=100)
-    source_section: Optional[str] = Field("", max_length=200)
+    source_title: str | None = Field("", max_length=300)
+    source_url: str | None = Field("", max_length=2048)
+    source_lang: str | None = Field("", max_length=20)
+    source_author: str | None = Field("", max_length=200)
+    source_date: str | None = Field("", max_length=100)
+    source_section: str | None = Field("", max_length=200)
     theme: str = Field("cybersecurity", max_length=50)
     tone: str = Field("conversational", max_length=50)
     target_words: int = Field(1000, ge=200, le=4000)
-    custom_instructions: Optional[str] = Field("", max_length=1000)
-    model: Optional[str] = Field(None, max_length=100)
-    temperature: Optional[float] = Field(None, ge=0.0, le=1.5)
-    jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | international")
-    editorial_mode: Optional[str] = Field("magazine", pattern="^(magazine|classic)$", description="magazine | classic")
-    sentencia_metadata: Optional[Dict[str, Any]] = Field(None, description="Metadatos estructurados de sentencia TSJ")
+    custom_instructions: str | None = Field("", max_length=1000)
+    model: str | None = Field(None, max_length=100)
+    temperature: float | None = Field(None, ge=0.0, le=1.5)
+    jurisdiction: str | None = Field("auto", max_length=50, description="auto | venezuela | international")
+    editorial_mode: str | None = Field("magazine", pattern="^(magazine|classic)$", description="magazine | classic")
+    sentencia_metadata: dict[str, Any] | None = Field(None, description="Metadatos estructurados de sentencia TSJ")
 
     @field_validator("editorial_mode", mode="before")
     @classmethod
@@ -218,30 +218,30 @@ class GenerateRequest(BaseModel):
 
 class ExtractSentenciaRequest(BaseModel):
     content: str = Field(..., min_length=10, max_length=1000000)
-    filename: Optional[str] = Field("", max_length=255)
+    filename: str | None = Field("", max_length=255)
 
 class DoclingParseRequest(BaseModel):
     content: str = Field(..., min_length=1, max_length=1000000)
-    filename: Optional[str] = Field("docling_export.md", max_length=255)
+    filename: str | None = Field("docling_export.md", max_length=255)
 
 class SaveArticleRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=300)
     markdown_content: str = Field(..., min_length=10, max_length=1000000)
-    theme: Optional[str] = Field("cybersecurity", max_length=50)
-    model: Optional[str] = Field("granite3.3:8b", max_length=100)
-    tone: Optional[str] = Field("conversational", max_length=50)
-    source_url: Optional[str] = Field("", max_length=2048)
-    jurisdiction: Optional[str] = Field("auto", max_length=50)
-    editorial_mode: Optional[str] = Field("magazine", max_length=50)
+    theme: str | None = Field("cybersecurity", max_length=50)
+    model: str | None = Field("granite3.3:8b", max_length=100)
+    tone: str | None = Field("conversational", max_length=50)
+    source_url: str | None = Field("", max_length=2048)
+    jurisdiction: str | None = Field("auto", max_length=50)
+    editorial_mode: str | None = Field("magazine", max_length=50)
 
 class GenerateHeaderImageRequest(BaseModel):
     title: str = Field(..., min_length=3, max_length=300)
-    theme: Optional[str] = Field("cybersecurity", max_length=50)
-    custom_prompt: Optional[str] = Field(None, max_length=500)
+    theme: str | None = Field("cybersecurity", max_length=50)
+    custom_prompt: str | None = Field(None, max_length=500)
 
 class SeoAuditRequest(BaseModel):
     markdown: str = Field(..., max_length=2000000, description="Contenido Markdown del artículo")
-    jurisdiction: Optional[str] = Field("auto", max_length=50, description="auto | venezuela | international")
+    jurisdiction: str | None = Field("auto", max_length=50, description="auto | venezuela | international")
 
 # ==============================================================================
 # ENDPOINTS API
@@ -256,12 +256,12 @@ async def editorial_options():
     opción de negocio vive en JavaScript (PLAN v4.0 — Fase 1)."""
     from backend import editorial_catalog as cat
     return {
-        "themes": [{"code": c, "icon": i, "label": l} for c, i, l in cat.THEMES],
-        "editorial_modes": [{"code": c, "label": l} for c, l in cat.EDITORIAL_MODES],
-        "tones": [{"code": c, "label": l} for c, l in cat.TONES],
-        "jurisdictions": [{"code": c, "label": l} for c, l in cat.JURISDICTIONS],
-        "models": [{"code": c, "label": l} for c, l in cat.MODELS],
-        "word_count_targets": [{"words": w, "label": l} for w, l in cat.WORD_COUNT_TARGETS],
+        "themes": [{"code": code, "icon": icon, "label": label} for code, icon, label in cat.THEMES],
+        "editorial_modes": [{"code": code, "label": label} for code, label in cat.EDITORIAL_MODES],
+        "tones": [{"code": code, "label": label} for code, label in cat.TONES],
+        "jurisdictions": [{"code": code, "label": label} for code, label in cat.JURISDICTIONS],
+        "models": [{"code": code, "label": label} for code, label in cat.MODELS],
+        "word_count_targets": [{"words": words, "label": label} for words, label in cat.WORD_COUNT_TARGETS],
         "defaults": {
             "tone": cat.DEFAULT_TONE,
             "jurisdiction": cat.DEFAULT_JURISDICTION,
@@ -361,7 +361,7 @@ async def list_models():
             raise HTTPException(status_code=resp.status_code, detail="Error en Ollama API")
     except Exception as e:
         logger.error(f"Error consultando modelos en Ollama: {e}")
-        raise HTTPException(status_code=503, detail=f"Error consultando Ollama: {str(e)}")
+        raise HTTPException(status_code=503, detail=f"Error consultando Ollama: {e!s}")
 
 @app.post("/api/seo-audit")
 async def seo_audit_endpoint(req: SeoAuditRequest):
@@ -383,7 +383,7 @@ async def seo_audit_endpoint(req: SeoAuditRequest):
         }
     except Exception as e:
         logger.error(f"Error en auditoría SEO: {e}")
-        raise HTTPException(status_code=500, detail=f"Error evaluando SEO: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error evaluando SEO: {e!s}")
 
 @app.post("/api/scrape")
 async def scrape_url_endpoint(req: ScrapeRequest):
@@ -405,7 +405,7 @@ async def scrape_url_endpoint(req: ScrapeRequest):
         raise HTTPException(status_code=400, detail=str(ve))
     except Exception as e:
         logger.error(f"Error procesando URL {target_url}: {e}")
-        raise HTTPException(status_code=500, detail=f"Error al procesar la URL: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error al procesar la URL: {e!s}")
 
 @app.post("/api/parse-docling-md")
 async def parse_docling_md_endpoint(req: DoclingParseRequest):
@@ -421,7 +421,7 @@ async def parse_docling_md_endpoint(req: DoclingParseRequest):
         return parsed_data
     except Exception as e:
         logger.error(f"Error procesando Docling: {e}")
-        raise HTTPException(status_code=500, detail=f"Error procesando archivo Docling: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error procesando archivo Docling: {e!s}")
 
 @app.post("/api/extract-sentencia")
 async def extract_sentencia_endpoint(req: ExtractSentenciaRequest):
@@ -437,7 +437,7 @@ async def extract_sentencia_endpoint(req: ExtractSentenciaRequest):
         }
     except Exception as e:
         logger.error(f"Error extrayendo metadatos de sentencia TSJ: {e}")
-        raise HTTPException(status_code=500, detail=f"Error analizando sentencia TSJ: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error analizando sentencia TSJ: {e!s}")
 
 @app.post("/api/save-generated-article")
 async def save_generated_article_endpoint(req: SaveArticleRequest):
@@ -464,7 +464,7 @@ async def save_generated_article_endpoint(req: SaveArticleRequest):
         return res
     except Exception as e:
         logger.error(f"Error guardando artículo generado: {e}")
-        raise HTTPException(status_code=500, detail=f"Error guardando artículo en Articulos Generados: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error guardando artículo en Articulos Generados: {e!s}")
 
 @app.get("/api/articles-history")
 async def get_articles_history(limit: int = 20, offset: int = 0):
@@ -478,7 +478,7 @@ async def get_articles_history(limit: int = 20, offset: int = 0):
         }
     except Exception as e:
         logger.error(f"Error obteniendo historial de artículos: {e}")
-        raise HTTPException(status_code=500, detail=f"Error listando artículos: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error listando artículos: {e!s}")
 
 @app.get("/api/articles-history/{filename}")
 async def get_single_article(filename: str):
@@ -502,7 +502,7 @@ async def get_preloaded_file():
     """
     if os.path.exists(PRELOADED_FILE_PATH):
         try:
-            with open(PRELOADED_FILE_PATH, "r", encoding="utf-8") as f:
+            with open(PRELOADED_FILE_PATH, encoding="utf-8") as f:
                 data = json.load(f)
             try:
                 os.remove(PRELOADED_FILE_PATH)
@@ -525,7 +525,7 @@ async def generate_header_image_endpoint(req: GenerateHeaderImageRequest):
         return result
     except Exception as e:
         logger.error(f"Error generando imagen de cabecera: {e}")
-        raise HTTPException(status_code=500, detail=f"Error generando imagen: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error generando imagen: {e!s}")
 
 @app.get("/api/download-proxy-image")
 async def download_proxy_image(image_url: str):
@@ -563,7 +563,7 @@ async def download_proxy_image(image_url: str):
             raise HTTPException(status_code=400, detail="No se pudo descargar la imagen remota")
     except Exception as e:
         logger.error(f"Error en proxy de imagen {image_url}: {e}")
-        raise HTTPException(status_code=500, detail=f"Error descargando imagen: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Error descargando imagen: {e!s}")
 
 @app.post("/api/stop-generation")
 async def stop_generation_endpoint():
@@ -616,7 +616,6 @@ async def generate_article_stream(req: GenerateRequest, request: Request):
         persona=req.tone,
         has_ve_rag=False
     )
-    wants_venezuela = (eff_jurisdiction == "ve")
     
     rag_legal_context = ""
     if eff_jurisdiction in ("ve", "co"):

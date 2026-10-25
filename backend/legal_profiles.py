@@ -6,13 +6,13 @@ Los datos son declarativos para poder ampliarse sin tocar la lógica.
 """
 
 import re
-from typing import Dict, List, Any
+from typing import Any
 
 # ------------------------------------------------------------------------------
 # JURISDICCIONES
 # ------------------------------------------------------------------------------
 
-JURISDICTION_LABELS: Dict[str, str] = {
+JURISDICTION_LABELS: dict[str, str] = {
     "ve": "República Bolivariana de Venezuela 🇻🇪",
     "co": "República de Colombia 🇨🇴",
     "intl": "Internacional / Estándares Globales 🌐",
@@ -54,7 +54,7 @@ def resolve_jurisdiction(jurisdiction: str = "auto", text: str = "", theme: str 
 # NORMAS AUTORIZADAS (únicas citables sin RAG). Verificar contra fuente oficial.
 # ------------------------------------------------------------------------------
 
-AUTHORIZED_NORMS: Dict[str, List[str]] = {
+AUTHORIZED_NORMS: dict[str, list[str]] = {
     "ve": [
         "Constitución de la República Bolivariana de Venezuela (CRBV, 1999)",
         "Ley Especial contra los Delitos Informáticos (G.O. Nº 37.313, 2001)",
@@ -85,11 +85,11 @@ AUTHORIZED_NORMS: Dict[str, List[str]] = {
 # GLOSARIOS (semilla ampliable). tags: palabras de consulta que activan el término.
 # ------------------------------------------------------------------------------
 
-def _t(term: str, use: str, tags: str, avoid: str = "") -> Dict[str, Any]:
+def _t(term: str, use: str, tags: str, avoid: str = "") -> dict[str, Any]:
     return {"term": term, "use": use, "tags": tags.split(), "avoid": avoid}
 
 
-GLOSSARY: Dict[str, List[Dict[str, Any]]] = {
+GLOSSARY: dict[str, list[dict[str, Any]]] = {
     "ve": [
         _t("amparo constitucional", "Acción para el restablecimiento inmediato de derechos y garantías constitucionales lesionados.", "amparo derechos garantías constitucional", "No llamarlo 'tutela': en Venezuela la tutela es una institución de guarda de menores."),
         _t("recurso de casación", "Medio extraordinario ante el Tribunal Supremo de Justicia por infracción de ley o quebrantamiento de formas procesales.", "casación recurso sentencia apelación"),
@@ -166,7 +166,7 @@ GLOSSARY: Dict[str, List[Dict[str, Any]]] = {
 }
 
 # Calcos y errores frecuentes (aplican a ambos países)
-ANTI_CALCO: List[Dict[str, str]] = [
+ANTI_CALCO: list[dict[str, str]] = [
     {"bad": r"aplicar para", "good": "solicitar / postularse a"},
     {"bad": r"realizar una demanda", "good": "interponer o presentar una demanda"},
     {"bad": r"hacer una denuncia", "good": "presentar una denuncia / denunciar"},
@@ -178,7 +178,7 @@ ANTI_CALCO: List[Dict[str, str]] = [
 ]
 
 # Frases de promesa de resultado (ética publicitaria del abogado)
-PROMISE_PATTERNS: List[str] = [
+PROMISE_PATTERNS: list[str] = [
     r"garantiz(?:amos|ado|ada)\b",
     r"100\s?%\s?(?:efectiv|seguro|garantiz)",
     r"gane (?:su|tu) caso",
@@ -188,7 +188,7 @@ PROMISE_PATTERNS: List[str] = [
 ]
 
 # Términos de la otra jurisdicción (alerta de contaminación)
-FOREIGN_MARKERS: Dict[str, List[str]] = {
+FOREIGN_MARKERS: dict[str, list[str]] = {
     "co": [r"Gaceta Oficial", r"Tribunal Supremo de Justicia", r"\bCRBV\b", r"INPREABOGADO", r"\bSENIAT\b", r"\bCICPC\b"],
     "ve": [r"acción de tutela", r"Corte Constitucional de Colombia", r"Ley 1581", r"\bSIC\b", r"Fiscalía General de la Nación", r"Tarjeta Profesional"],
 }
@@ -198,13 +198,13 @@ DISCLAIMER_TEXT = (
     "abogado-cliente. Cada caso requiere análisis particular por un profesional del derecho."
 )
 
-DISCLAIMER_PATTERN = re.compile(r"no constituye (?:asesor[ií]a|consejo) (?:legal|jur[ií]dic)", re.I)
+DISCLAIMER_PATTERN = re.compile(r"no constituye (?:asesor[ií]a|consejo) (?:legal|jur[ií]dic)", re.IGNORECASE)
 
 # ------------------------------------------------------------------------------
 # PERFILES DE VOZ
 # ------------------------------------------------------------------------------
 
-PERSONAS: Dict[str, Dict[str, Any]] = {
+PERSONAS: dict[str, dict[str, Any]] = {
     "revista_cientifica_law_tech": {
         "jurisdiction": "ve",
         "label": "Revista Científica Arbitrada (Derecho & Computación Forense — Nivel Universidad)",
@@ -359,7 +359,7 @@ def is_legal_persona(persona_id: str) -> bool:
     return persona_id in PERSONAS
 
 
-def select_glossary_terms(query: str, jurisdiction: str, k: int = 10) -> List[Dict[str, Any]]:
+def select_glossary_terms(query: str, jurisdiction: str, k: int = 10) -> list[dict[str, Any]]:
     """Selecciona los k términos más relevantes del glosario para la consulta."""
     entries = GLOSSARY.get(jurisdiction, [])
     low = (query or "").lower()

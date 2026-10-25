@@ -3,19 +3,16 @@ Pruebas unitarias para los perfiles jurídicos (Venezuela y Colombia),
 glosarios, resolución de jurisdicción y validador legal / GEO 2026.
 """
 
-import pytest
 from fastapi.testclient import TestClient
 
 from backend.app import app
 from backend.legal_profiles import (
-    resolve_jurisdiction,
-    is_legal_persona,
-    select_glossary_terms,
-    build_persona_block,
-    PERSONAS,
-    GLOSSARY,
-    AUTHORIZED_NORMS,
     DISCLAIMER_TEXT,
+    GLOSSARY,
+    PERSONAS,
+    build_persona_block,
+    resolve_jurisdiction,
+    select_glossary_terms,
 )
 from backend.legal_validator import audit_legal_quality
 from backend.prompts import build_generation_prompt

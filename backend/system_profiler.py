@@ -4,9 +4,9 @@ Detecta CPU, memoria RAM, plataforma y calcula automáticamente los parámetros
 óptimos de inferencia para Ollama y el modelo IBM Granite.
 """
 
+import logging
 import os
 import platform
-import logging
 
 logger = logging.getLogger("app.system_profiler")
 
@@ -43,7 +43,7 @@ def detect_system_resources() -> dict:
             logger.debug(f"Error detectando RAM en Windows: {e}")
     elif system_os == "Linux":
         try:
-            with open("/proc/meminfo", "r") as f:
+            with open("/proc/meminfo") as f:
                 for line in f:
                     if line.startswith("MemTotal:"):
                         kb = int(line.split()[1])

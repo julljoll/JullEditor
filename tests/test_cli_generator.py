@@ -4,13 +4,12 @@ Valida la selección de archivos, el endpoint /api/preloaded-file y el flujo de 
 """
 
 import os
-import json
-import pytest
 from pathlib import Path
+
 from fastapi.testclient import TestClient
 
-from backend.app import app, PRELOADED_FILE_PATH
-from backend.cli_generator import find_available_md_files, save_preloaded_session, prompt_editorial_config
+from backend.app import PRELOADED_FILE_PATH, app
+from backend.cli_generator import find_available_md_files, save_preloaded_session
 
 client = TestClient(app)
 
@@ -100,7 +99,7 @@ def test_scan_docling_rag_auto_refresh_on_new_file(tmp_path):
     el escaneo lo detecte inmediatamente (0ms latencia, sin caché estática),
     y que al eliminarlo desaparezca automáticamente.
     """
-    from backend.cli_generator import scan_docling_rag_structure, WORKSPACE_ROOT
+    from backend.cli_generator import WORKSPACE_ROOT, scan_docling_rag_structure
 
     target_category_dir = WORKSPACE_ROOT / "Informacion_docling_rag" / "Jurisprudencias"
     assert target_category_dir.exists(), "La carpeta Jurisprudencias debe existir"

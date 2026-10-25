@@ -4,14 +4,14 @@ Corpus Legal Taxativo (Informacion_docling_rag), Schema.org JSON-LD
 y Análisis Obligatorio de Compatibilidad Tecnológica en Venezuela con IBM Granite.
 """
 
-from typing import Dict, Any, Optional, List
+from typing import Any
 
 from backend.legal_profiles import (
     JURISDICTION_LABELS,
     PERSONAS,
-    resolve_jurisdiction,
-    is_legal_persona,
     build_persona_block,
+    is_legal_persona,
+    resolve_jurisdiction,
 )
 from backend.sentencia_extractor import extract_sentencia_metadata
 
@@ -245,7 +245,7 @@ R: [Respuesta con referencia normativa venezolana del corpus autorizado.]
 ```
 """
 
-THEMATIC_PROMPTS: Dict[str, str] = {
+THEMATIC_PROMPTS: dict[str, str] = {
     "cybersecurity": """
 ENFOQUE TEMÁTICO: CIBERSEGURIDAD, FORENSE DIGITAL Y LEGISLACIÓN DE DELITOS INFORMÁTICOS EN VENEZUELA.
 - Aplica estrictamente la Ley Especial contra los Delitos Informáticos de Venezuela (G.O. Nº 37.313), tipificando acceso indebido, sabotaje, espionaje informático y revelación de datos.
@@ -275,7 +275,7 @@ ENFOQUE TEMÁTICO: TECNOLOGÍA, TELECOMUNICACIONES E INNOVACIÓN BAJO EL MARCO L
 """
 }
 
-THEMATIC_PROMPTS_NEUTRAL: Dict[str, str] = {
+THEMATIC_PROMPTS_NEUTRAL: dict[str, str] = {
     "cybersecurity": """
 ENFOQUE TEMÁTICO: CIBERSEGURIDAD, FORENSE DIGITAL Y DELITOS INFORMÁTICOS.
 - Fundamenta en la normativa penal y de protección de datos de la jurisdicción seleccionada y en estándares ISO/IEC 27037, NIST SP 800-86 y RFC 3227.
@@ -736,7 +736,7 @@ def build_sentencia_tsj_prompt(
     article_source_text: str,
     source_title: str = "",
     source_url: str = "",
-    sentencia_metadata: Optional[Dict[str, Any]] = None,
+    sentencia_metadata: dict[str, Any] | None = None,
     legal_rag_context: str = "",
     custom_instructions: str = "",
     target_words: int = 1400,

@@ -14,12 +14,11 @@ Principio rector del PLAN_OPTIMIZACION.md (Fase 1): ninguna opción vive en
 otro lenguaje; JS solo presenta lo que Python define aquí.
 """
 
-from typing import Dict, List, Tuple
 
 # ---------------------------------------------------------------------------
 # PASO 2 — Especialidad temática (radio-group "themeGroup" de index.html)
 # ---------------------------------------------------------------------------
-THEMES: List[Tuple[str, str, str]] = [
+THEMES: list[tuple[str, str, str]] = [
     ("sentencia_tsj", "🏛️", "Sentencia TSJ / Forense & Jurisprudencia"),
     ("legal_tech", "⚖️", "Derecho Digital & LegalTech"),
     ("cybersecurity", "🛡️", "Ciberseguridad & Evidencia Informática"),
@@ -30,7 +29,7 @@ THEMES: List[Tuple[str, str, str]] = [
 # ---------------------------------------------------------------------------
 # PASO 3 — Estilo editorial (botones segmentados Magazine/Clásico)
 # ---------------------------------------------------------------------------
-EDITORIAL_MODES: List[Tuple[str, str]] = [
+EDITORIAL_MODES: list[tuple[str, str]] = [
     ("magazine", "📰 Revista Digital (3 Col. Interpretativo-Explicativo 2026)"),
     ("classic", "📝 Resumen Clásico Fiel (Síntesis Directa)"),
 ]
@@ -39,7 +38,7 @@ EDITORIAL_MODES: List[Tuple[str, str]] = [
 # PASO 4 — Perfiles de voz / tono (select "toneSelect", Venezuela exclusiva
 # en la UX; el motor conserva jurisdicciones latentes sin exponerlas)
 # ---------------------------------------------------------------------------
-TONES: List[Tuple[str, str]] = [
+TONES: list[tuple[str, str]] = [
     # -- Jurídicos Venezuela --
     ("analista_tsj_revista", "📰 Analista Jurisprudencial TSJ — Revista Digital Educativa"),
     ("revista_cientifica_law_tech", "🎓 Revista Científica Arbitrada (Derecho & Computación Forense)"),
@@ -61,7 +60,7 @@ DEFAULT_TONE = "analista_tsj_revista"
 # ---------------------------------------------------------------------------
 # PASO 5 — Jurisdicción (select "jurisdictionSelect": Venezuela exclusiva)
 # ---------------------------------------------------------------------------
-JURISDICTIONS: List[Tuple[str, str]] = [
+JURISDICTIONS: list[tuple[str, str]] = [
     ("auto", "🔄 Auto (Detectar por fuente y notas · Enfoque Venezuela)"),
     ("venezuela", "🇻🇪 Venezuela (CRBV, Delitos Informáticos, Infogobierno, TSJ)"),
     ("international", "🌐 Internacional / Global (ISO, NIST, UE)"),
@@ -72,12 +71,12 @@ DEFAULT_JURISDICTION = "auto"
 # ---------------------------------------------------------------------------
 # PASO 6 — Parámetros técnicos de inferencia (Ajustes Avanzados)
 # ---------------------------------------------------------------------------
-MODELS: List[Tuple[str, str]] = [
+MODELS: list[tuple[str, str]] = [
     ("granite3.3:8b", "IBM Granite 3.3 8B (Recomendado 16GB RAM)"),
     ("granite3.3:2b", "IBM Granite 3.3 2B (Rápido · CPU baja RAM)"),
 ]
 
-WORD_COUNT_TARGETS: List[Tuple[int, str]] = [
+WORD_COUNT_TARGETS: list[tuple[int, str]] = [
     (600, "~600 palabras (Corto / Nota rápida)"),
     (1000, "~1000 palabras (Pilar SEO 2026 · Recomendado)"),
     (1500, "~1500 palabras (Largo / Análisis profundo)"),
@@ -85,42 +84,42 @@ WORD_COUNT_TARGETS: List[Tuple[int, str]] = [
 ]
 
 DEFAULT_TEMPERATURE = 0.0      # Cero alucinación / rigor factual TSJ
-TEMPERATURE_RANGE: Tuple[float, float] = (0.0, 1.0)
+TEMPERATURE_RANGE: tuple[float, float] = (0.0, 1.0)
 DEFAULT_MODEL = "granite3.3:8b"
 DEFAULT_WORD_COUNT = 1000
 
 
-def theme_options() -> List[str]:
+def theme_options() -> list[str]:
     return [f"{icon} {label}" for _code, icon, label in THEMES]
 
 
-def tone_options() -> List[str]:
+def tone_options() -> list[str]:
     return [label for _code, label in TONES]
 
 
-def jurisdiction_options() -> List[str]:
+def jurisdiction_options() -> list[str]:
     return [label for _code, label in JURISDICTIONS]
 
 
-def theme_codes() -> List[str]:
+def theme_codes() -> list[str]:
     return [code for code, _icon, _label in THEMES]
 
 
-def tone_codes() -> List[str]:
+def tone_codes() -> list[str]:
     return [code for code, _label in TONES]
 
 
-def jurisdiction_codes() -> List[str]:
+def jurisdiction_codes() -> list[str]:
     return [code for code, _label in JURISDICTIONS]
 
 
-def validate_config(config: Dict[str, object]) -> List[str]:
+def validate_config(config: dict[str, object]) -> list[str]:
     """Devuelve la lista de errores de un dict de configuración editorial.
 
     Vacía == configuración válida. Compartida por CLI, TUI y API para
     garantizar paridad 1:1 entre todas las interfaces.
     """
-    errors: List[str] = []
+    errors: list[str] = []
     if config.get("theme") not in theme_codes():
         errors.append(f"Tema inválido: {config.get('theme')!r}")
     if config.get("editorial_mode") not in ("magazine", "classic"):

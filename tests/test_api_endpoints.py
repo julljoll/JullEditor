@@ -1,5 +1,5 @@
-import pytest
 from fastapi.testclient import TestClient
+
 from backend.app import app
 
 client = TestClient(app)
@@ -262,7 +262,7 @@ def test_scraper_parse_html_resilience():
 def test_frontend_ingest_tabs_structure():
     """Verifica que el HTML contenga las 3 opciones de ingesta con sus IDs y atributos correctos."""
     from bs4 import BeautifulSoup
-    with open("frontend/index.html", "r", encoding="utf-8") as f:
+    with open("frontend/index.html", encoding="utf-8") as f:
         soup = BeautifulSoup(f.read(), "html.parser")
 
     tabs = soup.select(".ingest-tab")
@@ -282,8 +282,8 @@ def test_frontend_ingest_tabs_structure():
 
 def test_javascript_modules_syntax():
     """Verifica que ningún archivo JS tenga errores de sintaxis o variables redeclaradas."""
-    import subprocess
     import glob
+    import subprocess
     js_files = glob.glob("frontend/js/**/*.js", recursive=True) + glob.glob("frontend/js/*.js")
     assert len(js_files) > 5, "Deben existir archivos JavaScript en el frontend"
     for js_path in js_files:

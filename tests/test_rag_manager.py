@@ -1,13 +1,13 @@
 import os
-import pytest
+
 from backend.rag_manager import (
-    sanitize_filename,
-    save_rag_source,
-    save_final_article,
-    retrieve_legal_context,
     load_legal_corpus,
-    list_articles_history
+    retrieve_legal_context,
+    sanitize_filename,
+    save_final_article,
+    save_rag_source,
 )
+
 
 def test_sanitize_filename():
     assert sanitize_filename("Regulación de IA en Venezuela!") == "regulacion_de_ia_en_venezuela"
@@ -47,7 +47,7 @@ def test_save_final_article_with_yaml():
     assert res["filename"] == "Artículo de Prueba.md"
     assert res["html_filename"] == "Artículo de Prueba.html"
     
-    with open(res["absolute_path"], "r", encoding="utf-8") as f:
+    with open(res["absolute_path"], encoding="utf-8") as f:
         saved_content = f.read()
     assert saved_content.startswith("---")
     assert "theme: \"legal_tech\"" in saved_content
@@ -65,7 +65,7 @@ def test_save_article_both_md_and_html_named_after_title():
     Verifica que cada artículo se guarde en 'Articulos Generados/' en ambos formatos (.md y .html)
     utilizando directamente el nombre del título (sin prefijo de fecha forzado).
     """
-    from backend.rag_manager import sanitize_title_to_filename, ARTICLES_GENERATED_DIR
+    from backend.rag_manager import sanitize_title_to_filename
 
     title = "Ciberseguridad y Delitos Informáticos en Venezuela: Análisis Pericial"
     md_content = """# Ciberseguridad y Delitos Informáticos en Venezuela: Análisis Pericial
@@ -96,7 +96,7 @@ La cadena de custodia es **esencial** para la admisibilidad judicial.
     assert os.path.exists(html_path), f"El archivo .html debe existir en: {html_path}"
 
     # Validar contenido HTML
-    with open(html_path, "r", encoding="utf-8") as f:
+    with open(html_path, encoding="utf-8") as f:
         html_text = f.read()
     assert "<!DOCTYPE html>" in html_text
     assert f"<title>{title}</title>" in html_text

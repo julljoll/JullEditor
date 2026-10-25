@@ -4,13 +4,15 @@ Utiliza HTTPX y BeautifulSoup con heurísticas avanzadas de legibilidad,
 con fallback opcional para Playwright.
 """
 
+import ipaddress
 import re
 import socket
-import ipaddress
-from urllib.parse import urlparse, urljoin
+from typing import Any
+from urllib.parse import urljoin, urlparse
+
 import httpx
 from bs4 import BeautifulSoup
-from typing import Dict, Any
+
 from backend.logger_config import get_logger
 
 logger = get_logger("scraper")
@@ -51,7 +53,7 @@ def is_safe_url(url: str) -> bool:
         logger.warning(f"Validación SSRF falló para '{url}': {e}")
         return False
 
-async def extract_article_from_url(url: str) -> Dict[str, Any]:
+async def extract_article_from_url(url: str) -> dict[str, Any]:
     """
     Descarga una página web y extrae el texto central, título y metadatos relevantes.
     Incorpora soporte multi-etapa (HTTPX -> urllib -> Playwright).
@@ -102,8 +104,8 @@ async def extract_article_from_url(url: str) -> Dict[str, Any]:
     if not html_content or len(html_content) < 500:
         try:
             logger.info(f"Iniciando fallback con urllib para: {url}")
-            import ssl
             import gzip
+            import ssl
             import urllib.request
             ctx = ssl.create_default_context()
             ctx.check_hostname = False
@@ -140,7 +142,7 @@ async def extract_article_from_url(url: str) -> Dict[str, Any]:
 
     return parse_html_to_clean_article(html_content, url)
 
-def parse_html_to_clean_article(html: str, url: str) -> Dict[str, Any]:
+def parse_html_to_clean_article(html: str, url: str) -> dict[str, Any]:
     """
     Limpia y estructura el contenido HTML eliminando ruido (nav, footers, scripts, ads),
     y localiza la imagen de cabecera original (og:image, twitter:image, thumbnail, hero).
@@ -271,10 +273,10 @@ def parse_html_to_clean_article(html: str, url: str) -> Dict[str, Any]:
     if main_elem:
         candidates.append(main_elem)
         
-    for elem in soup.find_all(attrs={"class": re.compile(r"post-content|article-body|entry-content|story-body|content-body|c-article-body|blog-post|single-post|rich-text|article__content", re.I)}):
+    for elem in soup.find_all(attrs={"class": re.compile(r"post-content|article-body|entry-content|story-body|content-body|c-article-body|blog-post|single-post|rich-text|article__content", re.IGNORECASE)}):
         candidates.append(elem)
 
-    for elem in soup.find_all(attrs={"id": re.compile(r"article|content|main-content|story|post", re.I)}):
+    for elem in soup.find_all(attrs={"id": re.compile(r"article|content|main-content|story|post", re.IGNORECASE)}):
         candidates.append(elem)
         
     if soup.body:
@@ -289,7 +291,7 @@ def parse_html_to_clean_article(html: str, url: str) -> Dict[str, Any]:
     content_container = max(candidates, key=score_container) if candidates else (soup.body or soup)
 
     # 6. Eliminar elementos publicitarios puntuales sin destruir contenedores padre con layout classes
-    noise_patterns = re.compile(r"\b(ad-box|advertisement|ad-container|social-share|share-buttons|cookie-notice|cookie-banner|newsletter-signup|comments-area)\b", re.I)
+    noise_patterns = re.compile(r"\b(ad-box|advertisement|ad-container|social-share|share-buttons|cookie-notice|cookie-banner|newsletter-signup|comments-area)\b", re.IGNORECASE)
     for element in list(content_container.find_all(attrs={"class": noise_patterns})):
         if len(element.get_text().strip()) < 300 and not element.find(["h1", "h2", "article"]):
             element.decompose()

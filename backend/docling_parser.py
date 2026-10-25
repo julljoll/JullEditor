@@ -4,14 +4,15 @@ Permite ingestar documentos procesados por Docling (PDFs, normativas, peritajes,
 extrayendo títulos, secciones, metadatos y detectando automáticamente la especialidad temática.
 """
 
-import re
 import json
-from typing import Dict, Any, List
+import re
+from typing import Any
+
 from backend.logger_config import get_logger
 
 logger = get_logger("docling_parser")
 
-def parse_docling_markdown(md_content: str, filename: str = "") -> Dict[str, Any]:
+def parse_docling_markdown(md_content: str, filename: str = "") -> dict[str, Any]:
     """
     Parsea el contenido de un archivo Markdown o JSON de Docling o texto estructurado.
     Extrae título, elimina ruido de escaneo/paginación, calcula métricas y detecta el tema.

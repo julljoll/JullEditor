@@ -4,11 +4,12 @@ Implementa las reglas del FORMATO SEO BLOG PDF y estándares 2026 en el backend
 para evaluación determinista, pruebas unitarias y auto-corrección.
 """
 
-import re
 import json
-from typing import Dict, Any, List
+import re
+from typing import Any
 
-def audit_article_seo(markdown: str) -> Dict[str, Any]:
+
+def audit_article_seo(markdown: str) -> dict[str, Any]:
     """
     Evalúa minuciosamente el artículo Markdown según métricas SEO y de formato.
     Retorna métricas, banderas booleanas, lista de mejoras y un score ponderado (0-100%).

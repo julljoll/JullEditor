@@ -3,17 +3,16 @@ Módulo de Extracción de Metadatos de Sentencias del TSJ de Venezuela.
 Motor local y offline para IBM Docling / LegalProcessor.
 """
 
-import os
 import re
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 
-def extract_sentencia_metadata(text: str, filename: str = "") -> Dict[str, Any]:
+def extract_sentencia_metadata(text: str, filename: str = "") -> dict[str, Any]:
     """
     Analiza el texto de una sentencia del TSJ y extrae su Ficha Técnica estructurada.
     """
     clean_text = text or ""
-    result: Dict[str, Any] = {
+    result: dict[str, Any] = {
         "sala": "Tribunal Supremo de Justicia",
         "expediente": "",
         "numero_sentencia": "",

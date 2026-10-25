@@ -6,32 +6,30 @@ Sentencia TSJ, Revista Digital, Temp=0.0, VE, Granite 8B)
 y ejecutar la generación con streaming en consola o abrir la interfaz web.
 """
 
-import os
-import sys
-import json
-import time
-import glob
 import asyncio
-import subprocess
+import json
+import os
 import shutil
+import subprocess
+import sys
+import time
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Any
 
 import httpx
 
-from backend.logger_config import get_logger
-from backend.version import __version__
+from backend import editorial_catalog as cat
 from backend.docling_parser import parse_docling_markdown
-from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
+from backend.legal_validator import audit_legal_quality
+from backend.logger_config import get_logger
 from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
 from backend.rag_manager import (
-    save_rag_source,
-    save_final_article,
     retrieve_legal_context,
+    save_final_article,
 )
+from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
 from backend.seo_validator import audit_article_seo
-from backend.legal_validator import audit_legal_quality
-from backend import editorial_catalog as cat
+from backend.version import __version__
 
 logger = get_logger("cli_generator")
 
@@ -53,7 +51,7 @@ def print_banner():
     print()
 
 
-def open_file_dialog() -> Optional[str]:
+def open_file_dialog() -> str | None:
     """Abre el explorador de archivos nativo de Windows mediante Tkinter."""
     try:
         import tkinter as tk
@@ -97,7 +95,7 @@ CATEGORY_ICONS = {
 }
 
 
-def scan_docling_rag_structure() -> Dict[str, Any]:
+def scan_docling_rag_structure() -> dict[str, Any]:
     """
     Escanea en tiempo real el directorio Informacion_docling_rag/ sin caché estática,
     permitiendo que cualquier archivo nuevo agregado se detecte automáticamente.
@@ -108,8 +106,8 @@ def scan_docling_rag_structure() -> Dict[str, Any]:
     if not rag_dir.exists():
         rag_dir = WORKSPACE_ROOT / "RAG" / "inputs"
 
-    categories: Dict[str, List[Path]] = {}
-    all_files: List[Path] = []
+    categories: dict[str, list[Path]] = {}
+    all_files: list[Path] = []
 
     if docling_dir.exists():
         # Escanear subdirectorios como categorías ordenadas
@@ -156,7 +154,7 @@ def scan_docling_rag_structure() -> Dict[str, Any]:
     }
 
 
-def find_available_md_files() -> List[Path]:
+def find_available_md_files() -> list[Path]:
     """Escanea las carpetas RAG e Informacion_docling_rag en busca de archivos .md en tiempo real."""
     scan = scan_docling_rag_structure()
     md_only = [p for p in scan["all_files"] if p.suffix.lower() in (".md", ".markdown")]
@@ -164,7 +162,7 @@ def find_available_md_files() -> List[Path]:
     return md_only
 
 
-def select_input_file(cli_arg_path: Optional[str] = None) -> Optional[Path]:
+def select_input_file(cli_arg_path: str | None = None) -> Path | None:
     """
     Gestiona la selección interactiva de archivos directamente desde Informacion_docling_rag/.
     Escanea en tiempo real el directorio para reflejar automáticamente cualquier archivo recién agregado.
@@ -395,7 +393,7 @@ def select_input_file(cli_arg_path: Optional[str] = None) -> Optional[Path]:
 
 
 
-def prompt_editorial_config(parsed_doc: Dict[str, Any], is_tsj: bool) -> Dict[str, Any]:
+def prompt_editorial_config(parsed_doc: dict[str, Any], is_tsj: bool) -> dict[str, Any]:
     """Presenta las opciones de creación de artículos (con los mismos defaults del frontend)."""
     print()
     print("🎯 PASO 2/6: ESPECIALIDAD TEMÁTICA")
@@ -636,7 +634,7 @@ async def stream_generation_cli(prompt: str, model: str, temperature: float) -> 
     return "".join(full_output)
 
 
-def save_preloaded_session(source_file: Path, config: Dict[str, Any], parsed: Dict[str, Any]):
+def save_preloaded_session(source_file: Path, config: dict[str, Any], parsed: dict[str, Any]):
     """Guarda los datos para que el frontend web cargue este archivo automáticamente."""
     PRELOADED_FILE.parent.mkdir(parents=True, exist_ok=True)
     payload = {
@@ -664,6 +662,7 @@ def run_web_server():
     print("===================================================================================")
     try:
         import webbrowser
+
         import uvicorn
 
         def open_browser():

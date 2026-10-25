@@ -4,13 +4,13 @@ para Artículos de Blog con Estilo Minimalista Cyber-Legal Blueprint + USWDS Gri
 Compatible con Nano Banana / Gemini API y Renderizador Procedural Local (Offline).
 """
 
+import hashlib
 import os
 import time
-import math
-import hashlib
-from typing import Dict, Any, Optional
-import httpx
+from typing import Any
+
 from dotenv import load_dotenv
+
 from backend.logger_config import get_logger
 
 logger = get_logger("image_generator")
@@ -63,8 +63,8 @@ THEME_METADATA = {
 async def generate_header_image(
     title: str,
     theme: str = "cybersecurity",
-    custom_prompt: Optional[str] = None
-) -> Dict[str, Any]:
+    custom_prompt: str | None = None
+) -> dict[str, Any]:
     """
     Genera una imagen de cabecera rectangular (16:9 - 1200x675) en formato Cyber-Legal + USWDS.
     Intenta Nano Banana API si hay clave configurada, o utiliza el motor procedural local.
@@ -72,7 +72,7 @@ async def generate_header_image(
     clean_title = (title or "Artículo Técnico y Jurídico").strip()
     theme_info = THEME_METADATA.get(theme, THEME_METADATA["cybersecurity"])
     
-    title_hash = hashlib.md5(f"{clean_title}_{theme}_{time.time()}".encode("utf-8")).hexdigest()[:10]
+    title_hash = hashlib.md5(f"{clean_title}_{theme}_{time.time()}".encode()).hexdigest()[:10]
     filename = f"header_banner_{title_hash}.svg"
     filepath = os.path.join(HEADERS_DIR, filename)
 
@@ -102,10 +102,21 @@ async def generate_header_image(
         "badge": theme_info["sub_badge"]
     }
 
+def _svg_secondary_text(line2: str) -> str:
+    """Texto secundario del encabezado SVG (vacio si no hay segunda linea)."""
+    if not line2:
+        return ""
+    font_family = "'Arial', 'Segoe UI', sans-serif"
+    return (
+        f'<text x="0" y="105" font-family="{font_family}" '
+        f'font-size="38" font-weight="700" fill="#FFFFFF" opacity="0.95">{line2}</text>'
+    )
+
+
 def generate_procedural_cyber_legal_svg(
     title: str,
     theme: str,
-    theme_info: Dict[str, str],
+    theme_info: dict[str, str],
     output_path: str
 ):
     """
@@ -189,7 +200,7 @@ def generate_procedural_cyber_legal_svg(
     <text x="0" y="45" font-family="'Arial', 'Segoe UI', sans-serif" font-size="42" font-weight="800" fill="#FFFFFF" letter-spacing="-0.5">
       {line1}
     </text>
-    {f'<text x="0" y="105" font-family="\'Arial\', \'Segoe UI\', sans-serif" font-size="38" font-weight="700" fill="#FFFFFF" opacity="0.95">{line2}</text>' if line2 else ''}
+    {_svg_secondary_text(line2)}
   </g>
 
   <rect x="80" y="375" width="600" height="3" fill="url(#goldGlow)" rx="1.5"/>
@@ -214,8 +225,8 @@ def generate_procedural_cyber_legal_svg(
 async def call_nanobanana_api(
     title: str,
     theme: str,
-    theme_info: Dict[str, str],
+    theme_info: dict[str, str],
     filename: str
-) -> Optional[Dict[str, Any]]:
+) -> dict[str, Any] | None:
     """Llama a la API de Nano Banana / Gemini si hay API key configurada."""
     return None

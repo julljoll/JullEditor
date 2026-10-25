@@ -6,7 +6,6 @@ y auditoría SEO/Legal para decisiones del Tribunal Supremo de Justicia.
 
 import os
 import sys
-import json
 
 # Asegurar codificación utf-8
 if sys.stdout.encoding != 'utf-8':
@@ -16,12 +15,12 @@ if sys.stdout.encoding != 'utf-8':
 WORKSPACE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 sys.path.insert(0, WORKSPACE_DIR)
 
-from backend.legal_profiles import PERSONAS, _STRUCTURES, GLOSSARY, build_persona_block
-from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
-from backend.prompts import build_sentencia_tsj_prompt, SENTENCIA_TSJ_OUTPUT_TEMPLATE
-from backend.rag_manager import save_final_article, retrieve_legal_context, list_articles_history
-from backend.seo_validator import audit_article_seo
+from backend.legal_profiles import _STRUCTURES, PERSONAS, build_persona_block
 from backend.legal_validator import audit_legal_quality
+from backend.prompts import build_sentencia_tsj_prompt
+from backend.rag_manager import save_final_article
+from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
+from backend.seo_validator import audit_article_seo
 
 JURISPRUDENCIAS_DIR = os.path.join(WORKSPACE_DIR, "Informacion_docling_rag", "Jurisprudencias")
 
@@ -55,7 +54,7 @@ def run_tests():
     for fname, expected_sala, expected_exp, expected_ponente in test_files:
         fpath = os.path.join(JURISPRUDENCIAS_DIR, fname)
         assert os.path.exists(fpath), f"No existe el archivo de prueba: {fpath}"
-        with open(fpath, "r", encoding="utf-8", errors="ignore") as f:
+        with open(fpath, encoding="utf-8", errors="ignore") as f:
             content = f.read()
         
         assert is_sentencia_text(content), f"No detectó como sentencia: {fname}"
@@ -290,7 +289,7 @@ La sentencia analizada constituye un valioso recordatorio de que los tribunales 
     saved_file = save_result["absolute_path"]
     assert os.path.exists(saved_file), "No se encontró el archivo guardado en RAG/articulos/"
     
-    with open(saved_file, "r", encoding="utf-8") as f:
+    with open(saved_file, encoding="utf-8") as f:
         saved_text = f.read()
     assert "article_type: \"sentencia_tsj\"" in saved_text, "Falta article_type: 'sentencia_tsj' en YAML frontmatter"
     print("  ✓ Artículo de prueba guardado exitosamente en RAG/articulos/ con frontmatter 'sentencia_tsj'.")

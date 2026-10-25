@@ -11,25 +11,21 @@ Uso:
     python run.py --tui          (o crear_articulo.bat → opción [T])
 """
 
-import asyncio
 import json
 import sys
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Any
 
 import httpx
-
 from textual.app import App, ComposeResult
-from textual.containers import Horizontal, Vertical, VerticalScroll
+from textual.containers import Horizontal, VerticalScroll
 from textual.reactive import reactive
-from textual.widget import Widget
 from textual.widgets import (
     Button,
     DirectoryTree,
     Footer,
     Header,
     Input,
-    Label,
     RadioButton,
     RadioSet,
     RichLog,
@@ -38,18 +34,17 @@ from textual.widgets import (
 )
 
 from backend import editorial_catalog as cat
-from backend.version import __version__
 from backend.cli_generator import (
+    OLLAMA_BASE_URL,
     check_and_start_ollama,
     save_preloaded_session,
-    OLLAMA_BASE_URL,
 )
 from backend.docling_parser import parse_docling_markdown
-from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
+from backend.legal_validator import audit_legal_quality
 from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
 from backend.rag_manager import retrieve_legal_context, save_final_article
+from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
 from backend.seo_validator import audit_article_seo
-from backend.legal_validator import audit_legal_quality
 
 INFER_PAYLOAD_OPTIONS = {
     "num_predict": 4096,
@@ -63,7 +58,7 @@ INFER_PAYLOAD_OPTIONS = {
 class ConfigSummary(Static):
     """Resumen vivo de la configuración editorial seleccionada."""
 
-    config: reactive[Dict[str, Any]] = reactive(dict)
+    config: reactive[dict[str, Any]] = reactive(dict)
 
     def render_summary(self) -> str:
         c = self.config
@@ -101,10 +96,10 @@ class JullEditorTUI(App):
         ("ctrl+b", "open_web", "Modo Web"),
     ]
 
-    def __init__(self, source_file: Optional[Path] = None):
+    def __init__(self, source_file: Path | None = None):
         super().__init__()
-        self.source_file: Optional[Path] = source_file
-        self.parsed_doc: Dict[str, Any] = {}
+        self.source_file: Path | None = source_file
+        self.parsed_doc: dict[str, Any] = {}
         self.is_generating = False
 
     # ------------------------------------------------------------------ UI
@@ -186,7 +181,7 @@ class JullEditorTUI(App):
                 return btn.id.replace("th_", "")  # type: ignore[union-attr]
         return cat.theme_codes()[0]
 
-    def _collect_config(self) -> Dict[str, Any]:
+    def _collect_config(self) -> dict[str, Any]:
         mode_set = self.query_one("#modeSet", RadioSet)
         editorial_mode = "magazine"
         for btn in mode_set.children:
@@ -349,7 +344,7 @@ class JullEditorTUI(App):
         if save_res.get("status") == "success":
             log.write(f"[green]✔ Artículo guardado:[/green] {save_res.get('path')}")
 
-    async def _stream_inference(self, prompt: str, cfg: Dict[str, Any], log: RichLog) -> str:
+    async def _stream_inference(self, prompt: str, cfg: dict[str, Any], log: RichLog) -> str:
         payload = {
             "model": cfg["model"],
             "prompt": prompt,
@@ -393,7 +388,7 @@ class JullEditorTUI(App):
         return "".join(chunks)
 
 
-def main(argv: Optional[list] = None) -> int:
+def main(argv: list | None = None) -> int:
     args = argv if argv is not None else sys.argv[1:]
     src = Path(args[0]) if args and Path(args[0]).is_file() else None
     app = JullEditorTUI(source_file=src)

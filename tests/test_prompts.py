@@ -1,5 +1,5 @@
-import pytest
 from backend.prompts import build_generation_prompt
+
 
 def test_build_generation_prompt_structure():
     prompt = build_generation_prompt(

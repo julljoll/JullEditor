@@ -3,9 +3,9 @@ Configuración centralizada de Logging para el Backend de Granite Blog Writer.
 Soporta salida por consola enriquecida y rotación de archivos de log.
 """
 
+import logging
 import os
 import sys
-import logging
 from logging.handlers import RotatingFileHandler
 
 WORKSPACE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
