@@ -358,29 +358,28 @@ class JullEditorTUI(App):
         buf = ""
         timeout_cfg = httpx.Timeout(timeout=600.0, connect=15.0, read=300.0, write=30.0)
         try:
-            async with httpx.AsyncClient(timeout=timeout_cfg) as client:
-                async with client.stream(
-                    "POST", f"{OLLAMA_BASE_URL}/api/generate", json=payload
-                ) as response:
-                    if response.status_code != 200:
-                        log.write(f"[red]✘ Ollama HTTP {response.status_code}[/red]")
-                        return ""
-                    async for line in response.aiter_lines():
-                        if not line:
-                            continue
-                        try:
-                            data = json.loads(line)
-                        except json.JSONDecodeError:
-                            continue
-                        tok = data.get("response", "")
-                        if tok:
-                            chunks.append(tok)
-                            buf += tok
-                            while "\n" in buf:
-                                out, buf = buf.split("\n", 1)
-                                log.write(out)
-                        if data.get("done", False):
-                            break
+            async with httpx.AsyncClient(timeout=timeout_cfg) as client, client.stream(
+                "POST", f"{OLLAMA_BASE_URL}/api/generate", json=payload
+            ) as response:
+                if response.status_code != 200:
+                    log.write(f"[red]✘ Ollama HTTP {response.status_code}[/red]")
+                    return ""
+                async for line in response.aiter_lines():
+                    if not line:
+                        continue
+                    try:
+                        data = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    tok = data.get("response", "")
+                    if tok:
+                        chunks.append(tok)
+                        buf += tok
+                        while "\n" in buf:
+                            out, buf = buf.split("\n", 1)
+                            log.write(out)
+                    if data.get("done", False):
+                        break
         except httpx.HTTPError as exc:
             log.write(f"[red]✘ Error de conexión con Ollama: {exc}[/red]")
         if buf:

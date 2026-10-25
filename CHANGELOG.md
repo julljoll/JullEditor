@@ -6,6 +6,20 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [3.3.1] - 2026-10-25
+
+Incremento de **PATCH** conforme a [SemVer 2.0.0](https://semver.org/lang/es/): correcciones retrocompatibles de calidad y pruebas (ciclo QA completo) sin cambios funcionales ni de API.
+
+### Añadido
+- **Infraestructura QA**: configuración bloqueante de `ruff` (reglas F, E9 + higiene I/UP/B/C4/SIM/RUF) y `mypy` en `pyproject.toml`, con tolerancias documentadas para el pipeline offline-first (degradación elegante si Ollama/fuentes fallan).
+- **`.gitignore` endurecido**: excluye artefactos de QA (`/logs/`, `.coverage`, SVGs transitorios de headers, inputs efímeros de `test_endpoint`) que llegaban a versionarse.
+
+### Corregido
+- **Compatibilidad Python 3.10+**: anotaciones modernizadas (PEP 585/604), eliminación de imports superfluos (F401), variables muertas e imports fuera de orden; validado con `py_compile` total y 64/64 pruebas verdes.
+- **Unificación de ramas**: el trabajo de QA (rama `master` huérfana) se integró en `main` como única rama canónica del proyecto; eliminadas `master` y `qa/testing`.
+
+---
+
 ## [3.3.0] - 2026-10-25
 
 Incremento de **MINOR** conforme a [SemVer 2.0.0](https://semver.org/lang/es/): nueva funcionalidad retrocompatible (Fase 1 del `PLAN_OPTIMIZACION.md` — núcleo 100% Python) sin rupturas de API.

@@ -598,38 +598,37 @@ async def stream_generation_cli(prompt: str, model: str, temperature: float) -> 
     print("=" * 83 + "\n")
 
     timeout_cfg = httpx.Timeout(timeout=600.0, connect=15.0, read=300.0, write=30.0)
-    async with httpx.AsyncClient(timeout=timeout_cfg) as client:
-        async with client.stream(
-            "POST",
-            f"{OLLAMA_BASE_URL}/api/generate",
-            json=payload,
-            headers={"Content-Type": "application/json"},
-        ) as response:
-            if response.status_code != 200:
-                print(f"\n[ERROR] Ollama retornó estado {response.status_code}")
-                return ""
+    async with httpx.AsyncClient(timeout=timeout_cfg) as client, client.stream(
+        "POST",
+        f"{OLLAMA_BASE_URL}/api/generate",
+        json=payload,
+        headers={"Content-Type": "application/json"},
+    ) as response:
+        if response.status_code != 200:
+            print(f"\n[ERROR] Ollama retornó estado {response.status_code}")
+            return ""
 
-            async for line in response.aiter_lines():
-                if not line:
-                    continue
-                try:
-                    data = json.loads(line)
-                    tok = data.get("response", "")
-                    if tok:
-                        sys.stdout.write(tok)
-                        sys.stdout.flush()
-                        full_output.append(tok)
-                    if data.get("done", False):
-                        eval_tokens = data.get("eval_count", 0)
-                        dur_ns = data.get("total_duration", 0)
-                        dur_sec = round(dur_ns / 1e9, 1) if dur_ns else 0
-                        speed = round(eval_tokens / dur_sec, 1) if dur_sec > 0 else 0
-                        print("\n" + "-" * 83)
-                        print(f"[COMPLETADO] Tokens: {eval_tokens} | Tiempo: {dur_sec}s | Velocidad: {speed} tok/s")
-                        print("-" * 83)
-                        break
-                except json.JSONDecodeError:
-                    continue
+        async for line in response.aiter_lines():
+            if not line:
+                continue
+            try:
+                data = json.loads(line)
+                tok = data.get("response", "")
+                if tok:
+                    sys.stdout.write(tok)
+                    sys.stdout.flush()
+                    full_output.append(tok)
+                if data.get("done", False):
+                    eval_tokens = data.get("eval_count", 0)
+                    dur_ns = data.get("total_duration", 0)
+                    dur_sec = round(dur_ns / 1e9, 1) if dur_ns else 0
+                    speed = round(eval_tokens / dur_sec, 1) if dur_sec > 0 else 0
+                    print("\n" + "-" * 83)
+                    print(f"[COMPLETADO] Tokens: {eval_tokens} | Tiempo: {dur_sec}s | Velocidad: {speed} tok/s")
+                    print("-" * 83)
+                    break
+            except json.JSONDecodeError:
+                continue
 
     return "".join(full_output)
 
