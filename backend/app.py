@@ -696,57 +696,56 @@ async def generate_article_stream(req: GenerateRequest, request: Request):
     async def event_generator():
         global active_client
         timeout_cfg = httpx.Timeout(timeout=600.0, connect=10.0, read=300.0, write=30.0)
-        async with generation_semaphore:
-            async with httpx.AsyncClient(timeout=timeout_cfg) as client:
-                active_client = client
-                try:
-                    async with client.stream(
-                        "POST",
-                        f"{OLLAMA_BASE_URL}/api/generate",
-                        json=ollama_payload,
-                        headers={"Content-Type": "application/json"}
-                    ) as response:
-                        if response.status_code != 200:
-                            err_msg = f"Ollama error {response.status_code}: {response.reason_phrase}"
-                            logger.error(err_msg)
-                            yield f"data: {json.dumps({'error': err_msg})}\n\n"
-                            return
+        async with generation_semaphore, httpx.AsyncClient(timeout=timeout_cfg) as client:
+            active_client = client
+            try:
+                async with client.stream(
+                    "POST",
+                    f"{OLLAMA_BASE_URL}/api/generate",
+                    json=ollama_payload,
+                    headers={"Content-Type": "application/json"}
+                ) as response:
+                    if response.status_code != 200:
+                        err_msg = f"Ollama error {response.status_code}: {response.reason_phrase}"
+                        logger.error(err_msg)
+                        yield f"data: {json.dumps({'error': err_msg})}\n\n"
+                        return
 
-                        async for chunk in response.aiter_lines():
-                            # Verificar si el cliente del navegador se desconectó
-                            if await request.is_disconnected():
-                                logger.info("Cliente desconectado de SSE (cancelado o recarga). Deteniendo inferencia en Ollama.")
-                                break
+                    async for chunk in response.aiter_lines():
+                        # Verificar si el cliente del navegador se desconectó
+                        if await request.is_disconnected():
+                            logger.info("Cliente desconectado de SSE (cancelado o recarga). Deteniendo inferencia en Ollama.")
+                            break
 
-                            if chunk:
-                                try:
-                                    parsed = json.loads(chunk)
-                                    response_token = parsed.get("response", "")
-                                    is_done = parsed.get("done", False)
+                        if chunk:
+                            try:
+                                parsed = json.loads(chunk)
+                                response_token = parsed.get("response", "")
+                                is_done = parsed.get("done", False)
                                     
-                                    payload = {
-                                        "token": response_token,
-                                        "done": is_done,
-                                        "total_duration": parsed.get("total_duration", 0),
-                                        "eval_count": parsed.get("eval_count", 0)
-                                    }
-                                    yield f"data: {json.dumps(payload)}\n\n"
+                                payload = {
+                                    "token": response_token,
+                                    "done": is_done,
+                                    "total_duration": parsed.get("total_duration", 0),
+                                    "eval_count": parsed.get("eval_count", 0)
+                                }
+                                yield f"data: {json.dumps(payload)}\n\n"
                                     
-                                    if is_done:
-                                        logger.info(f"Generación SSE finalizada con éxito. Tokens generados: {parsed.get('eval_count', 0)}")
-                                        break
-                                except json.JSONDecodeError:
-                                    continue
-                except (httpx.RequestError, asyncio.CancelledError) as exc:
-                    logger.info(f"Stream cancelado o interrumpido: {exc}")
-                except Exception as e:
-                    logger.error(f"Error en streaming SSE: {e}", exc_info=True)
-                    err_text = str(e)
-                    if "connection" in err_text.lower() or "connect" in err_text.lower():
-                        err_text = f"No se pudo conectar a Ollama en {OLLAMA_BASE_URL}. Inicia el servicio ejecutando 'ollama serve' en una terminal."
-                    yield f"data: {json.dumps({'error': err_text})}\n\n"
-                finally:
-                    active_client = None
+                                if is_done:
+                                    logger.info(f"Generación SSE finalizada con éxito. Tokens generados: {parsed.get('eval_count', 0)}")
+                                    break
+                            except json.JSONDecodeError:
+                                continue
+            except (httpx.RequestError, asyncio.CancelledError) as exc:
+                logger.info(f"Stream cancelado o interrumpido: {exc}")
+            except Exception as e:
+                logger.error(f"Error en streaming SSE: {e}", exc_info=True)
+                err_text = str(e)
+                if "connection" in err_text.lower() or "connect" in err_text.lower():
+                    err_text = f"No se pudo conectar a Ollama en {OLLAMA_BASE_URL}. Inicia el servicio ejecutando 'ollama serve' en una terminal."
+                yield f"data: {json.dumps({'error': err_text})}\n\n"
+            finally:
+                active_client = None
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 

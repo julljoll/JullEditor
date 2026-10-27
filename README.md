@@ -10,7 +10,8 @@
   <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3_(2B%20%7C%208B)-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite 3.3" />
   <img src="https://img.shields.io/badge/Runtime-Ollama_CPU_(0ms_Network)-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama CPU" />
   <img src="https://img.shields.io/badge/Backend-FastAPI_Async_SSE-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Tests-57%2F57_PASSED_(100%25)-00FF41?style=for-the-badge&logo=pytest&logoColor=black" alt="Pytest 57/57" />
+  <img src="https://img.shields.io/badge/Tests-79%2F79_PASSED_(100%25)-00FF41?style=for-the-badge&logo=pytest&logoColor=black" alt="Pytest 79/79" />
+  <img src="https://img.shields.io/badge/Lint-Ruff_%7C_Mypy_VERDE-008726?style=for-the-badge&logo=ruff&logoColor=white" alt="Ruff & Mypy" />
   <img src="https://img.shields.io/badge/Cloud-Google_Colab_%7C_Oracle_Cloud-F80000?style=for-the-badge&logo=googlecolab&logoColor=white" alt="Google Colab & Oracle Cloud" />
   <img src="https://img.shields.io/badge/Jurisdicci%C3%B3n-Venezuela_%F0%9F%87%BB%F0%9F%87%AA-0055A5?style=for-the-badge" alt="Venezuela Legal" />
 </p>
@@ -29,7 +30,7 @@
 9. [Laboratorio de Compatibilidad Sitejet Builder](#-9-laboratorio-de-compatibilidad-sitejet-builder)
 10. [Despliegue en la Nube (Google Colab & Oracle Cloud)](#-10-despliegue-en-la-nube-google-colab--oracle-cloud)
 11. [Preguntas Frecuentes (FAQ)](#-11-preguntas-frecuentes-faq)
-12. [Versionado SemVer](#-12-versionado-semver)
+12. [Versionado SemVer y Publicación de Releases](#-12-versionado-semver-y-publicación-de-releases)
 
 ---
 
@@ -249,6 +250,8 @@ python run.py                    # Servidor web FastAPI + navegador (equivale a 
 python run.py --cli              # Generador interactivo de artículos jurídico-científicos (equivale a crear_articulo.bat)
 python run.py --tui              # Interfaz TUI Textual canónica (v3.4.0): flujo editorial completo en terminal Python
 python run.py --file <ruta.md>   # CLI precargando un documento del corpus
+python run.py --port <puerto>    # Servidor web en un puerto TCP personalizado (por defecto 8000)
+python run.py --no-bootstrap     # Omite el análisis de hardware y la auto-instalación (entornos controlados / CI)
 python run.py --test             # Suite completa de pruebas con pytest
 ```
 El lanzador verificará el entorno, levantará Ollama si no está activo, ejecutará el servidor FastAPI y abrirá automáticamente tu navegador en:  
@@ -266,10 +269,16 @@ Ejecuta desde la raíz del proyecto (100% Python):
 python run.py --test        # o directamente: python -m pytest -v
 ```
 **Resultado esperado:**
-* **48 pruebas pasando (100% verde)** en menos de 3 segundos.
-* Cobertura completa: endpoints de FastAPI, rechazo anti-SSRF, parseo de Docling, perfiles jurídicos de Venezuela, perfil de revista científica arbitrada, tokens dark-only CSS y reglas de impresión.
+* **79 pruebas pasando (100% verde)** en menos de 5 segundos (`pytest`: API, bootstrap, CLI, Docling, prompts, perfiles jurídicos, RAG, sentencias TSJ e integración E2E).
+* Cobertura completa: endpoints de FastAPI, rechazo anti-SSRF, parseo de Docling, auto-instalador según hardware, perfiles jurídicos de Venezuela, perfil de revista científica arbitrada, tokens dark-only CSS y reglas de impresión.
 
-### Paso 2: Comprobar el Endpoint de Salud (Healthcheck)
+### Paso 2: Verificar Calidad Estática (Ruff + Mypy)
+```bash
+python -m ruff check .        # Lint bloqueante: 0 errores
+python -m mypy backend run.py # Tipado estático: sin errores
+```
+
+### Paso 3: Comprobar el Endpoint de Salud (Healthcheck)
 Ejecuta en tu terminal o abre en el navegador:
 ```powershell
 curl http://127.0.0.1:8000/api/health
@@ -289,7 +298,7 @@ curl http://127.0.0.1:8000/api/health
 }
 ```
 
-### Paso 3: Prueba de Generación en Vivo
+### Paso 4: Prueba de Generación en Vivo
 1. Abre `http://127.0.0.1:8000`.
 2. En la pestaña **Pegar Texto**, escribe: *"Análisis de la evidencia digital y el valor probatorio del hash SHA-256 en Venezuela"*.
 3. En el Paso 2, selecciona **Forense & TSJ**.
@@ -310,8 +319,11 @@ curl http://127.0.0.1:8000/api/health
 │   ├── seo_validator.py          # Validador determinista SEO, legibilidad y Schema.org
 │   ├── rag_manager.py            # Gestor RAG, recuperación ponderada e historial inmutable
 │   ├── docling_parser.py         # Parser y extractor limpio de Markdown/JSON de Docling
+│   ├── sentencia_extractor.py    # Extractor de metadatos de sentencias TSJ (expediente, sala, ratio)
 │   ├── scraper.py                # Extractor HTTPX seguro con validación estricta anti-SSRF
 │   ├── image_generator.py        # Generador de cabeceras vectoriales SVG 16:9
+│   ├── system_profiler.py        # Detección de recursos del equipo (CPU/RAM/SO) para calibrar el modelo
+│   ├── bootstrap.py              # Auto-instalación 100% Python: deps, Ollama y Granite según hardware
 │   ├── editorial_catalog.py      # Fuente única de verdad: temas, 12 tonos VE, jurisdicciones y modelos (CLI/TUI/Web/API)
 │   ├── cli_generator.py          # Asistente interactivo del .bat (espejo 1:1 de la GUI, Venezuela exclusivo)
 │   ├── tui_app.py                # Interfaz TUI Textual canónica (python run.py --tui), flujo editorial completo en Python
@@ -344,17 +356,26 @@ curl http://127.0.0.1:8000/api/health
 │           ├── scraper-handler.js    # Controlador de ingesta por URL
 │           ├── article-history.js    # Explorador del historial de artículos RAG
 │           ├── health-check.js       # Monitor de estado de Ollama y Granite
+│           ├── layout-toggle.js      # Conmutación de esquemas visuales del lienzo editorial
+│           ├── toast-notifications.js# Notificaciones no intrusivas del sistema
 │           └── keyboard-shortcuts.js # Atajos de teclado con navegación accesible
 ├── RAG/                          # Memoria persistente local
 │   ├── inputs/                   # Fuentes cargadas respaldadas con timestamp
 │   └── articulos/                # Artículos terminados archivados con YAML Frontmatter
 ├── Informacion_docling_rag/      # 96 documentos normativos indexados (12 categorías jurídicas)
-├── tests/                        # Suite de 48 pruebas automatizadas (pytest)
+├── notebooks/                    # Ejecutables guiados para Google Colab (GPU T4 / CPU)
+├── docker/                       # Compose, Nginx (SSE sin buffering) y systemd para Oracle Cloud
+├── deploy/                       # Guías y scripts de despliegue remoto
+├── tests/                        # Suite de 79 pruebas automatizadas (pytest)
 │   ├── test_api_endpoints.py     # Pruebas de API, SSRF, UI, tokens dark y print styles
 │   ├── test_legal_profiles.py    # Pruebas de perfiles jurídicos, revista científica y glosarios
 │   ├── test_prompts.py           # Pruebas de inyección de prompts y reglas GEO 2026
 │   ├── test_docling_parser.py    # Pruebas de extracción y limpieza Docling
-│   └── test_rag_manager.py       # Pruebas de recuperación RAG y persistencia YAML
+│   ├── test_rag_manager.py       # Pruebas de recuperación RAG y persistencia YAML
+│   ├── test_bootstrap.py         # Pruebas del auto-instalador (deps, Ollama, modelo según RAM)
+│   ├── test_cli_generator.py     # Pruebas del asistente interactivo CLI
+│   ├── test_sentencia_tsj.py     # Pruebas del extractor de metadatos de sentencias TSJ
+│   └── test_integration.py       # Flujos end-to-end con TestClient (degradación sin Ollama)
 ├── logs/                         # Registro histórico de actividad
 ├── requirements.txt              # Requerimientos de Python
 ├── run.py                        # Orquestador 100% Python (web / CLI / tests)
@@ -378,7 +399,7 @@ Para validar la perfecta renderización en **Sitejet Builder** (constructor de s
 
 ## ☁️ 10. Despliegue en la Nube (Google Colab & Oracle Cloud)
 
-Granite Blog Writer v3.3.1 está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
+**JullEditor v3.4.0** está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
 
 ### 🚀 Opción A: Google Colab (Ejecución Instantánea con Aceleración GPU)
 Ideal para redacción de alta velocidad sin consumir recursos locales de tu máquina:
@@ -451,31 +472,42 @@ En áreas técnicas y jurídicas (YMYL), temperaturas mayores a 0.5 aumentan exp
 
 ---
 
-## 🏷️ 12. Versionado SemVer
+## 🏷️ 12. Versionado SemVer y Publicación de Releases
 
-Este proyecto adhiere estrictamente a [Semantic Versioning 2.0.0](https://semver.org/lang/es/): formato `MAJOR.MINOR.PATCH` (con sufijos opcionales `-PRERELEASE` y `+BUILD`). La versión canónica vive en `backend/version.py` (`__version__`) y se propaga automáticamente a FastAPI (`/api/health`, OpenAPI), banner CLI, marca de agua de artículos y `pyproject.toml`.
+Este proyecto adhiere estrictamente a [Semantic Versioning 2.0.0](https://semver.org/lang/es/): formato `MAJOR.MINOR.PATCH` (con sufijos opcionales `-PRERELEASE` y `+BUILD`). La versión canónica vive en `backend/version.py` (`__version__`) y se propaga automáticamente a FastAPI (`/api/health`, OpenAPI), banner CLI, marca de agua de artículos y `pyproject.toml`. El historial completo se mantiene en [`CHANGELOG.md`](CHANGELOG.md) bajo el formato [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
 
-**GitHub muestra la versión actual en el panel derecho del repositorio leyendo las *Tags* y *Releases*.** Para publicar una nueva versión:
+**GitHub muestra la versión actual en el panel derecho del repositorio leyendo las *Tags* y *Releases*.** Checklist de publicación:
 
 ```bash
 # 1. Actualizar backend/version.py y pyproject.toml según SemVer:
 #    - MAJOR: cambios incompatibles de API/arquitectura
-#    - MINOR: funcionalidad retrocompatible (p.ej. paridad CLI/GUI → 3.1.0)
+#    - MINOR: funcionalidad retrocompatible (p.ej. TUI Textual → 3.4.0)
 #    - PATCH: correcciones retrocompatibles
-# 2. Documentar en CHANGELOG.md (formato Keep a Changelog)
-# 3. Etiquetar (la tag debe empezar con "v" + la versión exacta) y subir:
-git commit -am "chore(release): v3.3.1"
-git tag -a v3.3.1 -m "JullEditor v3.3.1 — QA integral: ramas unificadas en main, ruff/mypy verdes, compatibilidad Python 3.10+"
+# 2. Documentar el cambio en CHANGELOG.md (sección nueva arriba)
+# 3. Verificar QA bloqueante antes de etiquetar:
+python run.py --test && python -m ruff check . && python -m mypy backend run.py
+# 4. Etiquetar (la tag debe empezar con "v" + la versión exacta) y subir a main:
+git commit -am "chore(release): v3.4.0"
+git tag -a v3.4.0 -m "JullEditor v3.4.0 — Auto-arranque inteligente bootstrap.py: instala Python, dependencias, Ollama y Granite según hardware; 79/79 tests, ruff/mypy verdes"
 git push origin main --follow-tags
-# 4. (Opcional) Crear Release en GitHub desde esa tag para que aparezca
+# 5. (Opcional) Crear la Release en GitHub desde esa tag para que aparezca
 #    como "Latest" en la página del repositorio.
 ```
 
-> **Actual:** `v3.4.0` (2026-10-25) — Auto-arranque inteligente del `.bat`: analiza la computadora y verifica/instala Python, dependencias, Ollama y descarga el modelo Granite acorde al hardware (8b/2b por RAM); 79/79 tests. Previas: `v3.3.1` — QA integral: ramas unificadas en `main`, ruff/mypy verdes, compatibilidad Python 3.10+. Previas: `v3.3.0` — Fase 1 del plan de optimización: `editorial_catalog.py` como fuente única de verdad (temas, 12 tonos VE, jurisdicciones, modelos) compartida por CLI `.bat`, TUI Textual (`python run.py --tui`), GUI web y API `/api/editorial-options`. Previas: `v3.2.1` — lenguaje unificado a Python (.bat sin lógica); `v3.2.0` — Venezuela exclusivo; `v3.1.0` — versionado SemVer centralizado.
+| Versión | Fecha | Hitos principales |
+|---|---|---|
+| **v3.4.0** *(actual)* | 2026-10-25 | Auto-arranque inteligente (`bootstrap.py`): analiza CPU/RAM/SO e instala Python, dependencias, Ollama y descarga `granite3.3:8b` o `:2b` según la RAM; TUI Textual canónica (`--tui`); suite ampliada a **79/79 tests**. |
+| v3.3.1 | 2026-10-25 | QA integral: ramas unificadas en `main`, `ruff`/`mypy` en verde, compatibilidad Python 3.10+, `.gitignore` endurecido. |
+| v3.3.0 | 2026-10-25 | `editorial_catalog.py` como fuente única de verdad (temas, 12 tonos VE, jurisdicciones y modelos) compartida por CLI, TUI, GUI web y API `/api/editorial-options`. |
+| v3.2.1 | — | Lenguaje unificado a Python: los `.bat` quedan como puentes de 1 clic sin lógica propia. |
+| v3.2.0 | — | Foco exclusivo en jurisdicción Venezuela (perfiles, corpus y glosario forense). |
+| v3.1.0 | — | Versionado SemVer centralizado en `backend/version.py` con propagación automática. |
 
+> El detalle línea por línea de cada versión está en [`CHANGELOG.md`](CHANGELOG.md).
 
 ---
 
 <p align="center">
-  <strong>Desarrollado con arquitectura Cyber-Legal Blueprint · Cumplimiento de estándares periciales, SEO / GEO 2026 y accesibilidad WCAG 2.1 AAA</strong>
+  <strong>Desarrollado con arquitectura Cyber-Legal Blueprint · Cumplimiento de estándares periciales, SEO / GEO 2026 y accesibilidad WCAG 2.1 AAA</strong><br/>
+  <sub>JullEditor v3.4.0 — Estación editorial y pericial 100% local, offline-first y libre de fuga de datos.</sub>
 </p>
