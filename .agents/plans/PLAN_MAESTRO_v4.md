@@ -11,7 +11,7 @@
 **Fecha de creación:** 2026-10-27
 **Versión actual del proyecto:** v3.4.0
 **Versión objetivo:** v4.0.0
-**Repositorio:** `https://github.com/julljoll/Creador-de-Articulos-Blog-con-Granite.git`
+**Repositorio:** `gh repo clone julljoll/JullEditor` (https://github.com/julljoll/JullEditor.git)
 **Rama de trabajo:** `main`
 **Sistema operativo objetivo:** Windows 10/11 (64-bit)
 **Lenguaje exclusivo:** Python ≥ 3.10 (toda lógica propia)
