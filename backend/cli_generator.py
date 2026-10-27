@@ -398,8 +398,8 @@ def prompt_editorial_config(parsed_doc: dict[str, Any], is_tsj: bool) -> dict[st
     print()
     print("🎯 PASO 2/6: ESPECIALIDAD TEMÁTICA")
     print("-----------------------------------------------------------------------------------")
-    theme_default = "1" if is_tsj else "1"
-    print("  [1] 🏛️ Sentencia TSJ / Forense & Jurisprudencia [* Predeterminada]" if is_tsj else "  [1] 🏛️ Sentencia TSJ / Forense & Jurisprudencia [* Predeterminada]")
+    theme_default = "1"
+    print("  [1] 🏛️ Sentencia TSJ / Forense & Jurisprudencia [* Predeterminada]")
     print("  [2] ⚖️ Derecho Digital & LegalTech")
     print("  [3] 🛡️ Ciberseguridad & Evidencia Informática")
     print("  [4] 🧠 Inteligencia Artificial & Datos")

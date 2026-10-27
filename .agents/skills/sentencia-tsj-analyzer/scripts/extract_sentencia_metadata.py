@@ -4,19 +4,18 @@ Diseñado para archivos Markdown generados por IBM Docling / LegalProcessor.
 100% Offline — Heurísticas y Expresiones Regulares sobre la estructura judicial venezolana.
 """
 
+import json
 import os
 import re
-import sys
-import json
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 
-def extract_metadata(text: str, filename: str = "") -> Dict[str, Any]:
+def extract_metadata(text: str, filename: str = "") -> dict[str, Any]:
     """
     Analiza el texto de una sentencia del TSJ y extrae su Ficha Técnica estructurada.
     """
     clean_text = text or ""
-    result: Dict[str, Any] = {
+    result: dict[str, Any] = {
         "sala": "Tribunal Supremo de Justicia",
         "expediente": "",
         "numero_sentencia": "",
@@ -230,7 +229,7 @@ def extract_metadata(text: str, filename: str = "") -> Dict[str, Any]:
             art_num = re.sub(r"\s+", " ", m.group(1)).strip()
             leyes_encontradas.add(f"{label} Art. {art_num}")
 
-    result["leyes_citadas"] = sorted(list(leyes_encontradas))[:12]
+    result["leyes_citadas"] = sorted(leyes_encontradas)[:12]
 
     # 11. CARÁCTER VINCULANTE
     if "vinculante" in clean_text.lower() and ("sala constitucional" in result["sala"].lower() or "artículo 335" in clean_text.lower() or "art. 335" in clean_text.lower()):
@@ -256,11 +255,11 @@ def extract_metadata(text: str, filename: str = "") -> Dict[str, Any]:
     return result
 
 
-def extract_from_file(filepath: str) -> Dict[str, Any]:
+def extract_from_file(filepath: str) -> dict[str, Any]:
     """Carga un archivo .md de sentencia y devuelve sus metadatos extraídos."""
     if not os.path.exists(filepath):
         raise FileNotFoundError(f"Archivo no encontrado: {filepath}")
-    with open(filepath, "r", encoding="utf-8", errors="ignore") as f:
+    with open(filepath, encoding="utf-8", errors="ignore") as f:
         content = f.read()
     filename = os.path.basename(filepath)
     return extract_metadata(content, filename)

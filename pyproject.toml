@@ -42,12 +42,15 @@ exclude = ["Informacion_docling_rag", "Articulos Generados", "Jurisprudencias", 
 select = ["E4", "E7", "E9", "F", "I", "UP", "B", "C4", "SIM", "RUF"]
 ignore = [
     "E501",    # longitud gestionada por formatter, no bloqueante
+    "E701",    # compactación tipo score += N en una línea: estilo deliberado del scoring SEO/RAG
+    "B904",    # raise...from: degradación elegante offline-first prioriza legibilidad del flujo
     "SIM105",  # contextlib.suppress menos legible para este equipo
     "RUF001", "RUF002", "RUF003",  # emojis/unicode en español son intencionales (⚖️📌)
 ]
 
 [tool.ruff.lint.per-file-ignores]
-"tests/*" = ["B011"]
+"tests/*" = ["B011", "E402"]  # imports tras setup de sys.path/codificacion: patron deliberado
+"notebooks/*" = ["E402"]  # celdas de notebook: los imports van por celda, no al inicio
 
 [tool.mypy]
 python_version = "3.10"
