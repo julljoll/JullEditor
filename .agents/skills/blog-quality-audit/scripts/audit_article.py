@@ -5,14 +5,15 @@ Evalúa 25 puntos de control cuantitativos sobre el Markdown generado, verifica
 el cumplimiento del Formato SEO Blog PDF, microdatos Schema.org y legislación venezolana.
 """
 
-import sys
+import argparse
+import json
 import os
 import re
-import json
-import argparse
-from typing import Dict, Any, List
+import sys
+from typing import Any
 
-def audit_article_content(markdown_text: str) -> Dict[str, Any]:
+
+def audit_article_content(markdown_text: str) -> dict[str, Any]:
     """Evalúa el texto Markdown y calcula el puntaje global con desglose detallado."""
     if not markdown_text or len(markdown_text.strip()) < 100:
         return {
@@ -22,7 +23,6 @@ def audit_article_content(markdown_text: str) -> Dict[str, Any]:
         }
         
     points = 0
-    max_points = 100
     details = []
     
     # 1. H1 Único y Extensión (8-12 palabras)
@@ -286,7 +286,7 @@ La seguridad digital es un pilar indispensable para la soberanía tecnológica.
 
     content = ""
     if args.input and os.path.exists(args.input):
-        with open(args.input, "r", encoding="utf-8", errors="ignore") as f:
+        with open(args.input, encoding="utf-8", errors="ignore") as f:
             content = f.read()
     elif args.text:
         content = args.text

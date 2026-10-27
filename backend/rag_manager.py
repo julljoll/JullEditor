@@ -345,10 +345,7 @@ def save_final_article(title: str, markdown_content: str, metadata: dict[str, An
     article_title = title.strip() if title else ""
     if not article_title:
         h1_match = re.search(r"^#\s+(.+)$", cleaned_content, re.MULTILINE)
-        if h1_match:
-            article_title = h1_match.group(1).replace("*", "").strip()
-        else:
-            article_title = "Articulo Blog Granite"
+        article_title = h1_match.group(1).replace("*", "").strip() if h1_match else "Articulo Blog Granite"
             
     # Guardar cada artículo con el nombre del título
     clean_title = sanitize_title_to_filename(article_title)
@@ -704,9 +701,9 @@ def retrieve_legal_context(query_text: str, theme: str = "cybersecurity", top_k:
         if theme == "legal_tech" and "Constitucional" in block.get("area", ""): score += 3
         if theme == "science_tech" and "Telecomunicaciones" in block.get("area", ""): score += 4
         
-        if any(w in query_lower for w in ["dato", "privacidad", "personal", "seguridad", "ciber", "regula", "cadena", "custodia", "evidencia", "forense", "hash", "tsj", "contrato"]):
-            if "Constitucional" in block.get("area", "") or "Delitos" in block.get("norma", "") or "Cadena" in block.get("norma", "") or "Mensajes" in block.get("norma", ""):
-                score += 5
+        if (any(w in query_lower for w in ["dato", "privacidad", "personal", "seguridad", "ciber", "regula", "cadena", "custodia", "evidencia", "forense", "hash", "tsj", "contrato"])
+                and ("Constitucional" in block.get("area", "") or "Delitos" in block.get("norma", "") or "Cadena" in block.get("norma", "") or "Mensajes" in block.get("norma", ""))):
+            score += 5
                 
         scored_blocks.append((score, block))
 

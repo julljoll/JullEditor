@@ -223,7 +223,7 @@ def extract_sentencia_metadata(text: str, filename: str = "") -> dict[str, Any]:
             art_num = re.sub(r"\s+", " ", m.group(1)).strip()
             leyes_encontradas.add(f"{label} Art. {art_num}")
 
-    result["leyes_citadas"] = sorted(list(leyes_encontradas))[:12]
+    result["leyes_citadas"] = sorted(leyes_encontradas)[:12]
 
     # 11. CARÁCTER VINCULANTE
     if "vinculante" in clean_text.lower() and ("sala constitucional" in result["sala"].lower() or "artículo 335" in clean_text.lower() or "art. 335" in clean_text.lower()):
