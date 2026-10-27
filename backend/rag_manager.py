@@ -21,7 +21,12 @@ logger = get_logger("rag_manager")
 
 # Rutas base de persistencia dentro del workspace
 WORKSPACE_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ARTICLES_GENERATED_DIR = os.path.join(WORKSPACE_ROOT, "Articulos Generados")
+# En modo escritorio (Electron) la app se instala en Program Files/PAQUETE y
+# es de solo escritura limitada; JULL_OUTPUT_DIR redirige los artículos a una
+# carpeta de usuario (p. ej. %USERPROFILE%\Documents\JullEditor).
+ARTICLES_GENERATED_DIR = os.environ.get(
+    "JULL_OUTPUT_DIR", os.path.join(WORKSPACE_ROOT, "Articulos Generados")
+)
 RAG_BASE_DIR = ARTICLES_GENERATED_DIR  # Alias de compatibilidad
 RAG_INPUTS_DIR = os.path.join(ARTICLES_GENERATED_DIR, "inputs")
 RAG_ARTICLES_DIR = ARTICLES_GENERATED_DIR  # Guardado directo en "Articulos Generados"

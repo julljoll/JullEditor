@@ -1,0 +1,60 @@
+{
+  "name": "julleditor-desktop",
+  "productName": "JullEditor",
+  "version": "3.4.0",
+  "description": "JullEditor — Generador de artículos legales con IA local (IBM Granite + Ollama). Contenedor Electron para Windows.",
+  "author": "JullEditor",
+  "license": "MIT",
+  "main": "main.js",
+  "scripts": {
+    "dev": "electron . --dev",
+    "start": "electron .",
+    "prepare:python": "powershell -ExecutionPolicy Bypass -File scripts/prepare-python.ps1",
+    "dist": "electron-builder --win",
+    "dist:portable": "electron-builder --win portable"
+  },
+  "devDependencies": {
+    "electron": "^31.3.0",
+    "electron-builder": "^24.13.3"
+  },
+  "dependencies": {
+    "electron-log": "^5.1.7"
+  },
+  "build": {
+    "appId": "com.julleditor.desktop",
+    "productName": "JullEditor",
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "renderer/**"
+    ],
+    "extraResources": [
+      { "from": "../backend", "to": "app/backend", "filter": ["**/*.py", "data/**"] },
+      { "from": "../frontend", "to": "app/frontend" },
+      { "from": "../run.py", "to": "app/run.py" },
+      { "from": "../requirements.txt", "to": "app/requirements.txt" },
+      { "from": "../pyproject.toml", "to": "app/pyproject.toml" },
+      { "from": "../.env.example", "to": "app/.env.example" },
+      { "from": "python", "to": "python" }
+    ],
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        { "target": "nsis", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "deleteAppDataOnUninstall": false,
+      "artifactName": "${productName} Setup ${version}.exe"
+    }
+  }
+}
