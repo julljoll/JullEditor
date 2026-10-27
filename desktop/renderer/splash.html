@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'" />
+  <title>JullEditor — Iniciando</title>
+  <link rel="stylesheet" href="splash.css" />
+</head>
+<body>
+  <div class="drag-region"></div>
+  <header>
+    <div class="logo">⚖️ Jull<span>Editor</span></div>
+    <div class="version">v3.4.0 · Motor local con IBM Granite</div>
+  </header>
+
+  <main>
+    <ol id="steps" class="steps">
+      <li data-state="launched"><span class="dot"></span>Iniciando motor…</li>
+      <li data-state="bootstrapping hardware"><span class="dot"></span>Analizando tu computadora (CPU / RAM)</li>
+      <li data-state="installing_deps"><span class="dot"></span>Instalando dependencias Python</li>
+      <li data-state="installing_ollama"><span class="dot"></span>Instalando Ollama</li>
+      <li data-state="pulling_model"><span class="dot"></span>Descargando modelo IA Granite</li>
+      <li data-state="starting_server bootstrap_done ready"><span class="dot"></span>Abriendo la aplicación</li>
+    </ol>
+
+    <div id="hint" class="hint">Esto puede tardar varios minutos la primera vez (se descargan Ollama y el modelo acorde a tu hardware). No cierres esta ventana.</div>
+
+    <details class="logbox">
+      <summary>Ver detalles técnicos</summary>
+      <pre id="log"></pre>
+    </details>
+  </main>
+
+  <footer>
+    <div id="spinner" class="spinner"></div>
+    <span id="status-text">Conectando con el motor…</span>
+  </footer>
+
+  <script src="splash.js"></script>
+</body>
+</html>

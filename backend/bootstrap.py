@@ -34,6 +34,24 @@ from backend.system_profiler import detect_system_resources
 
 logger = logging.getLogger("app.bootstrap")
 
+# Emisor de estados para el contenedor Electron (se enlaza desde run.py
+# cuando se lanza con --json-status; en CLI puro permanece inactivo).
+_status_emitter = None
+
+
+def set_status_emitter(fn) -> None:
+    """Registra una callable(state, **extra) que emite progreso al shell."""
+    global _status_emitter
+    _status_emitter = fn
+
+
+def _emit(state: str, **extra) -> None:
+    if _status_emitter is not None:
+        try:
+            _status_emitter(state, **extra)
+        except Exception:  # el bootstrap jamás debe tumbar el arranque
+            pass
+
 WORKSPACE_ROOT = Path(__file__).resolve().parent.parent
 REQUIREMENTS_FILE = WORKSPACE_ROOT / "requirements.txt"
 OLLAMA_INSTALLER_URL = "https://ollama.com/download/OllamaSetup.exe"
@@ -75,6 +93,8 @@ def analyze_computer() -> dict:
     print(f"  Tier estimado     : {profile['tier'].upper()}")
     print(f"  Modelo Granite recomendado segun hardware: {profile['recommended_model']}")
     print("=" * 74)
+    _emit("hardware", ram_gb=profile["ram_gb"], cpu_count=profile["cpu_count"],
+          model=profile.get("recommended_model"))
     return profile
 
 
@@ -118,6 +138,7 @@ def ensure_python_dependencies(auto_install: bool = True) -> bool:
     if not auto_install:
         print("[AVISO] Instalacion omitida (--no-bootstrap). Ejecuta: pip install -r requirements.txt")
         return False
+    _emit("installing_deps", packages=missing)
     print("[PASO] Instalando dependencias con pip (esto puede tardar unos minutos)...")
     res = subprocess.run(
         [sys.executable, "-m", "pip", "install", "-r", str(REQUIREMENTS_FILE)],
@@ -240,6 +261,7 @@ def ensure_ollama_installed(auto_install: bool = True) -> bool:
         print("[OK] Ollama esta instalado en el sistema.")
         return True
     print("[INFO] Ollama NO esta instalado en esta computadora.")
+    _emit("installing_ollama")
     if not auto_install:
         print("[AVISO] Auto-instalacion desactivada (--no-bootstrap).")
         return False
@@ -293,6 +315,7 @@ def download_granite_model(recommended: str, base_url: str = "http://localhost:1
     if already:
         print(f"[OK] El modelo '{recommended}' ya esta descargado en Ollama.")
         return True
+    _emit("pulling_model", model=recommended)
     print(f"[PASO] Descargando el modelo acorde a tu hardware: ollama pull {recommended}")
     print("       (peso aproximado: ~5 GB para 8b / ~2 GB para 2b — no cierres esta ventana)")
     try:

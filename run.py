@@ -17,6 +17,7 @@ Uso:
 """
 
 import argparse
+import json
 import os
 import platform
 import socket
@@ -25,6 +26,26 @@ import sys
 import time
 import webbrowser
 from pathlib import Path
+
+# ---------------------------------------------------------------------------
+# Modo desktop (Electron): --json-status hace que cada línea de estado se
+# emita como JSON compacto a stdout, prefijada con el marcador STATUS_JSON:
+# para que el shell Electron la parsee y muestre progreso en el splash.
+# ---------------------------------------------------------------------------
+_JSON_STATUS = False
+
+
+def emit_status(state: str, **extra):
+    """Emite una línea de estado estructurada para el contenedor Electron."""
+    if not _JSON_STATUS:
+        return
+    payload = {"state": state, "ts": round(time.time(), 3)}
+    payload.update(extra)
+    try:
+        sys.stdout.write("STATUS_JSON:" + json.dumps(payload, ensure_ascii=False) + "\n")
+        sys.stdout.flush()
+    except Exception:
+        pass
 
 WORKSPACE_ROOT = Path(__file__).resolve().parent
 DEFAULT_PORT = 8000
@@ -172,32 +193,67 @@ def run_bootstrap(auto_install: bool = True) -> dict:
     analiza la computadora, instala dependencias Python y Ollama si faltan,
     y descarga el modelo Granite acorde al hardware detectado."""
     from backend.bootstrap import run_bootstrap as _bootstrap
-    return _bootstrap(auto_install=auto_install)
+    from backend.bootstrap import set_status_emitter
+    if _JSON_STATUS:
+        set_status_emitter(emit_status)
+    emit_status("bootstrapping")
+    result = _bootstrap(auto_install=auto_install)
+    emit_status("bootstrap_done")
+    return result
 
 
-def run_web(port: int = DEFAULT_PORT, bootstrap: bool = True):
-    """Lanza el servidor web FastAPI con recarga y abre el navegador."""
+def run_web(port: int = DEFAULT_PORT, bootstrap: bool = True, no_browser: bool = False,
+            skip_deps: bool = False):
+    """Lanza el servidor web FastAPI con recarga y abre el navegador.
+
+    no_browser=True suprime webbrowser.open (modo Electron: el shell abre su
+    propia ventana). Con --json-status además emite estados granulares.
+    skip_deps=True omite la verificación pip del bootstrap (el runtime
+    embebido del instalador ya trae las dependencias preinstaladas).
+    """
     print_header("INICIANDO JULL EDITOR v3.4.0 (CYBER-LEGAL LOCAL CPU)")
     ensure_env_file()
     if bootstrap:
-        run_bootstrap()
+        if skip_deps:
+            from backend.bootstrap import set_status_emitter
+            if _JSON_STATUS:
+                set_status_emitter(emit_status)
+            emit_status("bootstrapping", skip_deps=True)
+            # Ollama + modelo sí se verifican; pip se salta (runtime embebido)
+            profile = analyze_computer()
+            profile["deps_ok"] = True
+            from backend.bootstrap import ensure_ollama_installed, ensure_ollama_service_running
+            import os as _os
+            base_url = _os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+            profile["ollama_ok"] = ensure_ollama_installed(True)
+            if profile["ollama_ok"]:
+                profile["ollama_ok"] = ensure_ollama_service_running(base_url)
+            from backend.bootstrap import download_granite_model
+            profile["model_ready"] = False
+            if profile["ollama_ok"]:
+                profile["model_ready"] = download_granite_model(profile["recommended_model"], base_url)
+            emit_status("bootstrap_done")
+        else:
+            run_bootstrap()
     else:
         diagnose_hardware()
         check_ollama_service()
     free_port(port)
 
     # Abrir navegador en segundo plano
-    def open_browser_delayed():
-        time.sleep(1.2)
-        webbrowser.open(f"http://127.0.0.1:{port}")
+    if not no_browser:
+        def open_browser_delayed():
+            time.sleep(1.2)
+            webbrowser.open(f"http://127.0.0.1:{port}")
 
-    import threading
-    threading.Thread(target=open_browser_delayed, daemon=True).start()
+        import threading
+        threading.Thread(target=open_browser_delayed, daemon=True).start()
 
     print("\n=========================================================================")
     print(f"   Servidor Web Activo: http://127.0.0.1:{port}")
     print("   Presiona CTRL+C para detener la aplicación")
     print("=========================================================================\n")
+    emit_status("starting_server", port=port)
 
     cmd = [sys.executable, "-m", "uvicorn", "backend.app:app", "--host", "127.0.0.1", "--port", str(port), "--reload"]
     try:
@@ -214,9 +270,16 @@ def main():
     parser.add_argument("--file", type=str, default=None, help="Ruta de un archivo .md para precargar en el CLI o la web")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Puerto TCP del servidor web (por defecto {DEFAULT_PORT})")
     parser.add_argument("--no-bootstrap", action="store_true", help="Omitir análisis de hardware y auto-instalación de dependencias/Ollama/modelo")
+    parser.add_argument("--no-browser", action="store_true", help="No abrir el navegador automáticamente (modo escritorio/Electron)")
+    parser.add_argument("--json-status", action="store_true", help="Emitir estados de arranque como JSON en stdout (consumido por el shell Electron)")
+    parser.add_argument("--skip-deps", action="store_true", help="Omitir verificación pip del bootstrap (runtime embebido con dependencias preinstaladas)")
 
     args = parser.parse_args()
     bootstrap = not args.no_bootstrap
+
+    global _JSON_STATUS
+    _JSON_STATUS = args.json_status
+    emit_status("launched", port=args.port)
 
     if args.test:
         run_tests()
@@ -235,7 +298,8 @@ def main():
             sys.argv = [sys.argv[0]]
         sys.exit(cli_main())
     else:
-        run_web(port=args.port, bootstrap=bootstrap)
+        run_web(port=args.port, bootstrap=bootstrap, no_browser=args.no_browser,
+                skip_deps=args.skip_deps)
 
 
 if __name__ == "__main__":
