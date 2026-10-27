@@ -54,7 +54,7 @@ def _run_quiet(cmd: list[str] | str, timeout: int = 60) -> subprocess.CompletedP
             cmd, shell=isinstance(cmd, str), capture_output=True, text=True,
             timeout=timeout, creationflags=_creation_flags(),
         )
-    except Exception as e:  # noqa: BLE001 - el bootstrap jamás debe tumbar el arranque
+    except Exception as e:
         logger.debug("Fallo ejecutando %r: %s", cmd, e)
         res = subprocess.CompletedProcess(cmd, returncode=1, stdout="", stderr=str(e))
         return res
@@ -148,7 +148,7 @@ def refresh_ollama_path() -> None:
     el registro ya contiene la ruta pero este proceso no la ve hasta refrescar.
     """
     env_path = os.environ.get("PATH", "")
-    dirs = _windows_ollama_paths() + [str(Path.home() / ".local" / "bin"), "/usr/local/bin"]
+    dirs = [*_windows_ollama_paths(), str(Path.home() / ".local" / "bin"), "/usr/local/bin"]
     additions = [d for d in dirs if d not in env_path]
     if additions:
         os.environ["PATH"] = env_path + os.pathsep + os.pathsep.join(additions)
@@ -176,7 +176,7 @@ def _wait_ollama_ready(base_url: str, seconds: int = 90) -> bool:
 
 def _windows_ollama_paths() -> list[str]:
     """Rutas típicas donde el instalador de Ollama coloca ollama.exe."""
-    program_files = os.environ.get("ProgramFiles", r"C:\Program Files")
+    program_files = os.environ.get("PROGRAMFILES", r"C:\Program Files")
     local_appdata = os.environ.get("LOCALAPPDATA") or str(Path.home() / "AppData" / "Local")
     return [str(Path(local_appdata) / "Programs" / "Ollama"),
             str(Path(program_files) / "Ollama")]

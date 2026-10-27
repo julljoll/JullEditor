@@ -14,7 +14,7 @@ Uso:
 import json
 import sys
 from pathlib import Path
-from typing import Any
+from typing import Any, ClassVar
 
 import httpx
 from textual.app import App, ComposeResult
@@ -90,7 +90,7 @@ class JullEditorTUI(App):
     Select { margin-bottom: 1; }
     """
 
-    BINDINGS = [
+    BINDINGS: ClassVar[list[tuple[str, str, str]]] = [
         ("ctrl+q", "quit", "Salir"),
         ("ctrl+s", "generate", "Generar Artículo"),
         ("ctrl+b", "open_web", "Modo Web"),

@@ -5,12 +5,13 @@ Limpia ruido de copiado/pegado, normaliza caracteres, extrae palabras clave pote
 estima métricas y prepara el payload estructurado para IBM Granite sin requerir conexión a internet.
 """
 
-import sys
+import argparse
+import json
 import os
 import re
-import json
-import argparse
-from typing import Dict, Any, List
+import sys
+from typing import Any
+
 
 def clean_source_text(raw_text: str) -> str:
     """Elimina etiquetas HTML residuales, enlaces rotos, exceso de espacios y ruido común."""
@@ -40,7 +41,7 @@ def clean_source_text(raw_text: str) -> str:
     
     return "\n\n".join(clean_lines)
 
-def extract_metadata(text: str) -> Dict[str, Any]:
+def extract_metadata(text: str) -> dict[str, Any]:
     """Calcula métricas estadísticas y posibles keywords clave de la fuente."""
     words = re.findall(r"\b\w+\b", text.lower())
     word_count = len(words)
@@ -49,7 +50,7 @@ def extract_metadata(text: str) -> Dict[str, Any]:
     stopwords = {
         "de", "la", "que", "el", "en", "y", "a", "los", "del", "se", "las", "por", "un", "para", "con", "no", "una",
         "su", "al", "lo", "como", "más", "pero", "sus", "le", "ya", "o", "este", "sí", "porque", "esta", "son", "entre",
-        "the", "and", "to", "of", "a", "in", "is", "that", "for", "it", "as", "was", "with", "on", "are", "by", "this"
+        "the", "and", "to", "of", "in", "is", "that", "for", "it", "as", "was", "with", "on", "are", "by", "this"
     }
     
     frequency = {}
@@ -75,10 +76,10 @@ def extract_metadata(text: str) -> Dict[str, Any]:
         "is_ready_for_generation": word_count >= 50
     }
 
-def process_input(text_or_path: str) -> Dict[str, Any]:
+def process_input(text_or_path: str) -> dict[str, Any]:
     """Procesa una cadena de texto directa o una ruta a archivo de texto."""
     if os.path.exists(text_or_path):
-        with open(text_or_path, "r", encoding="utf-8", errors="ignore") as f:
+        with open(text_or_path, encoding="utf-8", errors="ignore") as f:
             raw_content = f.read()
     else:
         raw_content = text_or_path
