@@ -92,6 +92,7 @@ def analyze_computer() -> dict:
     print(f"  Memoria RAM       : {profile['ram_gb']} GB")
     print(f"  Tier estimado     : {profile['tier'].upper()}")
     print(f"  Modelo Granite recomendado segun hardware: {profile['recommended_model']}")
+    print(f"  Entorno Virtual   : {'Sí (.venv activo)' if _in_virtualenv() else 'No (sistema global)'}")
     print("=" * 74)
     _emit("hardware", ram_gb=profile["ram_gb"], cpu_count=profile["cpu_count"],
           model=profile.get("recommended_model"))
@@ -99,8 +100,14 @@ def analyze_computer() -> dict:
 
 
 # --------------------------------------------------------------------------
-# 2. Dependencias Python (pip)
+# 2. Dependencias Python (pip y virtualenv)
 # --------------------------------------------------------------------------
+def _in_virtualenv() -> bool:
+    """Detecta si estamos corriendo dentro de un virtualenv."""
+    return (hasattr(sys, "real_prefix") or
+            (hasattr(sys, "base_prefix") and sys.base_prefix != sys.prefix))
+
+
 def _requirement_name(spec: str) -> str | None:
     """Extrae el nombre del paquete de una línea de requirements.txt."""
     line = spec.strip()

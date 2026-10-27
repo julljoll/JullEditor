@@ -42,7 +42,8 @@ class TestRequirementsParser:
 
 class TestOllama:
     def test_is_installed_uses_which(self):
-        with mock.patch.object(b.shutil, "which", return_value=None):
+        with mock.patch.object(b.shutil, "which", return_value=None), \
+             mock.patch.object(b, "_candidate_ollama_paths", return_value=[]):
             assert b.is_ollama_installed() is False
         with mock.patch.object(b.shutil, "which", return_value="/usr/bin/ollama"):
             assert b.is_ollama_installed() is True

@@ -1,10 +1,46 @@
+# Python
 __pycache__/
 *.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+*.egg
+.venv/
+venv/
+env/
+
+# Entorno
 .env
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Logs y caché
 logs/
 *.log
 .coverage
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
 
-# Node
+# Node (desktop shell legacy)
 node_modules/
-.env
+desktop/dist/
+desktop/python/
+
+# Datos generados
+Articulos Generados/
+Jurisprudencias/
+frontend/images/headers/
+
+# RAG vectorial (índice local, regenerable)
+.julleditor_db/
+
+# OS
+Thumbs.db
+.DS_Store
