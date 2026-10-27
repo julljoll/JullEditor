@@ -3,3 +3,10 @@ __pycache__/
 .env
 logs/
 *.log
+
+# Node
+node_modules/
+
+# Logs
+logs/
+*.log

@@ -1,8 +1,0 @@
-[2026-10-27 14:00:48] [INFO] [app] ============================================================
-[2026-10-27 14:00:48] [INFO] [app] JullEditor v3.1.0 — Motor Activo (CPU/GPU)
-[2026-10-27 14:00:48] [INFO] [app] Ollama URL: http://localhost:11434 | Modelo Predeterminado: granite3.3:8b
-[2026-10-27 14:00:48] [INFO] [app] Ventana Contexto: 8192 | Hilos CPU: 4
-[2026-10-27 14:00:48] [INFO] [app] ============================================================
-[2026-10-27 14:00:48] [WARNING] [app] ⚠️ Aviso: Ollama no respondió en http://localhost:11434 durante arranque: All connection attempts failed
-[2026-10-27 14:01:08] [WARNING] [app] Health check: no se pudo conectar a Ollama tras reintento: All connection attempts failed
-[2026-10-27 14:01:13] [INFO] [app] JullEditor v3.1.0 finalizado correctamente.
