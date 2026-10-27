@@ -777,8 +777,8 @@ webview.start()
 
 ### Método 3: Manual (desarrolladores)
 ```powershell
-git clone https://github.com/julljoll/Creador-de-Articulos-Blog-con-Granite.git
-cd Creador-de-Articulos-Blog-con-Granite
+gh repo clone julljoll/JullEditor
+cd JullEditor
 
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
