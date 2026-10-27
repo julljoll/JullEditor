@@ -1,0 +1,76 @@
+[
+  {
+    "area": "Constitucional / Privacidad / Datos",
+    "norma": "Constitución de la República Bolivariana de Venezuela (CRBV - G.O. Nº 5.908 Ext.)",
+    "articulos": [
+      "Artículo 28 (Habeas Data): Toda persona tiene derecho de acceder a la información y a los datos que sobre sí misma o sobre sus bienes consten en registros oficiales o privados, así como a conocer el uso que se haga de los mismos y su finalidad, y a solicitar ante el tribunal competente la actualización, la rectificación o la destrucción de aquellos, si fuesen erróneos o afectasen ilegítimamente sus derechos.",
+      "Artículo 60 (Privacidad e Informática): Toda persona tiene derecho a la protección de su honor, vida privada, intimidad, propia imagen, confidencialidad y reputación. La ley limitará el uso de la informática para garantizar el honor y la intimidad personal y familiar de los ciudadanos y ciudadanas y el pleno ejercicio de sus derechos.",
+      "Artículo 110 (Ciencia y Tecnología): El Estado reconocerá el interés público de la ciencia, la tecnología, el conocimiento, la innovación y sus aplicaciones y los servicios de información necesarios por ser instrumentos fundamentales para el desarrollo económico, social y político del país."
+    ],
+    "keywords": ["datos", "privacidad", "habeas data", "constitucion", "crbv", "intimidad", "honor", "ciencia", "tecnologia", "derecho", "persona"]
+  },
+  {
+    "area": "Ciberseguridad y Delitos Informáticos",
+    "norma": "Ley Especial contra los Delitos Informáticos (Gaceta Oficial Nº 37.313)",
+    "articulos": [
+      "Artículo 6 (Acceso Indebido): Toda persona que sin la debida autorización o excediendo la que hubiere obtenido, acceda, intercepte, interfiera o use un sistema de tecnologías de información, será penada con prisión de uno a cinco años y multa de diez a cincuenta unidades tributarias.",
+      "Artículo 7 (Sabotaje o Daño a Sistemas): El que destruya, dañe, modifique o altere el funcionamiento o los datos de un sistema de tecnologías de información o sus componentes, será penado con prisión de cuatro a ocho años.",
+      "Artículo 11 (Espionaje Informático): El que indebidamente obtenga, revele o difunda la data o información contenidas en un sistema que utilice tecnologías de información...",
+      "Artículo 14 (Fraude Informático): El que a través del uso indebido de tecnologías de información procure para sí o para otro un provecho injusto...",
+      "Artículo 20 (Violación de la Privacidad de la Data o Información): El que por cualquier medio se apodere, copie, utilice, modifique o destruya la data o información de carácter personal que no le pertenezca o que no esté autorizada para ello...",
+      "Artículo 21 (Acceso Indebido a Data Reservada): Quien indebidamente acceda a información confidencial o reservada...",
+      "Artículo 22 (Revelación Indebida de Data Personal): El que indebidamente revele o difunda información personal obtenida en el ejercicio de sus funciones."
+    ],
+    "keywords": ["ciberseguridad", "delitos informaticos", "acceso indebido", "sabotaje", "espionaje", "fraude", "hacker", "ataque", "vulnerabilidad", "privacidad de la data", "data personal"]
+  },
+  {
+    "area": "Gobierno Digital e Interoperabilidad",
+    "norma": "Ley de Infogobierno (Gaceta Oficial Nº 40.274)",
+    "articulos": [
+      "Artículo 1 (Objeto): Establecer los principios, bases y lineamientos que rigen el uso de las tecnologías de información en el Poder Público y el Poder Popular, para mejorar la gestión pública y los servicios que se prestan a las personas.",
+      "Artículo 34 (Soberanía y Seguridad de Datos): El Poder Público debe garantizar la seguridad de la información y la protección de los datos bajo su custodia, promoviendo estándares abiertos e interoperabilidad tecnológica bajo la rectoría del Centro Nacional de Tecnologías de Información (CNTI) y SUSCERTE."
+    ],
+    "keywords": ["infogobierno", "cnti", "gobierno digital", "soberania", "poder publico", "interoperabilidad", "software libre", "tecnologias libres", "estado"]
+  },
+  {
+    "area": "Comercio Electrónico y Firma Digital",
+    "norma": "Ley sobre Mensajes de Datos y Firmas Electrónicas (Gaceta Oficial Nº 37.148)",
+    "articulos": [
+      "Artículo 4 (Equivalencia Funcional): Los mensajes de datos tendrán la misma eficacia, valor y efectos jurídicos que los actos otorgados por escrito en soporte de papel.",
+      "Artículo 6 (Eficacia Probatoria): La información contenida en un mensaje de datos reproducida en formato impreso tendrá la misma eficacia probatoria atribuida a las copias.",
+      "Artículo 16 (Firma Electrónica Certificada): La Firma Electrónica que cuente con certificado emitido por un Proveedor de Servicios de Certificación acreditado ante SUSCERTE surtirá los mismos efectos que la firma autógrafa."
+    ],
+    "keywords": ["firma electronica", "mensaje de datos", "contrato digital", "validez probatoria", "suscerte", "comercio electronico", "certificacion digital", "autenticidad"]
+  },
+  {
+    "area": "Cadena de Custodia e Informática Forense",
+    "norma": "Manual Único de Cadena de Custodia de Evidencias (MP/CICPC) y COPP",
+    "articulos": [
+      "COPP Artículo 187: La cadena de custodia es la garantía legal que corrobora la autenticidad y preservación de las evidencias físicas y digitales desde su fijación hasta el juicio.",
+      "COPP Artículo 223: Práctica de experticias e informes periciales técnicos para la valoración judicial de pruebas.",
+      "Manual Único de Cadena de Custodia: Procedimiento estricto para identificación, fijación, clonación bit a bit (forense), cálculo de hashes (MD5, SHA-256) y preservación inmutable de evidencia digital.",
+      "Decreto CENIF (G.O. 39.847): Centro Nacional de Informática Forense como ente pericial rector."
+    ],
+    "keywords": ["cadena de custodia", "evidencia digital", "forense", "peritaje", "copp", "cicpc", "ministerio publico", "cenif", "hash", "sha256", "clonacion", "juicio", "prueba"]
+  },
+  {
+    "area": "Telecomunicaciones e Innovación",
+    "norma": "Ley Orgánica de Telecomunicaciones (LOTEL) y LOCTI",
+    "articulos": [
+      "LOTEL (G.O. 39.610): Regulación del espectro radioeléctrico, redes de datos y telecomunicaciones por Conatel.",
+      "LOCTI: Fomento de la investigación, ciencia, tecnología e innovación en el sector productivo venezolano."
+    ],
+    "keywords": ["telecomunicaciones", "lotel", "conatel", "locti", "fibra optica", "conectividad", "redes", "innovacion"]
+  },
+  {
+    "area": "Estándares Forenses y Seguridad Internacional Autorizados",
+    "norma": "Estándares ISO/IEC, NIST y RFC Incorporados a la Doctrina Pericial Venezolana",
+    "articulos": [
+      "ISO/IEC 27037:2012: Directrices para el tratamiento, identificación, recolección, adquisición y preservación de evidencia digital.",
+      "ISO/IEC 27001 / 27002: Controles y sistemas de gestión de seguridad de la información.",
+      "RFC 3227: Guías para la recolección y archivo de evidencia volátil (orden de volatilidad: registros, RAM, conexiones activas, disco duro).",
+      "NIST SP 800-86: Guía para la integración de técnicas forenses en respuesta a incidentes."
+    ],
+    "keywords": ["iso 27037", "iso 27001", "nist", "rfc 3227", "volatilidad", "estandar", "forense internacional", "mejores practicas"]
+  }
+]
