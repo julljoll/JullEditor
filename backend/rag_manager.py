@@ -690,6 +690,45 @@ def retrieve_legal_context(query_text: str, theme: str = "cybersecurity", top_k:
         rag_output.append("================================================================================\n")
         return "\n".join(rag_output)
 
+    # 0. Intento con LegalVectorStore indexado (Fase 2)
+    try:
+        from backend.rag.vector_store import LegalVectorStore
+        vs = LegalVectorStore()
+        if vs.is_indexed() and jurisdiction == "ve":
+            vector_matches = vs.search(query_text, top_k=top_k)
+            if vector_matches:
+                rag_output = []
+                rag_output.append("================================================================================")
+                rag_output.append("📚 CORPUS JURÍDICO VENEZOLANO AUTORIZADO (RAG VECTORIAL HÍBRIDO)")
+                rag_output.append("================================================================================")
+                rag_output.append("IMPORTANTE: Para fundamentar jurídicamente el artículo, DEBES utilizar EXCLUSIVAMENTE")
+                rag_output.append("los siguientes artículos y leyes reales de Venezuela recuperados de la base de datos local:\n")
+
+                for i, vm in enumerate(vector_matches, 1):
+                    meta = vm.get("metadata", {})
+                    law_title = meta.get("law_name") or meta.get("source", "Normativa")
+                    art_num = meta.get("article_number", "")
+                    art_label = f"Artículo {art_num}" if art_num and art_num != "N/A" else "Disposición"
+                    rag_output.append(f"### Fuente Legal #{i}: {law_title} ({meta.get('category', 'General')}) — {art_label}")
+                    rag_output.append(f"  • {vm.get('text', '')[:500]}...")
+                    rag_output.append("")
+
+                rag_output.append("--------------------------------------------------------------------------------")
+                rag_output.append("🛡️ ADVERTENCIA ESTRICTA CONTRA ALUCINACIÓN DE LEYES (REGLA INQUEBRANTABLE):")
+                rag_output.append("1. EN VENEZUELA NO EXISTE una 'Ley Orgánica de Protección de Datos Personales'.")
+                rag_output.append("   La tutela de la privacidad y los datos en Venezuela se fundamenta EXCLUSIVAMENTE en:")
+                rag_output.append("   - Artículos 28 (Habeas Data) y 60 (Privacidad) de la Constitución (CRBV).")
+                rag_output.append("   - Artículos 20, 21 y 22 de la Ley Especial contra los Delitos Informáticos (G.O. Nº 37.313).")
+                rag_output.append("   - Ley de Infogobierno (G.O. Nº 40.274, Art. 34).")
+                rag_output.append("   - Ley sobre Mensajes de Datos y Firmas Electrónicas (G.O. Nº 37.148).")
+                rag_output.append("2. QUEDA TERMINANTEMENTE PROHIBIDO inventar o citar una 'Ley Orgánica de Protección de Datos Personales'.")
+                rag_output.append("3. Si comparas con regulaciones internacionales (como GDPR europeo o NIST), aclara expresamente")
+                rag_output.append("   que son normas foráneas de referencia comparada y cita las normas venezolanas aplicables.")
+                rag_output.append("================================================================================\n")
+                return "\n".join(rag_output)
+    except Exception:
+        pass
+
     corpus = load_legal_corpus()
     scored_blocks = []
     for block in corpus:

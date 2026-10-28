@@ -13,7 +13,7 @@ esta constante debe mantenerse sincronizada con el tag etiquetado (v{VERSION}).
 
 # Componentes individuales según SemVer 2.0.0
 MAJOR = 3
-MINOR = 5
+MINOR = 6
 PATCH = 0
 PRERELEASE = None  # p.ej. "rc.1"
 BUILD_META = None  # p.ej. "build.20261025"

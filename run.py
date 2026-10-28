@@ -262,9 +262,24 @@ def run_web(port: int = DEFAULT_PORT, bootstrap: bool = True, no_browser: bool =
         print("\n[OK] Servidor JullEditor detenido correctamente.")
 
 
+def run_indexing():
+    """Indexa todo Informacion_docling_rag/ en .julleditor_db/."""
+    print("=========================================================================")
+    print("  INDEXACIÓN VECTORIAL & HÍBRIDA DEL CORPUS JURÍDICO VENEZOLANO (RAG)")
+    print("=========================================================================")
+    from backend.rag.vector_store import LegalVectorStore
+    corpus_path = WORKSPACE_ROOT / "Informacion_docling_rag"
+    vs = LegalVectorStore(persist_dir=WORKSPACE_ROOT / ".julleditor_db")
+    print(f"[INFO] Procesando archivos en {corpus_path}...")
+    count = vs.index_corpus(corpus_path)
+    print(f"[OK] {count:,} fragmentos normativos indexados exitosamente en .julleditor_db/")
+    print("=========================================================================\n")
+
+
 def main():
     parser = argparse.ArgumentParser(description="JullEditor — Orquestador 100% Python")
     parser.add_argument("--test", action="store_true", help="Ejecutar la suite de pruebas unitarias y de integración")
+    parser.add_argument("--index", action="store_true", help="(Re)construir el índice vectorial del corpus jurídico")
     parser.add_argument("--cli", action="store_true", help="Ejecutar el generador interactivo por terminal (modo Sentencia TSJ)")
     parser.add_argument("--tui", action="store_true", help="Interfaz TUI Textual (canónica v3.3+): flujo editorial completo en Python")
     parser.add_argument("--file", type=str, default=None, help="Ruta de un archivo .md para precargar en el CLI o la web")
@@ -283,6 +298,9 @@ def main():
 
     if args.test:
         run_tests()
+    elif args.index:
+        run_indexing()
+        sys.exit(0)
     elif args.tui:
         if bootstrap:
             run_bootstrap()
