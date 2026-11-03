@@ -263,6 +263,55 @@ export function initWordPressExporter(state) {
     });
   }
 
+  const btnCopyAstro = document.getElementById("btnCopyAstro");
+  const btnDownloadAstro = document.getElementById("btnDownloadAstro");
+
+  if (btnCopyAstro) {
+    btnCopyAstro.addEventListener("click", async () => {
+      if (!state.currentRawMarkdown) {
+        toast.warning("No hay contenido para exportar a Astro.");
+        return;
+      }
+      try {
+        const previewTitle = document.getElementById("previewTitle");
+        const sourceTitle = document.getElementById("sourceTitle");
+        const title = (sourceTitle && sourceTitle.value) || (previewTitle && previewTitle.innerText) || "articulo-blog";
+        const resp = await fetch(`/api/export/astro/${encodeURIComponent(title)}`);
+        let textToCopy = "";
+        if (resp.ok) {
+          const data = await resp.json();
+          textToCopy = data.content;
+        } else {
+          textToCopy = state.currentRawMarkdown;
+        }
+        await navigator.clipboard.writeText(textToCopy);
+        toast.success("🚀 Artículo Astro-ready copiado al portapapeles.");
+      } catch (err) {
+        await navigator.clipboard.writeText(state.currentRawMarkdown);
+        toast.info("Markdown copiado al portapapeles.");
+      }
+    });
+  }
+
+  if (btnDownloadAstro) {
+    btnDownloadAstro.addEventListener("click", () => {
+      if (!state.currentRawMarkdown) {
+        toast.warning("No hay contenido para descargar.");
+        return;
+      }
+      const previewTitle = document.getElementById("previewTitle");
+      const sourceTitle = document.getElementById("sourceTitle");
+      const title = (sourceTitle && sourceTitle.value) || (previewTitle && previewTitle.innerText) || "articulo-blog";
+      const a = document.createElement("a");
+      a.href = `/api/export/astro/${encodeURIComponent(title)}?download=true`;
+      a.download = "articulo-astro.md";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      toast.success("Descargando Markdown para Astro...");
+    });
+  }
+
   if (btnDownloadSelectedImage) {
     btnDownloadSelectedImage.addEventListener("click", () => {
       if (!state.currentBannerUrl) {

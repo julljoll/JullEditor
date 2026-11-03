@@ -27,7 +27,9 @@ from backend.legal_profiles import resolve_jurisdiction
 from backend.legal_validator import audit_legal_quality
 from backend.logger_config import get_logger
 from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
+from backend.exporters.astro_exporter import export_as_astro_md, slugify_astro
 from backend.rag_manager import (
+    ASTRO_READY_DIR,
     get_article_content,
     list_articles_history,
     retrieve_legal_context,
@@ -491,6 +493,77 @@ async def get_single_article(filename: str):
         "filename": filename,
         "content": content
     }
+
+@app.get("/api/export/astro/list")
+async def list_astro_articles_endpoint():
+    """Lista todos los artículos disponibles en formato Astro Markdown."""
+    try:
+        os.makedirs(ASTRO_READY_DIR, exist_ok=True)
+        files = [f for f in os.listdir(ASTRO_READY_DIR) if f.endswith(".md")]
+        return {
+            "status": "success",
+            "articles": files,
+            "count": len(files),
+            "directory": ASTRO_READY_DIR,
+        }
+    except Exception as e:
+        logger.error(f"Error listando artículos Astro: {e}")
+        raise HTTPException(status_code=500, detail=f"Error listando artículos Astro: {e!s}")
+
+@app.get("/api/export/astro/{slug}")
+async def get_astro_article_endpoint(slug: str, download: bool = False):
+    """
+    Obtiene o genera bajo demanda el archivo .md compatible con Astro Framework.
+    Soporta descarga directa (?download=true) o retorno en JSON para copiar en el portapapeles.
+    """
+    try:
+        clean_s = slugify_astro(slug.replace(".md", ""))
+        target_name = f"{clean_s}.md"
+        astro_path = os.path.join(ASTRO_READY_DIR, target_name)
+
+        astro_content = None
+        if os.path.exists(astro_path):
+            with open(astro_path, encoding="utf-8") as f:
+                astro_content = f.read()
+        else:
+            # Fallback dinámico: buscar en artículos existentes y convertir on-the-fly
+            raw_content = get_article_content(slug) or get_article_content(f"{slug}.md")
+            if not raw_content and slug != clean_s:
+                raw_content = get_article_content(clean_s) or get_article_content(f"{clean_s}.md")
+
+            if raw_content:
+                astro_content = export_as_astro_md(
+                    title=clean_s.replace("-", " ").title(),
+                    markdown_content=raw_content,
+                    metadata={"slug": clean_s},
+                )
+                # Persistir para futuras solicitudes
+                os.makedirs(ASTRO_READY_DIR, exist_ok=True)
+                with open(astro_path, "w", encoding="utf-8") as f:
+                    f.write(astro_content)
+
+        if not astro_content:
+            raise HTTPException(status_code=404, detail=f"Artículo '{slug}' no encontrado en formato Astro")
+
+        if download:
+            return FileResponse(
+                path=astro_path,
+                media_type="text/markdown",
+                filename=target_name,
+                headers={"Content-Disposition": f'attachment; filename="{target_name}"'},
+            )
+
+        return {
+            "status": "success",
+            "slug": clean_s,
+            "filename": target_name,
+            "content": astro_content,
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error obteniendo exportación Astro para '{slug}': {e}")
+        raise HTTPException(status_code=500, detail=f"Error en exportación Astro: {e!s}")
 
 PRELOADED_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "preloaded.json")
 

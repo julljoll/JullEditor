@@ -31,6 +31,7 @@ RAG_BASE_DIR = ARTICLES_GENERATED_DIR  # Alias de compatibilidad
 RAG_INPUTS_DIR = os.path.join(ARTICLES_GENERATED_DIR, "inputs")
 RAG_ARTICLES_DIR = ARTICLES_GENERATED_DIR  # Guardado directo en "Articulos Generados"
 LEGACY_ARTICLES_DIR = os.path.join(ARTICLES_GENERATED_DIR, "articulos")
+ASTRO_READY_DIR = os.path.join(ARTICLES_GENERATED_DIR, "astro_ready")
 DOCLING_RAG_DIR = os.path.join(WORKSPACE_ROOT, "Informacion_docling_rag")
 LEGAL_CORPUS_JSON = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "legal_corpus_ve.json")
 
@@ -43,6 +44,7 @@ def ensure_rag_directories():
     os.makedirs(ARTICLES_GENERATED_DIR, exist_ok=True)
     os.makedirs(RAG_INPUTS_DIR, exist_ok=True)
     os.makedirs(LEGACY_ARTICLES_DIR, exist_ok=True)
+    os.makedirs(ASTRO_READY_DIR, exist_ok=True)
 
 def sanitize_title_to_filename(title: str, max_length: int = 140) -> str:
     """
@@ -404,6 +406,28 @@ def save_final_article(title: str, markdown_content: str, metadata: dict[str, An
         with open(target_path_html, "w", encoding="utf-8") as f:
             f.write(html_content)
             
+        # 3. Guardar versión Astro-ready (.md)
+        astro_filename = None
+        relative_path_astro = None
+        target_path_astro = None
+        try:
+            from backend.exporters.astro_exporter import export_as_astro_md, slugify_astro
+            astro_slug = slugify_astro(article_title)
+            astro_filename = f"{astro_slug}.md"
+            target_path_astro = os.path.join(ASTRO_READY_DIR, astro_filename)
+            astro_content = export_as_astro_md(
+                title=article_title,
+                markdown_content=cleaned_content,
+                metadata=meta,
+                author=meta.get("author", "Jull Editor"),
+            )
+            with open(target_path_astro, "w", encoding="utf-8") as f:
+                f.write(astro_content)
+            relative_path_astro = os.path.relpath(target_path_astro, WORKSPACE_ROOT)
+            logger.info(f"Artículo Astro-ready exportado: {relative_path_astro}")
+        except Exception as e_astro:
+            logger.warning(f"Exportación opcional a formato Astro omitida por error: {e_astro}")
+
         relative_path_md = os.path.relpath(target_path_md, WORKSPACE_ROOT)
         relative_path_html = os.path.relpath(target_path_html, WORKSPACE_ROOT)
         logger.info(f"Artículo final guardado en Articulos Generados: {relative_path_md} y {relative_path_html}")
@@ -415,6 +439,9 @@ def save_final_article(title: str, markdown_content: str, metadata: dict[str, An
             "html_path": relative_path_html.replace("\\", "/"),
             "absolute_path": target_path_md,
             "absolute_html_path": target_path_html,
+            "astro_filename": astro_filename,
+            "astro_path": relative_path_astro.replace("\\", "/") if relative_path_astro else None,
+            "absolute_astro_path": target_path_astro,
             "title": article_title,
             "word_count": word_count,
             "saved_at": now.isoformat()
