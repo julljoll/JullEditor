@@ -20,11 +20,6 @@ export function initKeyboardShortcuts(callbacks) {
 
     // Escape: Cerrar modales o detener generación
     if (e.key === "Escape") {
-      const sitejetModal = document.getElementById("sitejetSeoKitModal");
-      if (sitejetModal && sitejetModal.classList.contains("modal-show")) {
-        sitejetModal.classList.remove("modal-show");
-        return;
-      }
       const shortcutsModal = document.getElementById("shortcutsModal");
       if (shortcutsModal && shortcutsModal.classList.contains("modal-show")) {
         shortcutsModal.classList.remove("modal-show");
@@ -36,30 +31,12 @@ export function initKeyboardShortcuts(callbacks) {
       return;
     }
 
-    // Atajos globales con Ctrl+Shift
+    // Atajos globales con Ctrl+Shift (Solo Markdown .MD — WordPress/HTML/Sitejet eliminados)
     if ((e.ctrlKey || e.metaKey) && e.shiftKey) {
-      if (e.key === "S" || e.key === "s") {
-        e.preventDefault();
-        const btnCopySj = document.getElementById("btnCopySitejet");
-        if (btnCopySj) btnCopySj.click();
-        return;
-      }
-      if (e.key === "K" || e.key === "k") {
-        e.preventDefault();
-        const btnSjKit = document.getElementById("btnSitejetKit");
-        if (btnSjKit) btnSjKit.click();
-        return;
-      }
       if (e.key === "C" || e.key === "c") {
         e.preventDefault();
-        const btnCopyWp = document.getElementById("btnCopyWordPress");
-        if (btnCopyWp) btnCopyWp.click();
-        return;
-      }
-      if (e.key === "H" || e.key === "h") {
-        e.preventDefault();
-        const btnCopyHtml = document.getElementById("btnCopyRawHtml");
-        if (btnCopyHtml) btnCopyHtml.click();
+        const btnCopyMd = document.getElementById("btnCopyMarkdown");
+        if (btnCopyMd) btnCopyMd.click();
         return;
       }
       if (e.key === "M" || e.key === "m") {
@@ -97,12 +74,9 @@ export function initKeyboardShortcuts(callbacks) {
           <table style="width:100%; font-size:0.85rem;">
             <tr><td><kbd>Ctrl</kbd> + <kbd>Enter</kbd></td><td>Redactar Artículo</td></tr>
             <tr><td><kbd>Escape</kbd></td><td>Detener Inferencia</td></tr>
-            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td>Copiar para WordPress (Estilos Inline)</td></tr>
-            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd></td><td>Copiar Código HTML Puro</td></tr>
-            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd></td><td>Copiar para Sitejet Builder</td></tr>
-            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd></td><td>Abrir Kit SEO Sitejet</td></tr>
+            <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd></td><td>Copiar Markdown (.MD)</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd></td><td>Copiar Markdown (.MD)</td></tr>
-            <tr><td><kbd>Ctrl</kbd> + <kbd>1</kbd> / <kbd>2</kbd> / <kbd>3</kbd></td><td>Pestaña Revista / Markdown / WordPress</td></tr>
+            <tr><td><kbd>Ctrl</kbd> + <kbd>1</kbd> / <kbd>2</kbd></td><td>Pestaña Revista / Markdown</td></tr>
             <tr><td><kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd></td><td>Seguir generación (auto-scroll)</td></tr>
             <tr><td><kbd>?</kbd></td><td>Mostrar esta ayuda</td></tr>
           </table>

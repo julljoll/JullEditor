@@ -1,7 +1,7 @@
 /**
  * Granite Cyber-Legal Blog Generator — Orquestador Principal ES6
  * Integra módulos especializados para Ingesta Docling, Scraping, Streaming SSE,
- * Auditoría SEO Top-Tier 2026, Exportación WordPress, Historial y Atajos.
+ * Auditoría SEO Top-Tier 2026, Exportación Markdown (.MD), Historial y Atajos.
  */
 
 import { toast } from "./modules/toast-notifications.js";
@@ -10,8 +10,7 @@ import { initDoclingHandler } from "./modules/docling-handler.js";
 import { initScraperHandler } from "./modules/scraper-handler.js";
 import { renderArticle } from "./modules/markdown-renderer.js";
 import { updateSeoAudit, runBackendSeoAudit } from "./modules/seo-audit.js";
-import { initWordPressExporter } from "./modules/wordpress-exporter.js";
-import { initSitejetExporter } from "./modules/sitejet-exporter.js";
+import { initMarkdownExporter } from "./modules/markdown-exporter.js";
 import { initArticleHistory } from "./modules/article-history.js";
 import { initKeyboardShortcuts } from "./modules/keyboard-shortcuts.js";
 import { initArticleGenerator } from "./modules/article-generator.js";
@@ -175,11 +174,8 @@ document.addEventListener("DOMContentLoaded", () => {
   // 5. Inicializar Scraper Handler
   initScraperHandler(state);
 
-  // 6. Inicializar Exportador de WordPress, Markdown, HTML
-  initWordPressExporter(state);
-
-  // 6.1 Inicializar Exportador Especializado para Sitejet Builder (Namecheap)
-  initSitejetExporter(state);
+  // 6. Inicializar Exportador SOLO Markdown (.MD) — WordPress/HTML/Sitejet eliminados
+  initMarkdownExporter(state);
 
   // 7. Inicializar Historial de Artículos
   const historyModule = initArticleHistory(state);

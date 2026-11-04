@@ -402,7 +402,6 @@
         <div class="preview-tabs" role="tablist">
           <button type="button" class="preview-tab active" data-tab="magazine" role="tab" aria-selected="true" title="Vista Revista Digital (3 Columnas)">Revista</button>
           <button type="button" class="preview-tab" data-tab="markdown" role="tab" aria-selected="false" title="Vista de Código Markdown Puro">Markdown</button>
-          <button type="button" class="preview-tab" data-tab="wordpress" role="tab" aria-selected="false" title="Vista Preliminar Exportación WordPress Gutenberg">WordPress</button>
         </div>
 
         <!-- Selector de Dispositivos Responsive -->
@@ -426,24 +425,15 @@
 
         <div style="flex: 1;"></div>
 
-        <!-- Botón Split Accesible "Copiar ▾" con Menú Desplegable -->
+        <!-- Botón Split Accesible "Copiar ▾" con Menú Desplegable (Solo Markdown .MD) -->
         <div class="btn-copy-split">
-          <button id="btnCopyWordPress" class="btn btn-primary btn-sm btn-main" title="Copiar todo el artículo con estilos para pegar directamente en WordPress Gutenberg (Ctrl+Shift+C)">
-            <span class="material-symbols-outlined">content_paste_go</span> Copiar
+          <button id="btnCopyMarkdown" class="btn btn-primary btn-sm btn-main" title="Copiar el artículo en Markdown al portapapeles (Ctrl+Shift+C)">
+            <span class="material-symbols-outlined">content_paste_go</span> Copiar .MD
           </button>
           <button type="button" id="btnCopySplitChevron" class="btn-chevron" aria-haspopup="menu" aria-expanded="false" title="Opciones de copia y exportación">
             ▼
           </button>
           <div id="dropdownMenuCopy" class="dropdown-menu-dark" role="menu">
-            <button type="button" id="btnCopySitejet" class="dropdown-item" role="menuitem" title="Copiar optimizado para Sitejet Builder de Namecheap (Ctrl+Shift+S)">
-              <span class="material-symbols-outlined">content_paste_go</span> Copiar p/ Sitejet
-            </button>
-            <button type="button" id="btnCopyRawHtml" class="dropdown-item" role="menuitem" title="Copiar código HTML estructurado y autónomo con estilos embebidos (Ctrl+Shift+H)">
-              <span class="material-symbols-outlined">code</span> Copiar Código HTML
-            </button>
-            <button type="button" id="btnSitejetKit" class="dropdown-item" role="menuitem" title="Abrir Kit SEO & Schema para Sitejet Builder (Ctrl+Shift+K)">
-              <span class="material-symbols-outlined">rocket_launch</span> Kit SEO Sitejet
-            </button>
             <button type="button" id="btnCopy" class="dropdown-item" role="menuitem" title="Copiar Markdown al portapapeles (Ctrl+Shift+M)">
               <span class="material-symbols-outlined">content_copy</span> Markdown (.MD)
             </button>
@@ -453,15 +443,12 @@
             <button type="button" id="btnDownloadAstro" class="dropdown-item" role="menuitem" title="Descargar archivo Markdown en 3 columnas listo para Astro Framework">
               <span class="material-symbols-outlined">download</span> Descargar Astro (.MD)
             </button>
-            <button type="button" id="btnDownloadHtml" class="dropdown-item" role="menuitem" title="Descargar archivo HTML limpio">
-              <span class="material-symbols-outlined">html</span> Descargar .HTML
+            <button type="button" id="btnDownloadMarkdown" class="dropdown-item" role="menuitem" title="Descargar archivo Markdown puro (.MD)">
+              <span class="material-symbols-outlined">description</span> Descargar .MD
             </button>
             <button type="button" id="btnDownloadSelectedImage" class="dropdown-item" role="menuitem" style="display:none;" title="Descargar imagen extraída de la fuente">
               <span class="material-symbols-outlined">download_for_offline</span> Descargar Imagen
             </button>
-            <a href="sitejet-lab.html" target="_blank" class="dropdown-item" role="menuitem" title="Abrir Laboratorio de Calibración Sitejet Builder">
-              <span class="material-symbols-outlined">biotech</span> Lab Sitejet
-            </a>
             <button type="button" id="btnPrint" class="dropdown-item" role="menuitem" title="Imprimir en formato pericial oficio (Ctrl+Shift+P)">
               <span class="material-symbols-outlined">print</span> Imprimir (Ctrl+P)
             </button>
@@ -502,9 +489,6 @@
 
         <!-- Vista Markdown Puro (Pestaña Markdown) -->
         <pre id="livePreviewMarkdown" class="md-source" style="display: none;"></pre>
-
-        <!-- Vista WordPress Gutenberg iFrame (Pestaña WordPress) -->
-        <iframe id="livePreviewWp" sandbox="allow-same-origin" style="display: none; width: 100%; height: 100%; border: none; min-height: 500px; background: #ffffff; border-radius: var(--radius-card);" title="Vista Previa de WordPress Gutenberg"></iframe>
 
         <!-- Botón Flotante "Seguir Generación" al hacer scroll arriba -->
         <button type="button" id="btnFollowStream" title="Volver al final y seguir la redacción en vivo (Ctrl+Shift+F)">

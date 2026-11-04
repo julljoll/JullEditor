@@ -4,17 +4,14 @@
  * - Checklist de Estructura Viva (12 bloques canónicos de AGENTS.md)
  * - Barra de progreso de generación en vivo (sección actual, palabras, tokens/s)
  * - Simulador de dispositivos responsive (Escritorio, Tablet, Móvil)
- * - Pestañas de previsualización (Revista, Markdown puro, WordPress HTML iframe)
+ * - Pestañas de previsualización (Revista, Markdown puro)
  * - Control inteligente de auto-scroll con botón flotante "Seguir generación ↓"
  */
-
-import { generateWordPressHtml } from "./wordpress-exporter.js";
 
 export function initLivePreview(state) {
   const articleContainer = document.getElementById("articleContainer");
   const articleView = document.getElementById("articleView");
   const livePreviewMarkdown = document.getElementById("livePreviewMarkdown");
-  const livePreviewWp = document.getElementById("livePreviewWp");
   const btnFollowStream = document.getElementById("btnFollowStream");
   const liveStructureList = document.getElementById("liveStructureList");
   const liveProgressSection = document.getElementById("liveProgressSection");
@@ -132,7 +129,7 @@ export function initLivePreview(state) {
                 <span style="font-size: 0.70rem; color: var(--text-muted); font-family: var(--font-mono);">BLOQUES 10, 11 & 12</span>
               </div>
               <p style="color: var(--text-secondary); font-size: 0.85rem; margin: 0;">
-                ↳ Citas deontológicas, atribución a derechos de autor y microdatos estructurados <code>TechArticle</code> y <code>FAQPage</code> listos para WordPress y Sitejet.
+                ↳ Citas deontológicas, atribución a derechos de autor y microdatos estructurados <code>TechArticle</code> y <code>FAQPage</code> listos para Astro (.MD).
               </p>
             </div>
           </div>
@@ -299,11 +296,11 @@ export function initLivePreview(state) {
     });
   });
 
-  // 5. Pestañas de Vista Previa (Revista, Markdown, WordPress)
-  let lastWpUpdate = 0;
+  // 5. Pestañas de Vista Previa (Revista, Markdown)
   let lastMdUpdate = 0;
 
   function switchTab(tab) {
+    if (tab === "wordpress") tab = "markdown"; // WordPress eliminado: redirigir a Markdown
     activeTab = tab;
     localStorage.setItem("granite.previewTab", tab);
 
@@ -315,50 +312,11 @@ export function initLivePreview(state) {
 
     if (articleView) articleView.style.display = tab === "magazine" ? "block" : "none";
     if (livePreviewMarkdown) livePreviewMarkdown.style.display = tab === "markdown" ? "block" : "none";
-    if (livePreviewWp) livePreviewWp.style.display = tab === "wordpress" ? "block" : "none";
 
     // Actualizar vista inmediatamente al cambiar de pestaña
     if (tab === "markdown" && livePreviewMarkdown) {
       livePreviewMarkdown.textContent = state.currentRawMarkdown || "Sin contenido Markdown redactado.";
-    } else if (tab === "wordpress" && livePreviewWp) {
-      updateWordPressPreview();
     }
-  }
-
-  function updateWordPressPreview() {
-    if (!livePreviewWp || activeTab !== "wordpress") return;
-    if (!state.currentRawMarkdown) {
-      livePreviewWp.srcdoc = `
-        <!DOCTYPE html>
-        <html lang="es">
-        <head>
-          <meta charset="utf-8">
-          <style>body { font-family: Arial, sans-serif; background: #ffffff; color: #666; padding: 24px; font-style: italic; }</style>
-        </head>
-        <body>
-          <p>El código HTML estructurado para WordPress Gutenberg aparecerá aquí tras iniciar la redacción con IBM Granite.</p>
-        </body>
-        </html>
-      `;
-      return;
-    }
-    const wpContent = generateWordPressHtml(state);
-    const docHtml = `
-      <!DOCTYPE html>
-      <html lang="es">
-      <head>
-        <meta charset="utf-8">
-        <style>
-          body { font-family: Arial, sans-serif; background: #ffffff; color: #1a1a1a; padding: 24px; margin: 0; line-height: 1.6; }
-          img { max-width: 100%; height: auto; }
-        </style>
-      </head>
-      <body>
-        ${wpContent || "<p style='color:#666; font-style:italic;'>El contenido en formato WordPress Gutenberg aparecerá aquí...</p>"}
-      </body>
-      </html>
-    `;
-    livePreviewWp.srcdoc = docHtml;
   }
 
   document.querySelectorAll(".preview-tab").forEach((btn) => {
@@ -414,20 +372,13 @@ export function initLivePreview(state) {
       livePreviewMarkdown.textContent = markdown;
       lastMdUpdate = now;
     }
-
-    // Actualización de pestaña WordPress (con throttle de 1s para no ralentizar el render)
-    if (activeTab === "wordpress" && now - lastWpUpdate > 1000) {
-      updateWordPressPreview();
-      lastWpUpdate = now;
-    }
   });
 
-  // Atajos de teclado en live preview (Ctrl+1/2/3 para tabs, Ctrl+Shift+F para follow)
+  // Atajos de teclado en live preview (Ctrl+1/2 para tabs, Ctrl+Shift+F para follow)
   document.addEventListener("keydown", (e) => {
     if (e.ctrlKey && !e.shiftKey && !e.altKey) {
       if (e.key === "1") { e.preventDefault(); switchTab("magazine"); }
       if (e.key === "2") { e.preventDefault(); switchTab("markdown"); }
-      if (e.key === "3") { e.preventDefault(); switchTab("wordpress"); }
     }
     if (e.ctrlKey && e.shiftKey && (e.key === "F" || e.key === "f")) {
       e.preventDefault();
