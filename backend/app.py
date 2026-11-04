@@ -18,7 +18,6 @@ from fastapi import FastAPI, HTTPException, Request, Response, status
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, JSONResponse, StreamingResponse
-from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field, field_validator
 
 from backend.docling_parser import parse_docling_markdown
@@ -28,6 +27,7 @@ from backend.legal_validator import audit_legal_quality
 from backend.logger_config import get_logger
 from backend.prompts import build_generation_prompt, build_sentencia_tsj_prompt
 from backend.exporters.astro_exporter import export_as_astro_md, slugify_astro
+from backend.astro_publisher import get_publication_status, publish_article
 from backend.rag_manager import (
     ASTRO_READY_DIR,
     get_article_content,
@@ -56,7 +56,10 @@ KEEP_ALIVE = os.getenv("KEEP_ALIVE", "30m")
 NUM_THREAD = int(os.getenv("NUM_THREAD", "4"))
 DEFAULT_TEMPERATURE = float(os.getenv("TEMPERATURE", "0.2"))
 DEFAULT_JURISDICTION = os.getenv("DEFAULT_JURISDICTION", "auto")
-CORS_ORIGINS = os.getenv("CORS_ORIGINS", "http://127.0.0.1:8000,http://localhost:8000").split(",")
+CORS_ORIGINS = os.getenv(
+    "CORS_ORIGINS",
+    "http://127.0.0.1:8000,http://localhost:8000,http://localhost:4321,http://127.0.0.1:4321",
+).split(",")
 
 # Código de estado 422 agnóstico a versiones de Starlette (evita StarletteDeprecationWarning)
 HTTP_422_UNPROCESSABLE = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
@@ -246,6 +249,10 @@ class ConvertAstroRequest(BaseModel):
     markdown_content: str = Field(..., min_length=5, max_length=1000000)
     metadata: dict[str, Any] | None = Field(default=None)
     editorial_layout: bool = Field(default=True)
+
+class PublishArticleRequest(BaseModel):
+    slug: str = Field(..., min_length=1, max_length=200, description="Slug del artículo en astro_ready/ (sin .md)")
+    force: bool = Field(False, description="Reescribir aunque el publicado esté sincronizado")
 
 class SeoAuditRequest(BaseModel):
     markdown: str = Field(..., max_length=2000000, description="Contenido Markdown del artículo")
@@ -606,6 +613,37 @@ async def get_astro_styles_endpoint():
         return FileResponse(css_path, media_type="text/css")
     raise HTTPException(status_code=404, detail="Archivo CSS editorial no encontrado")
 
+@app.post("/api/export/publish")
+async def publish_to_blog_endpoint(req: PublishArticleRequest):
+    """
+    Publica un artículo astro_ready en el blog Astro estático:
+    valida el frontmatter contra el contrato de Content Collections,
+    copia el .md a blog/src/content/blog/ y sus imágenes a blog/public/images/articles/.
+    Idempotente por slug (action: created | updated | unchanged).
+    """
+    try:
+        result = publish_article(slug=req.slug, force=req.force)
+        if result.get("status") == "error":
+            msg = result.get("message", "Error publicando en el blog")
+            errors = result.get("errors")
+            raise HTTPException(status_code=400, detail={"message": msg, "errors": errors or []})
+        return result
+    except HTTPException:
+        raise
+    except Exception as e:
+        logger.error(f"Error publicando artículo '{req.slug}' en el blog: {e}")
+        raise HTTPException(status_code=500, detail=f"Error publicando en el blog: {e!s}")
+
+@app.get("/api/export/drafts")
+async def export_drafts_status_endpoint():
+    """Estado de publicación de los borradores astro_ready (synced/unsynced/unpublished/draft)."""
+    try:
+        drafts = get_publication_status()
+        return {"status": "success", "drafts": drafts, "count": len(drafts)}
+    except Exception as e:
+        logger.error(f"Error obteniendo estado de borradores: {e}")
+        raise HTTPException(status_code=500, detail=f"Error listando borradores: {e!s}")
+
 PRELOADED_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "preloaded.json")
 
 @app.get("/api/preloaded-file")
@@ -864,67 +902,16 @@ async def generate_article_stream(req: GenerateRequest, request: Request):
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 # ==============================================================================
-# SERVIR FRONTEND ESTÁTICO
+# RAÍZ DE API (el frontend Astro 'studio/' corre en :4321 con proxy /api)
 # ==============================================================================
 
-frontend_path = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
-if os.path.exists(frontend_path):
-    app.mount("/static", StaticFiles(directory=frontend_path), name="static")
-    
-    css_dir = os.path.join(frontend_path, "css")
-    if os.path.exists(css_dir):
-        app.mount("/css", StaticFiles(directory=css_dir), name="css")
-        
-    js_dir = os.path.join(frontend_path, "js")
-    if os.path.exists(js_dir):
-        app.mount("/js", StaticFiles(directory=js_dir), name="js")
-        
-    img_dir = os.path.join(frontend_path, "images")
-    if os.path.exists(img_dir):
-        app.mount("/images", StaticFiles(directory=img_dir), name="images")
-
-    fonts_dir = os.path.join(frontend_path, "fonts")
-    if os.path.exists(fonts_dir):
-        app.mount("/fonts", StaticFiles(directory=fonts_dir), name="fonts")
-
-    @app.get("/")
-    async def serve_index():
-        index_file = os.path.join(frontend_path, "index.html")
-        if os.path.exists(index_file):
-            return FileResponse(
-                index_file,
-                headers={
-                    "Cache-Control": "no-cache, no-store, must-revalidate",
-                    "Pragma": "no-cache",
-                    "Expires": "0"
-                }
-            )
-        return {"message": "Frontend index.html no encontrado"}
-
-    @app.get("/sitejet-lab.html")
-    async def serve_sitejet_lab():
-        lab_file = os.path.join(frontend_path, "sitejet-lab.html")
-        if os.path.exists(lab_file):
-            return FileResponse(
-                lab_file,
-                headers={
-                    "Cache-Control": "no-cache, no-store, must-revalidate",
-                    "Pragma": "no-cache",
-                    "Expires": "0"
-                }
-            )
-        return {"message": "Laboratorio sitejet-lab.html no encontrado"}
-
-    @app.get("/favicon.svg")
-    async def serve_favicon():
-        fav_file = os.path.join(frontend_path, "favicon.svg")
-        if os.path.exists(fav_file):
-            return FileResponse(fav_file)
-        return {"message": "favicon not found"}
-
-    @app.get("/manifest.json")
-    async def serve_manifest():
-        m_file = os.path.join(frontend_path, "manifest.json")
-        if os.path.exists(m_file):
-            return FileResponse(m_file)
-        return {"message": "manifest not found"}
+@app.get("/")
+async def api_root():
+    """El Studio Astro reemplazó al frontend vanilla: la raíz informa el estado de la API."""
+    return {
+        "app": "JullEditor API",
+        "version": __version__,
+        "docs": "/docs",
+        "studio": "http://localhost:4321",
+        "message": "Backend Python activo. La interfaz de redacción es el Studio Astro (studio/).",
+    }

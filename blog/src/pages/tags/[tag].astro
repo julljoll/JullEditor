@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  const articles = await getCollection('blog', ({ data }) => !data.draft);
+  const tags = new Set<string>();
+  for (const a of articles) for (const t of a.data.tags) tags.add(t.toLowerCase());
+  return [...tags].map((tag) => ({
+    params: { tag },
+    props: {
+      tag,
+      articles: articles
+        .filter((a) => a.data.tags.some((t) => t.toLowerCase() === tag))
+        .sort((x, y) => y.data.pubDate.valueOf() - x.data.pubDate.valueOf()),
+    },
+  }));
+}
+
+const { tag, articles } = Astro.props;
+---
+<Base title={`#${tag} — Pericial Blog`}>
+  <h1>Tag: #{tag}</h1>
+  <p>{articles.length} artículos.</p>
+  <ul class="article-list">
+    {articles.map((a) => (
+      <li class="card">
+        <a href={`/${a.data.slug}`}>
+          <h2>{a.data.title}</h2>
+          <div class="meta"><time>{a.data.pubDate.toISOString().slice(0, 10)}</time></div>
+        </a>
+      </li>
+    ))}
+  </ul>
+</Base>

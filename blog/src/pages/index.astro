@@ -1,0 +1,34 @@
+---
+import Base from '../layouts/Base.astro';
+import { getCollection } from 'astro:content';
+
+const articles = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
+---
+<Base title="Pericial Blog — Artículos">
+  <section class="hero">
+    <h1>Artículos</h1>
+    <p>{articles.length} publicaciones sobre periciaje tecnológico, derecho digital y ciencia.</p>
+  </section>
+  <ul class="article-list">
+    {articles.map((article) => (
+      <li class="card">
+        <a href={`/${article.data.slug}`}>
+          <h2>{article.data.title}</h2>
+          <p>{article.data.description}</p>
+          <div class="meta">
+            <time datetime={article.data.pubDate.toISOString().slice(0, 10)}>
+              {article.data.pubDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </time>
+            <span>· {article.data.readingTime} min de lectura</span>
+            <span>· {article.data.author}</span>
+          </div>
+          <div class="tags">
+            {article.data.tags.map((t) => <span class="tag">{t}</span>)}
+          </div>
+        </a>
+      </li>
+    ))}
+  </ul>
+</Base>
