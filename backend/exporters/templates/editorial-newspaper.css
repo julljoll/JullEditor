@@ -1,0 +1,278 @@
+/* ==============================================================================
+   HOJA DE ESTILOS EDITORIAL NEWSPAPER PARA BLOGS CON ASTRO FRAMEWORK
+   Compatible con sha256.us y diseño periodístico de alto impacto
+   ============================================================================== */
+
+:root {
+  --color-primary-darker: #0c2340;
+  --color-primary-dark: #1b365d;
+  --color-primary: #005ea2;
+  --color-primary-light: #d9e8f6;
+  --color-secondary-dark: #8b1e0f;
+  --color-base-darkest: #1b1b1b;
+  --color-base-dark: #454545;
+  --color-base: #71767a;
+  --color-base-light: #dfe1e2;
+  --color-base-lighter: #f0f0f0;
+  --color-base-lightest: #f9f9fb;
+  --font-serif-press: "Merriweather", "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+/* Contenedor Principal Editorial */
+.editorial-container {
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem 3rem 1rem;
+  font-family: var(--font-serif-press);
+  color: var(--color-base-darkest);
+  line-height: 1.75;
+}
+
+/* Sección 1: Entradilla de Impacto (Lead) */
+.editorial-lead {
+  font-family: var(--font-serif-press);
+  font-size: 1.25rem;
+  font-weight: 400;
+  line-height: 1.8;
+  color: var(--color-base-darkest);
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid var(--color-base-light);
+  font-style: italic;
+}
+
+/* Sección 2: Cita Destacada (Pull Quote) */
+.editorial-quote {
+  font-family: var(--font-serif-press);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1.4;
+  color: var(--color-primary-dark);
+  text-align: center;
+  margin: 2.5rem auto;
+  max-width: 850px;
+  padding: 1.5rem 2rem;
+  border-top: 3px double var(--color-primary-dark);
+  border-bottom: 3px double var(--color-primary-dark);
+}
+
+/* Sección 3: Maquetación de 3 Columnas */
+.editorial-three-columns {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .editorial-three-columns {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2.5rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .editorial-three-columns {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* Columna Individual con protección de corte */
+.editorial-col {
+  break-inside: avoid;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.editorial-col p {
+  margin: 0 0 1rem 0;
+  font-size: 1.05rem;
+  line-height: 1.75;
+  text-align: justify;
+}
+
+/* Letra Capitular (Dropcap) */
+.editorial-dropcap {
+  float: left;
+  font-family: var(--font-serif-press);
+  font-size: 4rem;
+  line-height: 0.8;
+  font-weight: 700;
+  padding-right: 0.5rem;
+  padding-top: 0.25rem;
+  color: var(--color-primary-darker);
+}
+
+/* Subtítulos H2 Editoriales */
+.editorial-subhead {
+  font-family: var(--font-sans-ui);
+  font-size: 1.25rem;
+  font-weight: 700;
+  line-height: 1.35;
+  color: var(--color-primary-darker);
+  margin-top: 0.5rem;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--color-primary);
+  text-transform: none;
+}
+
+/* Cajas Destacadas (Callouts / Lecciones Periciales) */
+.editorial-box {
+  background-color: var(--color-base-lightest);
+  border-top: 4px solid var(--color-secondary-dark);
+  border-left: 1px solid var(--color-base-light);
+  border-right: 1px solid var(--color-base-light);
+  border-bottom: 1px solid var(--color-base-light);
+  border-radius: 4px;
+  padding: 1.25rem;
+  margin: 1rem 0;
+}
+
+.editorial-box h4,
+.editorial-box h3 {
+  font-family: var(--font-sans-ui);
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  color: var(--color-primary-dark);
+}
+
+/* Cuadrícula de Preguntas Frecuentes (FAQ) estilo USWDS */
+.grid-row {
+  display: flex;
+  flex-wrap: wrap;
+  margin-left: -0.75rem;
+  margin-right: -0.75rem;
+}
+
+.grid-gap-2 {
+  gap: 1.5rem;
+}
+
+.tablet\:grid-col-6 {
+  flex: 1 1 calc(50% - 1.5rem);
+  min-width: 280px;
+}
+
+.bg-base-lightest {
+  background-color: var(--color-base-lightest);
+}
+
+.padding-2 {
+  padding: 1.25rem;
+}
+
+.radius-md {
+  border-radius: 6px;
+}
+
+.border-left-05 {
+  border-left: 5px solid;
+}
+
+.border-primary {
+  border-color: var(--color-primary);
+}
+
+.border-secondary-dark {
+  border-color: var(--color-secondary-dark);
+}
+
+.border-top-1px {
+  border-top: 1px solid var(--color-base-light);
+}
+
+.border-base-lighter {
+  border-color: var(--color-base-lighter);
+}
+
+.font-sans-lg {
+  font-family: var(--font-sans-ui);
+  font-size: 1.5rem;
+}
+
+.font-sans-xs {
+  font-family: var(--font-sans-ui);
+  font-size: 1rem;
+}
+
+.font-sans-3xs {
+  font-family: var(--font-sans-ui);
+  font-size: 0.85rem;
+}
+
+.text-bold {
+  font-weight: 700;
+}
+
+.text-primary-darker {
+  color: var(--color-primary-darker);
+}
+
+.text-primary-dark {
+  color: var(--color-primary-dark);
+}
+
+.text-secondary-dark {
+  color: var(--color-secondary-dark);
+}
+
+.text-base-dark {
+  color: var(--color-base-dark);
+}
+
+.text-base-darkest {
+  color: var(--color-base-darkest);
+}
+
+.margin-0 {
+  margin: 0;
+}
+
+.margin-bottom-1 {
+  margin-bottom: 0.5rem;
+}
+
+.margin-bottom-2 {
+  margin-bottom: 1rem;
+}
+
+.margin-top-4 {
+  margin-top: 2rem;
+}
+
+.padding-top-3 {
+  padding-top: 1.5rem;
+}
+
+/* Caja de Autor E-E-A-T */
+.editorial-author-box {
+  margin-top: 3rem;
+  padding: 1.75rem;
+  background-color: var(--color-base-lightest);
+  border: 1px solid var(--color-base-light);
+  border-left: 6px solid var(--color-primary-dark);
+  border-radius: 6px;
+  font-family: var(--font-sans-ui);
+}
+
+.editorial-author-box h3 {
+  margin: 0 0 0.25rem 0;
+  color: var(--color-primary-darker);
+  font-size: 1.25rem;
+}
+
+.editorial-author-box a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+.editorial-author-box a:hover {
+  text-decoration: underline;
+}
+

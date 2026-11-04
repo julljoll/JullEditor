@@ -151,7 +151,7 @@ class TestExportAsAstroMd:
         assert "updatedDate:" in astro_md
         assert "slug:" in astro_md
         assert "tags:" in astro_md
-        assert 'category: "cybersecurity"' in astro_md
+        assert 'category: "Opinión Pericial"' in astro_md or 'category: "cybersecurity"' in astro_md
         assert "readingTime:" in astro_md
         assert "<!-- SCHEMA_JSONLD" in astro_md
         assert "```json" not in astro_md

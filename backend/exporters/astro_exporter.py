@@ -223,19 +223,28 @@ def export_as_astro_md(
     markdown_content: str,
     metadata: dict[str, Any] | None = None,
     author: str = "Jull Editor",
+    editorial_layout: bool = True,
 ) -> str:
     """
     Transforma el artículo generado en un archivo Markdown 100% compatible
     con Astro Content Collections (Astro Framework blog).
 
-    Incluye:
-    - Frontmatter YAML canónico tipado
-    - Meta descripción SEO optimizada
-    - Slugs URL-friendly sin acentos ni espacios
-    - Tags normalizados
-    - Cuerpo Markdown limpio listo para Astro
+    Soporta dos modalidades:
+    1. editorial_layout=True (predeterminado): Formato editorial periodístico
+       de 3 columnas enriquecido con HTML5/CSS ('Formato Blog -Astro.md')
+       con Dropcap, Pull Quote, Callout Boxes, FAQ grid y Bio E-E-A-T.
+    2. editorial_layout=False: Formato Markdown estándar limpio con
+       frontmatter canónico.
     """
-    meta = metadata or {}
+    meta = dict(metadata or {})
+    if author and not meta.get("author"):
+        meta["author"] = author
+
+    if editorial_layout and meta.get("editorial_mode") != "classic":
+        from backend.exporters.astro_compiler import AstroEditorialCompiler
+
+        compiler = AstroEditorialCompiler(meta)
+        return compiler.compile(title, markdown_content)
 
     # Si el contenido ya incluye frontmatter interno previo, separarlo
     content_to_process = markdown_content
@@ -297,6 +306,7 @@ author: "{author_name}"
 slug: "{slug}"
 tags: {tags_formatted}
 category: "{theme}"
+heroImage: "../../assets/blog-placeholder-1.jpg"
 image:
   url: "/images/blog/{slug}.jpg"
   alt: "{clean_title}"

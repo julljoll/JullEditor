@@ -282,10 +282,25 @@ export function initWordPressExporter(state) {
           const data = await resp.json();
           textToCopy = data.content;
         } else {
-          textToCopy = state.currentRawMarkdown;
+          // Conversión dinámica bajo demanda si aún no está en disco
+          const convResp = await fetch("/api/export/astro/convert", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              title: title,
+              markdown_content: state.currentRawMarkdown,
+              editorial_layout: true
+            })
+          });
+          if (convResp.ok) {
+            const convData = await convResp.json();
+            textToCopy = convData.content;
+          } else {
+            textToCopy = state.currentRawMarkdown;
+          }
         }
         await navigator.clipboard.writeText(textToCopy);
-        toast.success("🚀 Artículo Astro-ready copiado al portapapeles.");
+        toast.success("🚀 ¡Artículo copiado con formato editorial de 3 columnas para Astro!");
       } catch (err) {
         await navigator.clipboard.writeText(state.currentRawMarkdown);
         toast.info("Markdown copiado al portapapeles.");

@@ -131,6 +131,19 @@ ENFOQUE TEMÁTICO: TECNOLOGÍA, TELECOMUNICACIONES E INNOVACIÓN.
 """
 }
 
+ASTRO_EDITORIAL_BLOCK: str = """
+ENFOQUE EDITORIAL ASTRO FRAMEWORK (MAQUETACIÓN DE PERIÓDICO 3 COLUMNAS - SHA256.US):
+- **ESTRUCTURA DE ALTO IMPACTO PARA ASTRO:** El contenido se destina a compilarse en la maqueta de 3 columnas de periódico de 'Formato Blog -Astro.md' sin encabezado H1 en el cuerpo.
+- **ELEMENTOS OBLIGATORIOS QUE DEBES GENERAR:**
+  1. *Cita Destacada Editorial (Pull Quote):* Incluye en un bloque `> "..."` una frase célebre, aforismo contundente o tesis central de 15 a 25 palabras que capture la esencia pericial de la fuente.
+  2. *Lead / Entradilla de Impacto:* Primer párrafo de 80 a 120 palabras respondiendo directamente a la intención de búsqueda para competir por el Featured Snippet.
+  3. *Subtítulos H2 Concisos:* Secciones de 5 a 9 palabras donde al menos el 50% estén formulados como preguntas directas.
+  4. *Caja de Lección Pericial Crítica:* Al menos una caja destacada `> **📌 Lección Pericial Crítica:** [Explicación normativa ISO/NIST o recomendación técnica]`.
+  5. *Checklist Accionable o Protocolo:* Una lista estructurada con viñetas de 3 a 5 pasos concretos para mitigar riesgos o responder a incidentes.
+  6. *Preguntas Frecuentes (FAQ):* Sección de 3 preguntas con respuestas concisas de 2-3 oraciones bajo formato P: / R:.
+  7. *Fidelidad y Cero Alucinación:* Preserva intactos los datos, hechos, normativas y autores de la fuente original.
+"""
+
 MAGAZINE_INTERPRETATIVE_BLOCK: str = """
 ENFOQUE EDITORIAL INTERPRETATIVO-EXPLICATIVO (MODO REVISTA DIGITAL 2026):
 - **INTERPRETACIÓN Y EXPLICACIÓN ACTIVA:** No te limites a traducir ni a resumir de forma literal o mecánica. Tu misión editorial es INTERPRETAR la fuente original y EXPLICAR su alcance, fondo e implicaciones para el lector profesional y general.

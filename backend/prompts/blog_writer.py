@@ -13,6 +13,7 @@ from backend.legal_profiles import (
     resolve_jurisdiction,
 )
 from backend.prompts.base import (
+    ASTRO_EDITORIAL_BLOCK,
     MAGAZINE_INTERPRETATIVE_BLOCK,
     SYSTEM_BASE_PROMPT,
     THEMATIC_PROMPTS,
@@ -173,11 +174,19 @@ DIRECTRICES ESPECÍFICAS DE ESTRUCTURA Y TONO JULL (WIREFRAME EDITORIAL EXACTO):
     if (wants_ve or wants_co) and legal_rag_context:
         legal_rag_section = f"\n{legal_rag_context}\n"
 
-    magazine_block = MAGAZINE_INTERPRETATIVE_BLOCK if editorial_mode == "magazine" else ""
-    magazine_closing_directive = (
-        "\n7b. (MODO REVISTA OBLIGATORIO) Inmediatamente tras el resumen ejecutivo, inserta la sección interpretativa: `## 🔎 Nuestra Lectura del Artículo {#nuestra-lectura}` con 2 párrafos explicativos analizando el alcance y la trascendencia práctica de la fuente original."
-        if editorial_mode == "magazine" else ""
-    )
+    if editorial_mode == "astro_editorial":
+        magazine_block = ASTRO_EDITORIAL_BLOCK
+        magazine_closing_directive = (
+            "\n7b. (MODO ASTRO EDITORIAL) Incluye un aforismo o frase destacada entrecomillada (`> «...»`) ideal para cita destacada (Pull Quote) y una caja `> **📌 Lección Pericial Crítica:**`."
+        )
+    elif editorial_mode == "magazine":
+        magazine_block = MAGAZINE_INTERPRETATIVE_BLOCK
+        magazine_closing_directive = (
+            "\n7b. (MODO REVISTA OBLIGATORIO) Inmediatamente tras el resumen ejecutivo, inserta la sección interpretativa: `## 🔎 Nuestra Lectura del Artículo {#nuestra-lectura}` con 2 párrafos explicativos analizando el alcance y la trascendencia práctica de la fuente original."
+        )
+    else:
+        magazine_block = ""
+        magazine_closing_directive = ""
 
     prompt = f"""
 {SYSTEM_BASE_PROMPT}

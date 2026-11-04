@@ -61,4 +61,20 @@ Cuando se selecciona el tono **Jull**:
   - **Cajas:** `📌 Resumen Práctico`, `⚡ 30 Segundos`, `💡 En Palabras Simples`.
   - **Cierre:** Marco Legal Venezolano, FAQ (3 preguntas), Derechos de Autor, Sobre el Autor (E-E-A-T), CTA y Schema.org Dual (`TechArticle` + `FAQPage`).
 
+## 3. Modalidad Editorial Astro Framework (sha256.us · 3 Columnas de Periódico)
+
+Cuando se activa la exportación a **Astro Framework** (`AstroEditorialCompiler`):
+- **Compilación Determinista:** El Markdown semántico de Granite se compila matemáticamente a la estructura de `Formato Blog -Astro.md` para ser pegado en `src/content/blog/{slug}.md`.
+- **Componentes Visuales Obligatorios:**
+  1. **Frontmatter YAML Canónico (12 campos):** `title`, `description`, `pubDate`, `updatedDate`, `author`, `tags`, `category`, `heroImage`, `seoKeyword`, `readingTime`, `featured`, `draft`.
+  2. **Sin encabezado `# H1` en el cuerpo:** El layout de Astro lo imprime automáticamente desde el frontmatter `title`.
+  3. **Lead / Entradilla:** `<div class="editorial-lead">` (80-120 palabras respondiendo al Featured Snippet).
+  4. **Pull Quote:** `<div class="editorial-quote">«...»</div>` (aforismo central de 15-25 palabras).
+  5. **Maquetación 3 Columnas:** `<div class="editorial-three-columns">` con bloques `<div class="editorial-col">`.
+  6. **Letra Capitular (Dropcap):** `<span class="editorial-dropcap">X</span>` en el primer párrafo del cuerpo.
+  7. **Subtítulos Editoriales:** `<h2 class="editorial-subhead">` con estilo de prensa.
+  8. **Cajas de Lección y Checklist:** `<div class="editorial-box">` con protocolo de actuación.
+  9. **Cuadrícula FAQ:** `<div class="grid-row grid-gap-2">` con tarjetas de preguntas frecuentes.
+  10. **Caja de Autor E-E-A-T:** `<div class="editorial-author-box">` acreditando el laboratorio pericial.
+
 Consulta la referencia detallada en [seo_checklist.md](./references/seo_checklist.md).

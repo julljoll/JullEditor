@@ -181,7 +181,7 @@ class GenerateRequest(BaseModel):
     model: str | None = Field(None, max_length=100)
     temperature: float | None = Field(None, ge=0.0, le=1.5)
     jurisdiction: str | None = Field("auto", max_length=50, description="auto | venezuela | international")
-    editorial_mode: str | None = Field("magazine", pattern="^(magazine|classic)$", description="magazine | classic")
+    editorial_mode: str | None = Field("magazine", pattern="^(magazine|classic|astro_editorial)$", description="magazine | classic | astro_editorial")
     sentencia_metadata: dict[str, Any] | None = Field(None, description="Metadatos estructurados de sentencia TSJ")
 
     @field_validator("editorial_mode", mode="before")
@@ -189,8 +189,8 @@ class GenerateRequest(BaseModel):
     def validate_editorial_mode(cls, v):
         if v is None or v == "":
             return "magazine"
-        if v not in ("magazine", "classic"):
-            raise ValueError("editorial_mode debe ser 'magazine' o 'classic'")
+        if v not in ("magazine", "classic", "astro_editorial"):
+            raise ValueError("editorial_mode debe ser 'magazine', 'classic' o 'astro_editorial'")
         return v
 
     @field_validator("source_title", "source_url", "source_lang", "source_author", "source_date", "source_section", "custom_instructions", mode="before")
@@ -240,6 +240,12 @@ class GenerateHeaderImageRequest(BaseModel):
     title: str = Field(..., min_length=3, max_length=300)
     theme: str | None = Field("cybersecurity", max_length=50)
     custom_prompt: str | None = Field(None, max_length=500)
+
+class ConvertAstroRequest(BaseModel):
+    title: str = Field(..., min_length=1, max_length=300)
+    markdown_content: str = Field(..., min_length=5, max_length=1000000)
+    metadata: dict[str, Any] | None = Field(default=None)
+    editorial_layout: bool = Field(default=True)
 
 class SeoAuditRequest(BaseModel):
     markdown: str = Field(..., max_length=2000000, description="Contenido Markdown del artículo")
@@ -511,7 +517,7 @@ async def list_astro_articles_endpoint():
         raise HTTPException(status_code=500, detail=f"Error listando artículos Astro: {e!s}")
 
 @app.get("/api/export/astro/{slug}")
-async def get_astro_article_endpoint(slug: str, download: bool = False):
+async def get_astro_article_endpoint(slug: str, download: bool = False, format: str = "editorial"):
     """
     Obtiene o genera bajo demanda el archivo .md compatible con Astro Framework.
     Soporta descarga directa (?download=true) o retorno en JSON para copiar en el portapapeles.
@@ -520,9 +526,10 @@ async def get_astro_article_endpoint(slug: str, download: bool = False):
         clean_s = slugify_astro(slug.replace(".md", ""))
         target_name = f"{clean_s}.md"
         astro_path = os.path.join(ASTRO_READY_DIR, target_name)
+        use_editorial = format != "clean"
 
         astro_content = None
-        if os.path.exists(astro_path):
+        if os.path.exists(astro_path) and use_editorial:
             with open(astro_path, encoding="utf-8") as f:
                 astro_content = f.read()
         else:
@@ -536,11 +543,12 @@ async def get_astro_article_endpoint(slug: str, download: bool = False):
                     title=clean_s.replace("-", " ").title(),
                     markdown_content=raw_content,
                     metadata={"slug": clean_s},
+                    editorial_layout=use_editorial,
                 )
-                # Persistir para futuras solicitudes
-                os.makedirs(ASTRO_READY_DIR, exist_ok=True)
-                with open(astro_path, "w", encoding="utf-8") as f:
-                    f.write(astro_content)
+                if use_editorial:
+                    os.makedirs(ASTRO_READY_DIR, exist_ok=True)
+                    with open(astro_path, "w", encoding="utf-8") as f:
+                        f.write(astro_content)
 
         if not astro_content:
             raise HTTPException(status_code=404, detail=f"Artículo '{slug}' no encontrado en formato Astro")
@@ -558,12 +566,45 @@ async def get_astro_article_endpoint(slug: str, download: bool = False):
             "slug": clean_s,
             "filename": target_name,
             "content": astro_content,
+            "word_count": len(astro_content.split()),
         }
     except HTTPException:
         raise
     except Exception as e:
         logger.error(f"Error obteniendo exportación Astro para '{slug}': {e}")
         raise HTTPException(status_code=500, detail=f"Error en exportación Astro: {e!s}")
+
+@app.post("/api/export/astro/convert")
+async def convert_to_astro_endpoint(req: ConvertAstroRequest):
+    """Convierte texto Markdown en formato Astro Framework editorial bajo demanda."""
+    try:
+        compiled = export_as_astro_md(
+            title=req.title,
+            markdown_content=req.markdown_content,
+            metadata=req.metadata,
+            editorial_layout=req.editorial_layout,
+        )
+        return {
+            "status": "success",
+            "content": compiled,
+            "word_count": len(compiled.split()),
+        }
+    except Exception as e:
+        logger.error(f"Error convirtiendo a formato Astro: {e}")
+        raise HTTPException(status_code=500, detail=f"Error compilando para Astro: {e!s}")
+
+@app.get("/api/export/astro/styles.css")
+async def get_astro_styles_endpoint():
+    """Retorna la hoja de estilos CSS periodística editorial para Astro."""
+    css_path = os.path.join(
+        os.path.dirname(os.path.abspath(__file__)),
+        "exporters",
+        "templates",
+        "editorial-newspaper.css",
+    )
+    if os.path.exists(css_path):
+        return FileResponse(css_path, media_type="text/css")
+    raise HTTPException(status_code=404, detail="Archivo CSS editorial no encontrado")
 
 PRELOADED_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "preloaded.json")
 

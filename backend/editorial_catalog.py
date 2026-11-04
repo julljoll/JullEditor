@@ -32,6 +32,7 @@ THEMES: list[tuple[str, str, str]] = [
 EDITORIAL_MODES: list[tuple[str, str]] = [
     ("magazine", "📰 Revista Digital (3 Col. Interpretativo-Explicativo 2026)"),
     ("classic", "📝 Resumen Clásico Fiel (Síntesis Directa)"),
+    ("astro_editorial", "🚀 Astro Framework Editorial (3 Col. Periódico sha256.us)"),
 ]
 
 # ---------------------------------------------------------------------------
@@ -122,7 +123,7 @@ def validate_config(config: dict[str, object]) -> list[str]:
     errors: list[str] = []
     if config.get("theme") not in theme_codes():
         errors.append(f"Tema inválido: {config.get('theme')!r}")
-    if config.get("editorial_mode") not in ("magazine", "classic"):
+    if config.get("editorial_mode") not in ("magazine", "classic", "astro_editorial"):
         errors.append(f"Estilo editorial inválido: {config.get('editorial_mode')!r}")
     if config.get("tone") not in tone_codes():
         errors.append(f"Tono inválido: {config.get('tone')!r}")
