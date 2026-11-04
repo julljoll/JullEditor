@@ -1,0 +1,59 @@
+version: '3.9'
+
+services:
+  # ── Motor de Inferencia Ollama (CPU/GPU) ───────────────────────────────────
+  ollama:
+    image: ollama/ollama:latest
+    container_name: granite-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          memory: 12G
+
+  # ── Aplicación Granite Blog Writer (FastAPI Backend + Frontend) ─────────────
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile
+    container_name: granite-blog-app
+    ports:
+      - "8000:8000"
+    environment:
+      - OLLAMA_BASE_URL=http://ollama:11434
+      - GRANITE_MODEL=granite3.3:8b
+      - FAST_MODEL=granite3.3:2b
+      - NUM_CTX=8192
+      - KEEP_ALIVE=30m
+      - NUM_THREAD=4
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+      - CORS_ORIGINS=*
+      - LOG_LEVEL=INFO
+      - DEFAULT_JURISDICTION=auto
+    volumes:
+      - ../RAG:/app/RAG
+      - ../logs:/app/logs
+      - ../Informacion_docling_rag:/app/Informacion_docling_rag:ro
+    depends_on:
+      - ollama
+    restart: unless-stopped
+
+  # ── Nginx Reverse Proxy (Streaming SSE sin Buffering) ───────────────────────
+  nginx:
+    image: nginx:alpine
+    container_name: granite-nginx
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - app
+    restart: unless-stopped
+
+volumes:
+  ollama_data:

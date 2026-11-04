@@ -1,0 +1,48 @@
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "{{ schema_type | default('TechArticle') }}",
+  "headline": "{{ title }}",
+  "description": "{{ meta_description }}",
+  "keywords": "{{ keywords }}",
+  "inLanguage": "{{ language | default('es-VE') }}",
+  "about": "{{ topic }}",
+  "author": {
+    "@type": "Person",
+    "name": "{{ author_name | default('JullEditor Editorial Team') }}",
+    "jobTitle": "{{ author_role | default('Perito LegalTech & Forense Digital') }}"
+  },
+  "publisher": {
+    "@type": "Organization",
+    "name": "SHA256.US Cyber-Legal Blueprint",
+    "url": "https://sha256.us"
+  },
+  "datePublished": "{{ date_published }}",
+  "dateModified": "{{ date_modified }}",
+  "mainEntityOfPage": {
+    "@type": "WebPage",
+    "@id": "{{ canonical_url }}"
+  },
+  "articleSection": "{{ section }}",
+  "wordCount": "{{ word_count }}"
+}
+```
+
+```json
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {% for item in faqs %}
+    {
+      "@type": "Question",
+      "name": "{{ item.question }}",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "{{ item.answer }}"
+      }
+    }{% if not loop.last %},{% endif %}
+    {% endfor %}
+  ]
+}
+```

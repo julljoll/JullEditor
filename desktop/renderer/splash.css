@@ -1,0 +1,94 @@
+/* Splash de arranque — JullEditor Desktop (coherente con el tema cyber-legal) */
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0f172a;
+  --panel: #1e293b;
+  --accent: #22d3ee;
+  --text: #e2e8f0;
+  --muted: #64748b;
+  --ok: #34d399;
+}
+
+html, body { height: 100%; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Segoe UI", system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  user-select: none;
+}
+
+.drag-region {
+  position: absolute; top: 0; left: 0; right: 0; height: 42px;
+  -webkit-app-region: drag;
+}
+
+header { padding: 24px 28px 8px; }
+
+.logo { font-size: 26px; font-weight: 700; letter-spacing: 0.5px; }
+.logo span { color: var(--accent); }
+
+.version { color: var(--muted); font-size: 12px; margin-top: 4px; }
+
+main { flex: 1; padding: 18px 28px; display: flex; flex-direction: column; gap: 14px; }
+
+.steps { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+
+.steps li {
+  display: flex; align-items: center; gap: 12px;
+  color: var(--muted); font-size: 14px;
+  transition: color 0.3s;
+}
+
+.dot {
+  width: 12px; height: 12px; border-radius: 50%;
+  border: 2px solid var(--muted);
+  flex-shrink: 0;
+  transition: all 0.3s;
+}
+
+li.active { color: var(--accent); }
+li.active .dot { border-color: var(--accent); animation: pulse 1.2s infinite; }
+
+li.done { color: var(--text); }
+li.done .dot { background: var(--ok); border-color: var(--ok); animation: none; }
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.5); }
+  50% { box-shadow: 0 0 0 6px rgba(34, 211, 238, 0); }
+}
+
+.hint {
+  background: var(--panel);
+  border-left: 3px solid var(--accent);
+  padding: 10px 14px;
+  font-size: 12.5px;
+  color: var(--text);
+  border-radius: 4px;
+}
+
+.logbox { font-size: 12px; color: var(--muted); flex: 1; min-height: 0; display: flex; flex-direction: column; }
+.logbox summary { cursor: pointer; }
+.logbox pre {
+  flex: 1; overflow-y: auto; background: #020617; padding: 8px;
+  border-radius: 4px; font-family: Consolas, monospace; font-size: 11px;
+  white-space: pre-wrap; word-break: break-all; margin-top: 6px;
+  user-select: text;
+}
+
+footer {
+  display: flex; align-items: center; gap: 12px;
+  padding: 14px 28px 20px; color: var(--muted); font-size: 13px;
+}
+
+.spinner {
+  width: 18px; height: 18px; border-radius: 50%;
+  border: 3px solid var(--panel); border-top-color: var(--accent);
+  animation: spin 0.9s linear infinite;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }

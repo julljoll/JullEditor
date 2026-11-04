@@ -1,0 +1,46 @@
+---
+// Layout base del blog estático
+import config from 'astro/config';
+const site = config.site;
+export interface Props {
+  title: string;
+  description?: string;
+  jsonLd?: object;
+}
+const { title, description = 'Blog de artículos periciales, tecnología y derecho.', jsonLd } = Astro.props;
+const canonical = new URL(Astro.url.pathname, site).href;
+---
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <link rel="alternate" type="application/rss+xml" title={title} href="/rss.xml" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:type" content="article" />
+    <meta name="twitter:card" content="summary_large_image" />
+    {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
+    <link rel="stylesheet" href="/styles/global.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <a class="brand" href="/">Pericial Blog</a>
+      <nav>
+        <a href="/">Artículos</a>
+        <a href="/tags">Tags</a>
+        <a href="/rss.xml">RSS</a>
+      </nav>
+    </header>
+    <main>
+      <slot />
+    </main>
+    <footer class="site-footer">
+      <p>© {new Date().getFullYear()} · Contenido generado con el estudio de redacción (backend Python + Astro estático).</p>
+    </footer>
+  </body>
+</html>

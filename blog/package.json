@@ -1,0 +1,25 @@
+{
+  "name": "blog",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sync:articles": "python3 ../scripts/sync_articles.py"
+  },
+  "description": "Blog Astro 100% estatico alimentado por el backend Python (astro_publisher)",
+  "dependencies": {
+    "@astrojs/compiler-rs": "^0.5.2",
+    "@astrojs/markdown-remark": "^7.3.5",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "astro": "^6.4.8",
+    "typescript": "^5.9.3"
+  },
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "sharp": "^0.35.5"
+  }
+}
