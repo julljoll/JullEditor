@@ -20,8 +20,16 @@ load_dotenv()
 NANOBANANA_API_KEY = os.getenv("NANOBANANA_API_KEY") or os.getenv("GEMINI_API_KEY", "")
 
 # Directorio de almacenamiento de imágenes
+# (Plan Astro 2026: los banners se generan junto al pipeline astro_ready del backend;
+# el frontend vanilla frontend/ fue eliminado — ya no se escribe dentro de él.)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-HEADERS_DIR = os.path.join(BASE_DIR, "frontend", "images", "headers")
+
+# Resolviendo aquí la ruta base igual que rag_manager para evitar un import circular
+# (rag_manager -> ... -> image_generator si algún módulo del RAG llegara a usar banners).
+_ARTICLES_BASE = os.environ.get(
+    "JULL_OUTPUT_DIR", os.path.join(BASE_DIR, "Articulos Generados")
+)
+HEADERS_DIR = os.path.join(_ARTICLES_BASE, "astro_ready", "images")
 os.makedirs(HEADERS_DIR, exist_ok=True)
 
 # Mapeo de metadatos temáticos armonizados con USWDS y Legislación Venezolana
@@ -89,7 +97,9 @@ async def generate_header_image(
     generate_procedural_cyber_legal_svg(clean_title, theme, theme_info, filepath)
     logger.info(f"Cabecera procedural generada exitosamente: {filename}")
 
-    image_url = f"/static/images/headers/{filename}"
+    # (Plan Astro 2026) URL relativa al pipeline astro_ready: astro_publisher.py
+    # copia estas imágenes a blog/public/images/articles/ al publicar.
+    image_url = f"astro_ready/images/{filename}"
     return {
         "status": "success",
         "url": image_url,

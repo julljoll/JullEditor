@@ -24,7 +24,6 @@ COPY --from=builder /install /usr/local
 
 # Copiar directorios del proyecto
 COPY backend/ ./backend/
-COPY frontend/ ./frontend/
 COPY Informacion_docling_rag/ ./Informacion_docling_rag/
 COPY .env.example ./.env
 

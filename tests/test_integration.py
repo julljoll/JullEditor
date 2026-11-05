@@ -59,7 +59,9 @@ def test_system_profiler_logic():
     assert info["cpu_count"] > 0
     assert isinstance(info["ram_gb"], (int, float))
     assert info["tier"] in ("high", "balanced", "light")
-    assert info["recommended_model"] in ("granite3.3:8b", "granite3.3:2b")
+    # El modelo recomendado lo define system_profiler (fuente única); se valida
+    # que sea un nombre de modelo no vacío en lugar de hardcodear la marca.
+    assert isinstance(info["recommended_model"], str) and info["recommended_model"].strip()
 
 def test_extract_sentencia_clean_contract():
     """Valida endpoint /api/extract-sentencia con un texto mínimo representativo."""

@@ -59,7 +59,8 @@ def _create_desktop_shortcut() -> bool:
 
         shortcut_path = desktop_dir / "JullEditor.lnk"
         bat_target = PROJECT_ROOT / "crear_articulo.bat"
-        icon_target = PROJECT_ROOT / "frontend" / "favicon.ico"
+        # (Plan Astro 2026) frontend/ vanilla eliminado; el favicon vive en blog/public.
+        icon_target = PROJECT_ROOT / "blog" / "public" / "favicon.ico"
 
         ps_script = f"""
         $WshShell = New-Object -comObject WScript.Shell
