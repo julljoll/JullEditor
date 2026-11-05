@@ -1,8 +1,8 @@
 ---
 title: "Prueba de Integración Astro Export 2026"
 description: "METADESC: Probando la exportación automatizada a Astro."
-pubDate: 2026-11-04
-updatedDate: 2026-11-04
+pubDate: 2026-11-05
+updatedDate: 2026-11-05
 author: "Jull Editor"
 slug: "prueba-de-integracion-astro-export-2026"
 tags: ["legal-tech", "derecho-digital", "evidencia-digital", "venezuela"]

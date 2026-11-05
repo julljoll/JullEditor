@@ -1,0 +1,52 @@
+[2026-11-05 14:00:39] [WARNING] [app] Health check: no se pudo conectar a Ollama tras reintento: All connection attempts failed
+[2026-11-05 14:00:39] [INFO] [httpx] HTTP Request: GET http://testserver/api/health "HTTP/1.1 200 OK"
+[2026-11-05 14:00:39] [INFO] [docling_parser] Docling parseado: 'Documento de Prueba Endpoint' (10 palabras, tema: cybersecurity)
+[2026-11-05 14:00:39] [INFO] [rag_manager] Fuente RAG persistida exitosamente: Articulos Generados/inputs/test_endpoint_20261105_140039.md
+[2026-11-05 14:00:39] [INFO] [httpx] HTTP Request: POST http://testserver/api/parse-docling-md "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [WARNING] [scraper] Validación SSRF falló para 'https://not-a-valid-url': [Errno -2] Name or service not known
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/scrape "HTTP/1.1 400 Bad Request"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/scrape "HTTP/1.1 400 Bad Request"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/seo-audit "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/articles-history "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [image_generator] Cabecera procedural generada exitosamente: header_banner_c7bf96568c.svg
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/generate-header-image "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [WARNING] [app] Error de validación en /api/generate-stream: [{'type': 'value_error', 'loc': ('body', 'editorial_mode'), 'msg': "Value error, editorial_mode debe ser 'magazine', 'classic' o 'astro_editorial'", 'input': 'invalid_mode_not_supported', 'ctx': {'error': ValueError("editorial_mode debe ser 'magazine', 'classic' o 'astro_editorial'")}}]
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/generate-stream "HTTP/1.1 422 Unprocessable Entity"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/stop-generation "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [scraper] Extracción completada: 'Análisis Forense y Cadena de Custodia Digital' (29 palabras, imagen: No)
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/export/astro/list "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [rag_manager] Artículo Astro-ready exportado: Articulos Generados/astro_ready/prueba-de-integracion-astro-export-2026.md
+[2026-11-05 14:00:40] [INFO] [rag_manager] Artículo final guardado en Articulos Generados: Articulos Generados/Prueba de Integración Astro Export 2026.md y Articulos Generados/Prueba de Integración Astro Export 2026.html
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/export/astro/prueba-de-integracion-astro-export-2026 "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/export/astro/prueba-de-integracion-astro-export-2026?download=true "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [astro_publisher] Artículo publicado en el blog: articulo-de-prueba (acción: created)
+[2026-11-05 14:00:40] [INFO] [astro_publisher] Artículo publicado en el blog: articulo-de-prueba (acción: created)
+[2026-11-05 14:00:40] [INFO] [astro_publisher] Artículo publicado en el blog: articulo-de-prueba (acción: created)
+[2026-11-05 14:00:40] [INFO] [astro_publisher] Artículo publicado en el blog: articulo-de-prueba (acción: updated)
+[2026-11-05 14:00:40] [INFO] [astro_publisher] Artículo publicado en el blog: uno (acción: created)
+[2026-11-05 14:00:40] [INFO] [astro_publisher] Artículo publicado en el blog: articulo-de-prueba (acción: created)
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/export/publish "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/export/publish "HTTP/1.1 400 Bad Request"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/export/drafts "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/ "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/preloaded-file "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/preloaded-file "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/preloaded-file "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [docling_parser] Docling parseado: 'Análisis Pericial de Ciberseguridad' (17 palabras, tema: cybersecurity)
+[2026-11-05 14:00:40] [WARNING] [docling_parser] Intento de parsear documento vacío: 
+[2026-11-05 14:00:40] [INFO] [docling_parser] Docling parseado: 'Inteligencia Artificial y Modelos LLM' (9 palabras, tema: ai_data)
+[2026-11-05 14:00:40] [INFO] [docling_parser] Docling parseado: 'Título Limpio' (9 palabras, tema: cybersecurity)
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/system-info "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [WARNING] [app] Health check: no se pudo conectar a Ollama tras reintento: All connection attempts failed
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: GET http://testserver/api/health "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [WARNING] [app] Error de validación en /api/generate-stream: [{'type': 'string_too_short', 'loc': ('body', 'source_text'), 'msg': 'String should have at least 10 characters', 'input': 'Corto', 'ctx': {'min_length': 10}}]
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/generate-stream "HTTP/1.1 422 Unprocessable Entity"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/extract-sentencia "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [httpx] HTTP Request: POST http://testserver/api/seo-audit "HTTP/1.1 200 OK"
+[2026-11-05 14:00:40] [INFO] [rag_manager] Corpus legal cargado desde JSON: 7 bloques normativos.
+[2026-11-05 14:00:40] [INFO] [rag_manager] Índice RAG Docling precargado: 96 documentos en memoria.
+[2026-11-05 14:00:40] [INFO] [rag_manager] Fuente RAG persistida exitosamente: Articulos Generados/inputs/prueba_test_20261105_140040.md
+[2026-11-05 14:00:40] [INFO] [rag_manager] Artículo Astro-ready exportado: Articulos Generados/astro_ready/articulo-de-prueba.md
+[2026-11-05 14:00:40] [INFO] [rag_manager] Artículo final guardado en Articulos Generados: Articulos Generados/Artículo de Prueba.md y Articulos Generados/Artículo de Prueba.html
+[2026-11-05 14:00:40] [INFO] [rag_manager] Artículo Astro-ready exportado: Articulos Generados/astro_ready/ciberseguridad-y-delitos-informaticos-en-venezuela-analisis-pericial.md
+[2026-11-05 14:00:40] [INFO] [rag_manager] Artículo final guardado en Articulos Generados: Articulos Generados/Ciberseguridad y Delitos Informáticos en Venezuela - Análisis Pericial.md y Articulos Generados/Ciberseguridad y Delitos Informáticos en Venezuela - Análisis Pericial.html
