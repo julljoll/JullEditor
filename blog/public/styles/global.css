@@ -1,0 +1,67 @@
+/* Estilos globales del blog estático */
+:root {
+  --bg: #ffffff;
+  --fg: #1a1d23;
+  --muted: #5f6b7a;
+  --accent: #0b57d0;
+  --card-border: #e3e8ef;
+  --maxw: 760px;
+  font-family: Georgia, "Times New Roman", serif;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  line-height: 1.7;
+}
+main { max-width: var(--maxw); margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+.site-header {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 1rem 1.5rem; border-bottom: 1px solid var(--card-border);
+  font-family: system-ui, sans-serif;
+}
+.site-header .brand { font-weight: 700; color: var(--fg); font-size: 1.1rem; }
+.site-header nav a { margin-left: 1.25rem; color: var(--muted); font-size: 0.95rem; }
+.site-footer {
+  border-top: 1px solid var(--card-border);
+  color: var(--muted); font-size: 0.85rem; text-align: center; padding: 1.5rem;
+  font-family: system-ui, sans-serif;
+}
+
+.hero h1 { font-size: 2.2rem; margin-bottom: 0.25rem; }
+.hero p { color: var(--muted); }
+
+.article-list { list-style: none; padding: 0; }
+.card {
+  border: 1px solid var(--card-border); border-radius: 10px;
+  margin-bottom: 1.25rem; transition: box-shadow 0.15s ease;
+}
+.card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.07); }
+.card > a { display: block; padding: 1.25rem 1.5rem; color: inherit; }
+.card h2 { margin: 0 0 0.5rem; font-size: 1.35rem; }
+.card p { margin: 0 0 0.75rem; color: var(--muted); }
+.meta { color: var(--muted); font-size: 0.85rem; font-family: system-ui, sans-serif; }
+.tags { margin-top: 0.5rem; }
+.tag {
+  display: inline-block; background: #f1f5fb; color: var(--accent);
+  border-radius: 999px; padding: 0.1rem 0.7rem; margin-right: 0.4rem;
+  font-size: 0.78rem; font-family: system-ui, sans-serif;
+}
+
+.post-header h1 { font-size: 2.1rem; line-height: 1.25; }
+.post-body h2 { margin-top: 2.25rem; font-size: 1.5rem; }
+.post-body img { max-width: 100%; height: auto; border-radius: 8px; }
+.post-body pre { overflow-x: auto; border-radius: 8px; padding: 1rem; }
+.post-body blockquote {
+  border-left: 4px solid var(--accent); margin: 1.5rem 0; padding: 0.25rem 1.25rem;
+  color: var(--muted); font-style: italic; font-size: 1.15rem;
+}
+.post-body table { width: 100%; border-collapse: collapse; }
+.post-body th, .post-body td { border: 1px solid var(--card-border); padding: 0.5rem 0.75rem; }
+
+.tag-cloud { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.75rem; }
+.tag-cloud small { color: var(--muted); }
