@@ -307,9 +307,6 @@ slug: "{slug}"
 tags: {tags_formatted}
 category: "{theme}"
 heroImage: "../../assets/blog-placeholder-1.jpg"
-image:
-  url: "/images/blog/{slug}.jpg"
-  alt: "{clean_title}"
 draft: false
 featured: false
 readingTime: {reading_time}

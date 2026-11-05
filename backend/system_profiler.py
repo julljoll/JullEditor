@@ -59,19 +59,22 @@ def detect_system_resources() -> dict:
         except Exception:
             pass
 
-    # Heurística de optimización para CPU/GPU con IBM Granite
+    # Heurística de optimización para CPU/GPU.
+    # Por defecto: Microsoft Phi-4-mini (3.8B, Q4_K_M ≈ 2.5–3 GB) — cabe en cualquier
+    # equipo con >= 4 GB de RAM y es el modelo recomendado para redactar artículos.
+    # En equipos holgados (>=16 GB) se sugiere además IBM Granite 3.3 8B como alternativa de mayor calidad.
     if ram_gb >= 16:
-        recommended_model = "granite3.3:8b"
+        recommended_model = "phi4-mini-jull"
         recommended_ctx = 8192
         recommended_threads = min(cpu_count, 8)
         tier = "high"
     elif ram_gb >= 8:
-        recommended_model = "granite3.3:8b"
+        recommended_model = "phi4-mini-jull"
         recommended_ctx = 4096
         recommended_threads = min(cpu_count, 6)
         tier = "balanced"
     else:
-        recommended_model = "granite3.3:2b"
+        recommended_model = "phi4-mini-jull"
         recommended_ctx = 4096
         recommended_threads = min(cpu_count, 4)
         tier = "light"

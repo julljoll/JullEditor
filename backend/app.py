@@ -48,8 +48,10 @@ logger = get_logger("app")
 load_dotenv()
 
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
-DEFAULT_GRANITE_MODEL = os.getenv("GRANITE_MODEL", "granite3.3:8b")
-FAST_MODEL = os.getenv("FAST_MODEL", "granite3.3:2b")
+# Modelo por defecto para la creación de artículos: Microsoft Phi-4-mini (3.8B,
+# cuantización Q4_K_M de fábrica ≈ 2.5–3 GB). Ajustable vía env GRANITE_MODEL.
+DEFAULT_GRANITE_MODEL = os.getenv("GRANITE_MODEL", "phi4-mini-jull")
+FAST_MODEL = os.getenv("FAST_MODEL", "phi4-mini-jull")
 MAX_TOKENS = int(os.getenv("MAX_TOKENS", "4096"))
 NUM_CTX = int(os.getenv("NUM_CTX", "8192"))
 KEEP_ALIVE = os.getenv("KEEP_ALIVE", "30m")
@@ -92,11 +94,12 @@ async def lifespan(app: FastAPI):
             if resp.status_code == 200:
                 tags_data = resp.json()
                 models = [m.get("name") for m in tags_data.get("models", [])]
-                granite_found = [m for m in models if "granite" in m.lower()]
-                if granite_found:
-                    logger.info(f"✅ Conexión con Ollama establecida. Modelos Granite listos: {granite_found}")
+                # Modelos de redacción soportados: Phi-4-mini (por defecto) e IBM Granite (legacy).
+                writer_found = [m for m in models if "granite" in m.lower() or "phi4" in m.lower()]
+                if writer_found:
+                    logger.info(f"✅ Conexión con Ollama establecida. Modelos de redacción listos: {writer_found}")
                 else:
-                    logger.warning(f"⚠️ Ollama activo pero no tiene modelos Granite instalados: {models}")
+                    logger.warning(f"⚠️ Ollama activo pero no tiene modelos de redacción instalados (phi4-mini / granite): {models}")
     except Exception as e:
         logger.warning(f"⚠️ Aviso: Ollama no respondió en {OLLAMA_BASE_URL} durante arranque: {e}")
     yield
@@ -233,7 +236,7 @@ class SaveArticleRequest(BaseModel):
     title: str = Field(..., min_length=1, max_length=300)
     markdown_content: str = Field(..., min_length=10, max_length=1000000)
     theme: str | None = Field("cybersecurity", max_length=50)
-    model: str | None = Field("granite3.3:8b", max_length=100)
+    model: str | None = Field("phi4-mini-jull", max_length=100)
     tone: str | None = Field("conversational", max_length=50)
     source_url: str | None = Field("", max_length=2048)
     jurisdiction: str | None = Field("auto", max_length=50)
@@ -303,7 +306,7 @@ async def health_check():
                     latency_ms = round((time.time() - start_time) * 1000)
                     data = resp.json()
                     models = [m.get("name") for m in data.get("models", [])]
-                    granite_available = any("granite" in m.lower() for m in models)
+                    granite_available = any("granite" in m.lower() or "phi4" in m.lower() for m in models)
                     return {
                         "status": "online",
                         "ollama_url": OLLAMA_BASE_URL,

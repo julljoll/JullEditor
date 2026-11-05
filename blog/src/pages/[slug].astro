@@ -1,7 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
-import config from 'astro/config';
 
 export async function getStaticPaths() {
   const articles = await getCollection('blog', ({ data }) => !data.draft);
@@ -13,7 +12,7 @@ export async function getStaticPaths() {
 
 const { article } = Astro.props;
 const { Content } = await render(article);
-const site = config.site;
+const site = Astro.site ?? new URL('https://example.com');
 const canonical = new URL(`/${article.data.slug}`, site).href;
 
 const jsonLd = {

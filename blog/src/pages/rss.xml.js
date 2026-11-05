@@ -1,6 +1,5 @@
 import rss from '@astrojs/rss';
 import { getCollection } from 'astro:content';
-import config from 'astro/config';
 
 export async function GET(context) {
   const articles = (await getCollection('blog', ({ data }) => !data.draft)).sort(
@@ -9,7 +8,7 @@ export async function GET(context) {
   return rss({
     title: 'Pericial Blog',
     description: 'Artículos periciales, tecnología y derecho digital.',
-    site: context.site ?? config.site,
+    site: context.site ?? "https://example.com",
     items: articles.map((a) => ({
       title: a.data.title,
       description: a.data.description,

@@ -1,7 +1,6 @@
 ---
 // Layout base del blog estático
-import config from 'astro/config';
-const site = config.site;
+const site = Astro.site ?? new URL('https://example.com');
 export interface Props {
   title: string;
   description?: string;

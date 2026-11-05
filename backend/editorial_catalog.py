@@ -73,7 +73,8 @@ DEFAULT_JURISDICTION = "auto"
 # PASO 6 — Parámetros técnicos de inferencia (Ajustes Avanzados)
 # ---------------------------------------------------------------------------
 MODELS: list[tuple[str, str]] = [
-    ("granite3.3:8b", "IBM Granite 3.3 8B (Recomendado 16GB RAM)"),
+    ("phi4-mini-jull", "Microsoft Phi-4-mini 3.8B Q4 (~2.5–3 GB · Por defecto)"),
+    ("granite3.3:8b", "IBM Granite 3.3 8B (Alternativa · Recomendado 16GB RAM)"),
     ("granite3.3:2b", "IBM Granite 3.3 2B (Rápido · CPU baja RAM)"),
 ]
 
@@ -86,7 +87,7 @@ WORD_COUNT_TARGETS: list[tuple[int, str]] = [
 
 DEFAULT_TEMPERATURE = 0.0      # Cero alucinación / rigor factual TSJ
 TEMPERATURE_RANGE: tuple[float, float] = (0.0, 1.0)
-DEFAULT_MODEL = "granite3.3:8b"
+DEFAULT_MODEL = "phi4-mini-jull"
 DEFAULT_WORD_COUNT = 1000
 
 
