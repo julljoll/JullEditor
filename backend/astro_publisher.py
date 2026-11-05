@@ -111,6 +111,9 @@ def _collect_images_for_article(astro_path: str, content: str) -> list[str]:
     search_dirs = [
         ASTRO_READY_DIR,
         os.path.dirname(astro_path),
+        # subcarpeta astro_ready/images/ (destino de image_generator.py)
+        os.path.join(ASTRO_READY_DIR, "images"),
+        # compatibilidad con la ubicación antigua heredada
         os.path.join(os.path.dirname(ASTRO_READY_DIR), "images"),
     ]
     for d in search_dirs:
