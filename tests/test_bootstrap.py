@@ -92,10 +92,14 @@ class TestDownloadGranite:
 
 class TestRunBootstrap:
     def test_full_environment_makes_no_installs(self):
+        # El modelo instalado debe coincidir con el que recomienda el profiler
+        # (fuente única de verdad), para que run_bootstrap no intente ningún pull.
+        from backend.system_profiler import detect_system_resources
+        recommended = detect_system_resources()["recommended_model"]
         with mock.patch.object(b, "ensure_python_dependencies", return_value=True), \
              mock.patch.object(b, "is_ollama_installed", return_value=True), \
              mock.patch.object(b, "ensure_ollama_service_running", return_value=True), \
-             mock.patch.object(b, "installed_ollama_models", return_value=["granite3.3:2b"]), \
+             mock.patch.object(b, "installed_ollama_models", return_value=[recommended]), \
              mock.patch.object(b.subprocess, "run") as mrun:
             p = b.run_bootstrap(auto_install=True)
         assert p["deps_ok"] and p["ollama_ok"] and p["model_ready"]
