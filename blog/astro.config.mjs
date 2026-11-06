@@ -1,12 +1,16 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
 import node from '@astrojs/node';
+import vercel from '@astrojs/vercel';
 
-// Servidor Astro con soporte para API endpoints (Gemini AI & Reversionador de URLs)
+const adapter = process.env.VERCEL
+  ? vercel()
+  : node({ mode: 'standalone' });
+
 export default defineConfig({
   site: process.env.PUBLIC_SITE_URL || 'https://example.com',
   output: 'server',
-  adapter: node({ mode: 'standalone' }),
+  adapter,
   trailingSlash: 'never',
   integrations: [sitemap()],
   markdown: {

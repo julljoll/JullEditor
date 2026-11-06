@@ -271,6 +271,13 @@ npm run lint      # TypeScript sin emitir archivos
 ```
 El build genera el servidor Node en `blog/dist/`. Para publicar un artículo nuevo, usa **Preparar para Astro** en `/writer` y vuelve a ejecutar `npm run build` para regenerar las rutas prerenderizadas. En Docker, `docker compose -f docker/docker-compose.yml up --build` construye Astro y FastAPI; Nginx sirve Astro en la raíz y conserva `/api/` para FastAPI.
 
+#### Despliegue de Astro en Vercel
+Configura el proyecto Vercel con **Root Directory** `blog`, framework **Astro**, instalación `npm ci` y build `npm run build`. Astro selecciona `@astrojs/vercel` al compilar en Vercel y conserva `@astrojs/node` en modo standalone para los despliegues locales y Docker.
+
+Configura `PUBLIC_SITE_URL` con la URL pública del sitio y `BACKEND_API_URL` con la URL base accesible de una instancia FastAPI desplegada por separado (sin barra final). No uses `localhost`: las funciones de Vercel no pueden acceder a tu equipo ni a su Ollama local. Vercel aloja Astro, pero el motor FastAPI/Ollama y sus datos persistentes requieren un servidor externo; si falta `BACKEND_API_URL`, `/backend-api/` devuelve `503` con un mensaje de configuración.
+
+El aviso `npm warn Unknown env config "cache-dir"` no detiene por sí mismo el build. Si aparece, elimina la variable de entorno `NPM_CONFIG_CACHE_DIR` de la configuración de Vercel; no está definida en este repositorio.
+
 ---
 
 ## 🧪 7. Protocolo de Verificación del Funcionamiento

@@ -9,6 +9,8 @@ bun.lockb
 # Astro & Build Outputs
 .astro/
 **/.astro/
+.vercel/
+**/.vercel/
 dist/
 **/dist/
 build/
