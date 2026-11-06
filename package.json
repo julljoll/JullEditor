@@ -10,5 +10,9 @@
     "build": "npm run build --workspace=blog",
     "preview": "npm run preview --workspace=blog",
     "lint": "node blog/node_modules/typescript/bin/tsc --noEmit --project blog/tsconfig.json"
+  },
+  "dependencies": {
+    "@astrojs/node": "^11.1.11",
+    "@google/genai": "^2.32.0"
   }
 }

@@ -1,3 +1,40 @@
+# Dependencies
+node_modules/
+*/node_modules/
+**/node_modules/
+.pnpm-store/
+.yarn/
+bun.lockb
+
+# Astro & Build Outputs
+.astro/
+**/.astro/
+dist/
+**/dist/
+build/
+**/build/
+.cache/
+**/.cache/
+tmp/
+*.log
+
+# Environment Variables & Secrets (Prevent GitHub Push Protection rejection)
+.env
+.env.*
+*.env
+**/.env
+**/.env.*
+!.env.example
+
+# Operating System & Editor Files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Python Cache & Virtual Environments
 __pycache__/
 *.pyc
 *.pyo
@@ -9,13 +46,3 @@ venv/
 pip-log.txt
 pip-delete-this-directory.txt
 logs/
-*.log
-.vscode/
-.idea/
-*.swp
-*.swo
-.DS_Store
-Thumbs.db
-.env
-.env.local
-.env.*.local

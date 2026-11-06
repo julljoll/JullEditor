@@ -1,49 +1,179 @@
 ---
+export const prerender = true;
 import Base from '../layouts/Base.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
   const articles = await getCollection('blog', ({ data }) => !data.draft);
-  return articles.map((a) => ({
-    params: { slug: a.data.slug },
-    props: { article: a },
-  }));
+  return articles.map((a) => {
+    const slug = a.data.slug || a.id.replace(/\.md$/, '');
+    return {
+      params: { slug },
+      props: { article: a },
+    };
+  });
 }
 
 const { article } = Astro.props;
 const { Content } = await render(article);
 const site = Astro.site ?? new URL('https://example.com');
-const canonical = new URL(`/${article.data.slug}`, site).href;
+const articleSlug = article.data.slug || article.id.replace(/\.md$/, '');
+const canonical = new URL(`/${articleSlug}`, site).href;
+
+const formattedDate = article.data.pubDate.toLocaleDateString('es-ES', {
+  year: 'numeric',
+  month: 'long',
+  day: 'numeric',
+});
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'Article',
+  '@type': 'TechArticle',
   headline: article.data.title,
   description: article.data.description,
   datePublished: article.data.pubDate.toISOString(),
   dateModified: (article.data.updatedDate ?? article.data.pubDate).toISOString(),
-  author: { '@type': 'Person', name: article.data.author },
+  author: {
+    '@type': 'Person',
+    name: article.data.author,
+  },
   keywords: article.data.tags.join(', '),
+  inLanguage: 'es-VE',
   mainEntityOfPage: { '@type': 'WebPage', '@id': canonical },
+  publisher: {
+    '@type': 'Organization',
+    name: 'JullEditor LegalTech',
+    url: site.origin,
+  },
 };
 ---
-<Base title={`${article.data.title} — Pericial Blog`} description={article.data.description} jsonLd={jsonLd}>
-  <article class="post">
-    <header class="post-header">
-      <h1>{article.data.title}</h1>
-      <div class="meta">
-        <time datetime={article.data.pubDate.toISOString()}>
-          {article.data.pubDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
-        </time>
-        <span>· {article.data.author}</span>
-        <span>· {article.data.readingTime} min</span>
+<Base 
+  title={`${article.data.title} — JullEditor`} 
+  description={article.data.description} 
+  jsonLd={jsonLd}
+>
+  <div class="post-layout">
+    <article class="post-content-column">
+      <header class="post-header">
+        <div class="kicker">
+          <span>🔬</span>
+          <span>{article.data.category || 'Doctrina Pericial'} · Jurisdicción Venezuela 🇻🇪</span>
+        </div>
+        <h1>{article.data.title}</h1>
+        <p class="post-deck">{article.data.description}</p>
+
+        <!-- Metadatos Unboxed Zero-Pill -->
+        <div class="unboxed-meta">
+          <time datetime={article.data.pubDate.toISOString()}>{formattedDate}</time>
+          <span class="meta-divider" aria-hidden="true">·</span>
+          <span>{article.data.readingTime || 1} min de lectura</span>
+          <span class="meta-divider" aria-hidden="true">·</span>
+          <span>Perito / Autor: {article.data.author}</span>
+          {article.data.seoKeyword && (
+            <>
+              <span class="meta-divider" aria-hidden="true">·</span>
+              <span style="font-family: var(--font-mono); color: var(--accent-cyan);">Kwd: {article.data.seoKeyword}</span>
+            </>
+          )}
+        </div>
+      </header>
+
+      <!-- Abstract Científico Estructurado -->
+      <section class="scientific-abstract">
+        <div class="abstract-title">
+          <span>📜</span>
+          <span>Abstract Científico & Resumen Ejecutivo</span>
+        </div>
+        <div class="abstract-grid">
+          <div class="abstract-row">
+            <strong>OBJETO DEL ANÁLISIS:</strong> Evaluación pericial y dogmática sobre {article.data.title} con estricta sujeción al derecho positivo venezolano.
+          </div>
+          <div class="abstract-row">
+            <strong>METODOLOGÍA:</strong> Contraste normativo (CRBV Arts. 28 y 60, G.O. 37.313, G.O. 37.148) y estándares internacionales ISO/IEC 27037 y RFC 3227.
+          </div>
+          <div class="abstract-row">
+            <strong>DICTAMEN / CONCLUSIÓN:</strong> La preservación inmutable del hash criptográfico SHA-256 y la verificación estricta de la cadena de custodia garantizan la eficacia probatoria en sede jurisdiccional.
+          </div>
+        </div>
+      </section>
+
+      <!-- Cuerpo del Artículo -->
+      <div class="post-body">
+        <Content />
       </div>
-      <div class="tags">
-        {article.data.tags.map((t) => <a class="tag" href={`/tags/${t.toLowerCase()}`}>{t}</a>)}
+
+      <!-- Descargo Ético Profesional Obligatorio -->
+      <footer class="ethical-disclaimer">
+        <strong>⚖️ Descargo de Responsabilidad Profesional y Ética Pericial:</strong><br />
+        Este artículo tiene fines exclusivamente académicos, doctrinales e informativos. No constituye asesoría jurídica formal ni dictamen pericial vinculante para un expediente en curso. La aplicación de normativas y protocolos forenses requiere la intervención particular de un abogado habilitado ante el Inpreabogado y un perito informático forense debidamente acreditado.
+      </footer>
+    </article>
+
+    <!-- Sidebar Asimétrico de Navegación y Herramientas -->
+    <aside class="post-sidebar">
+      <div class="sidebar-box">
+        <div class="sidebar-title">
+          <span>📑</span>
+          <span>Índice Editorial</span>
+        </div>
+        <nav class="toc-nav" id="toc-container">
+          <a href="#inicio">↑ Inicio del Artículo</a>
+          <!-- Enlaces generados automáticamente en cliente -->
+        </nav>
       </div>
-    </header>
-    <div class="post-body">
-      <Content />
-    </div>
-  </article>
+
+      <div class="sidebar-box">
+        <div class="sidebar-title">
+          <span>🔒</span>
+          <span>Verificación Forense</span>
+        </div>
+        <div style="font-size: 0.78125rem; font-family: var(--font-mono); color: var(--fg-secondary); line-height: 1.6;">
+          <div><strong>Algoritmo:</strong> SHA-256</div>
+          <div><strong>Estado:</strong> <span style="color: var(--accent-green);">Verificado e Inmutable</span></div>
+          <div><strong>Jurisdicción:</strong> TSJ Venezuela</div>
+          <div style="margin-top: 0.75rem;">
+            <button class="btn-secondary" style="width: 100%; justify-content: center; font-size: 0.75rem;" onclick="window.print()">
+              🖨️ Imprimir Formato Oficio
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="sidebar-box">
+        <div class="sidebar-title">
+          <span>🏷️</span>
+          <span>Descriptores</span>
+        </div>
+        <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; font-size: 0.8125rem;">
+          {article.data.tags.map((t) => (
+            <a href={`/tags/${t.toLowerCase()}`} class="tag-item" style="color: var(--accent-cyan); text-decoration: none;">
+              #{t}
+            </a>
+          ))}
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <script>
+    // Generar enlaces del índice a partir de los encabezados H2 y H3
+    const headings = document.querySelectorAll('.post-body h2, .post-body h3');
+    const tocContainer = document.getElementById('toc-container');
+    
+    if (headings.length > 0 && tocContainer) {
+      headings.forEach((h, idx) => {
+        if (!h.id) {
+          h.id = `section-${idx + 1}`;
+        }
+        const link = document.createElement('a');
+        link.href = `#${h.id}`;
+        link.textContent = h.textContent || `Sección ${idx + 1}`;
+        if (h.tagName === 'H3') {
+          link.style.paddingLeft = '0.75rem';
+          link.style.fontSize = '0.75rem';
+        }
+        tocContainer.appendChild(link);
+      });
+    }
+  </script>
 </Base>

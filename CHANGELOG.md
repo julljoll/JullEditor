@@ -6,6 +6,24 @@ El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/
 
 ---
 
+## [3.5.0] - 2026-11-06
+
+### Añadido
+- **Formato Blog -Astro.md (sha256.us)**: Integración estricta de la plantilla editorial en 3 columnas (`editorial-container`, `editorial-lead`, `editorial-quote`, `editorial-three-columns`, `editorial-dropcap`, `editorial-subhead`, `editorial-box`, bloque FAQ E-E-A-T y `editorial-author-box`).
+- **Motor Dual de Inteligencia Artificial**:
+  - **Online**: Google Gemini (`gemini-3.5-flash-lite`) mediante API REST para redacción, resumen, transformación y reversión por URL.
+  - **Local**: Microsoft Phi (`phi3`, `phi3.5`, `phi4`) vía Ollama / LM Studio (`http://localhost:11434` o `/v1`) con diagnóstico de conectividad (`/api/ai-status`).
+- **Chat Copiloto Editorial Interactivo**: Pestaña de conversación multi-turno en `/studio` para afinar doctrina, incorporar citas legales venezolanas y aplicar modificaciones al artículo con un solo clic.
+- **Suite de QA Testing Ampliada**: Verificaciones de esquemas Zod, unicidad de slugs y endpoints de IA en `/qa`.
+
+### Corregido
+- **Error de Push a GitHub (`Request contains an invalid argument`)**:
+  - Renombrados archivos con espacios antes de la extensión en `Informacion_docling_rag/` que violaban la especificación de Git Tree de GitHub API.
+  - Endurecido `.gitignore` en la raíz y en `/blog` excluyendo `node_modules/`, `dist/`, `.astro/`, `.env*` y cachés pesadas.
+  - Removidas claves de API en texto plano de los archivos versionados para evitar bloqueos por Secret Scanning Push Protection.
+
+---
+
 ## [3.4.0] - 2026-10-25
 
 ### Añadido

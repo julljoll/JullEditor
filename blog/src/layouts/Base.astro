@@ -1,13 +1,21 @@
 ---
-// Layout base del blog estático
+// Layout Base Cyber-Legal Dark OLED — JullEditor
 const site = Astro.site ?? new URL('https://example.com');
 export interface Props {
   title: string;
   description?: string;
   jsonLd?: object;
+  activeNav?: 'articles' | 'studio' | 'qa' | 'tags';
 }
-const { title, description = 'Blog de artículos periciales, tecnología y derecho.', jsonLd } = Astro.props;
+const { 
+  title, 
+  description = 'JullEditor: Estación Editorial y Pericial de Redacción Jurídica, Ciberseguridad Forense y Artículos Científicos.', 
+  jsonLd,
+  activeNav
+} = Astro.props;
+
 const canonical = new URL(Astro.url.pathname, site).href;
+const currentPath = Astro.url.pathname;
 ---
 <!doctype html>
 <html lang="es">
@@ -21,25 +29,60 @@ const canonical = new URL(Astro.url.pathname, site).href;
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical} />
-    <meta property="og:type" content="article" />
+    <meta property="og:type" content="website" />
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="theme-color" content="#07090e" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     <link rel="stylesheet" href="/styles/global.css" />
   </head>
   <body>
+    <!-- Top Bar Contract (3 Zonas Estrictas) -->
     <header class="site-header">
-      <a class="brand" href="/">Pericial Blog</a>
-      <nav>
-        <a href="/">Artículos</a>
-        <a href="/tags">Tags</a>
-        <a href="/rss.xml">RSS</a>
-      </nav>
+      <div class="header-container">
+        <!-- Zona 1: Brand Wordmark -->
+        <a class="brand" href="/">
+          <span>JullEditor</span>
+          <span class="brand-badge">Cyber-Legal</span>
+        </a>
+
+        <!-- Zona 2: Enlaces de Navegación Limpios -->
+        <nav class="header-nav" aria-label="Navegación principal">
+          <a href="/" class={currentPath === '/' ? 'active' : ''}>Artículos</a>
+          <a href="/studio" class={currentPath.startsWith('/studio') ? 'active' : ''}>Estudio Redactor</a>
+          <a href="/qa" class={currentPath.startsWith('/qa') ? 'active' : ''}>Auditoría QA</a>
+          <a href="/tags" class={currentPath.startsWith('/tags') ? 'active' : ''}>Taxonomía</a>
+          <a href="/rss.xml">RSS</a>
+        </nav>
+
+        <!-- Zona 3: Acción Principal -->
+        <div class="header-actions">
+          <a class="btn-primary" href="/studio">
+            <span>+</span> Redactar
+          </a>
+        </div>
+      </div>
     </header>
+
     <main>
       <slot />
     </main>
+
     <footer class="site-footer">
-      <p>© {new Date().getFullYear()} · Contenido generado con el estudio de redacción (backend Python + Astro estático).</p>
+      <div class="footer-container">
+        <div>
+          <strong>JullEditor v3.4.0</strong> · Estación Pericial & Editorial Libre de Fuga de Datos
+          <div style="font-size: 0.75rem; color: var(--fg-dim); margin-top: 0.25rem;">
+            Alineado con CRBV (Arts. 28, 60), G.O. 37.313, G.O. 37.148, ISO/IEC 27037 y Manual MP/CICPC 2017.
+          </div>
+        </div>
+        <div class="footer-links">
+          <a href="/studio">Estudio Redactor</a>
+          <a href="/qa">Consola QA</a>
+          <a href="/tags">Tags</a>
+          <a href="/rss.xml">Feed RSS</a>
+        </div>
+      </div>
     </footer>
   </body>
 </html>

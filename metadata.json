@@ -1,4 +1,7 @@
 {
   "name": "JullEditor Blog",
-  "description": "Estación Editorial y Blog de Artículos Científicos, LegalTech y Ciberseguridad Forense."
+  "description": "Estación Editorial y Blog de Artículos Científicos, LegalTech y Ciberseguridad Forense.",
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
 }

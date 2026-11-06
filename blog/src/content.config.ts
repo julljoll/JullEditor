@@ -14,7 +14,7 @@ const blog = defineCollection({
     pubDate: z.coerce.date(),
     updatedDate: z.coerce.date().optional(),
     author: z.string().min(1),
-    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/),
+    slug: z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/).optional(),
     tags: z.array(z.string()).min(1).max(6),
     category: z.string().default('science_tech'),
     heroImage: z.string().optional(),

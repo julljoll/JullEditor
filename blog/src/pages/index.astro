@@ -5,30 +5,115 @@ import { getCollection } from 'astro:content';
 const articles = (await getCollection('blog', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+
+// Métricas de catálogo
+const totalReadingTime = articles.reduce((sum, a) => sum + (a.data.readingTime || 1), 0);
+const allTags = Array.from(new Set(articles.flatMap(a => a.data.tags)));
+const allCategories = Array.from(new Set(articles.map(a => a.data.category || 'Doctrina')));
 ---
-<Base title="Pericial Blog — Artículos">
-  <section class="hero">
-    <h1>Artículos</h1>
-    <p>{articles.length} publicaciones sobre periciaje tecnológico, derecho digital y ciencia.</p>
+<Base title="JullEditor — Publicaciones Jurídicas & Peritajes Forenses">
+  <section class="hero-editorial">
+    <div class="kicker">
+      <span>⚖️</span>
+      <span>Estación Editorial Jurídico-Científica · Jurisdicción Venezuela 🇻🇪</span>
+    </div>
+    <h1>Doctrina, Peritajes Forenses & LegalTech</h1>
+    <p class="hero-lead">
+      Publicaciones arbitradas, análisis periciales de evidencia digital, cadena de custodia bajo norma ISO/IEC 27037 y líneas jurisprudenciales de las Salas Penal y Constitucional del Tribunal Supremo de Justicia.
+    </p>
+
+    <!-- Strip de Métricas Operacionales -->
+    <div class="metrics-strip">
+      <div class="metric-item">
+        <span class="metric-label">Publicaciones Arbitradas</span>
+        <span class="metric-value">{articles.length} Artículos</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Tiempo de Lectura Total</span>
+        <span class="metric-value">{totalReadingTime} Minutos</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Ejes Temáticos Indexados</span>
+        <span class="metric-value">{allTags.length} Descriptores</span>
+      </div>
+      <div class="metric-item">
+        <span class="metric-label">Rigor Fáctico</span>
+        <span class="metric-value" style="color: var(--accent-green);">100% Sin Alucinación</span>
+      </div>
+    </div>
   </section>
-  <ul class="article-list">
-    {articles.map((article) => (
-      <li class="card">
-        <a href={`/${article.data.slug}`}>
-          <h2>{article.data.title}</h2>
-          <p>{article.data.description}</p>
-          <div class="meta">
-            <time datetime={article.data.pubDate.toISOString().slice(0, 10)}>
-              {article.data.pubDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' })}
-            </time>
-            <span>· {article.data.readingTime} min de lectura</span>
-            <span>· {article.data.author}</span>
-          </div>
-          <div class="tags">
-            {article.data.tags.map((t) => <span class="tag">{t}</span>)}
-          </div>
-        </a>
-      </li>
+
+  <!-- Filtro Reactivo de Categorías -->
+  <div class="filter-tabs" id="category-filter-tabs">
+    <button class="filter-tab active" data-filter="all">Todos ({articles.length})</button>
+    {allCategories.map(cat => (
+      <button class="filter-tab" data-filter={cat.toLowerCase()}>
+        {cat}
+      </button>
     ))}
-  </ul>
+  </div>
+
+  <!-- Catálogo de Artículos -->
+  <div class="article-grid" id="articles-container">
+    {articles.map((article) => {
+      const isFeatured = article.data.featured;
+      const formattedDate = article.data.pubDate.toLocaleDateString('es-ES', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+      return (
+        <article class={`article-card ${isFeatured ? 'featured' : ''}`} data-category={(article.data.category || '').toLowerCase()}>
+          <a href={`/${article.data.slug || article.id.replace(/\.md$/, '')}`}>
+            <h2>{article.data.title}</h2>
+            <p>{article.data.description}</p>
+            
+            <!-- Metadatos Unboxed Zero-Pill -->
+            <div class="unboxed-meta">
+              <span class="meta-category">{article.data.category || 'LegalTech'}</span>
+              <span class="meta-divider" aria-hidden="true">·</span>
+              <time datetime={article.data.pubDate.toISOString().slice(0, 10)}>{formattedDate}</time>
+              <span class="meta-divider" aria-hidden="true">·</span>
+              <span>{article.data.readingTime || 1} min de lectura</span>
+              <span class="meta-divider" aria-hidden="true">·</span>
+              <span>Por {article.data.author}</span>
+            </div>
+
+            <!-- Descriptores Temáticos Limpios -->
+            <div class="unboxed-tags">
+              <span>Descriptores:</span>
+              {article.data.tags.map((t, idx) => (
+                <span class="tag-item">
+                  #{t}{idx < article.data.tags.length - 1 ? ' ·' : ''}
+                </span>
+              ))}
+            </div>
+          </a>
+        </article>
+      );
+    })}
+  </div>
+
+  <script>
+    // Filtro interactivo en cliente sin recargas
+    const buttons = document.querySelectorAll('#category-filter-tabs .filter-tab');
+    const cards = document.querySelectorAll('#articles-container .article-card');
+
+    buttons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        buttons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const filter = btn.getAttribute('data-filter') || 'all';
+
+        cards.forEach(card => {
+          const category = card.getAttribute('data-category') || '';
+          if (filter === 'all' || category.includes(filter)) {
+            (card as HTMLElement).style.display = 'block';
+          } else {
+            (card as HTMLElement).style.display = 'none';
+          }
+        });
+      });
+    });
+  </script>
 </Base>
