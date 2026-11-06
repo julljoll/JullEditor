@@ -127,17 +127,17 @@ En resumen, la convergencia entre tecnología y legalidad exige una evaluación 
 2. [¿Cómo Aplica el Marco Legal en Venezuela?](#marco-legal)
 3. [Preguntas Frecuentes (FAQ)](#faq)
 
-## ¿Qué impacto tiene este avance en la práctica? {#impacto}
+## ¿Qué impacto tiene este avance en la práctica? {{#impacto}}
 El desarrollo continuo de infraestructuras demanda salvaguardas periciales robustas. Las organizaciones deben implementar controles verificables para mitigar riesgos de intrusión y alteración documental en sus sistemas clave.
 
 **Conclusión del párrafo:** La prevención tecnológica y la supervisión forense resultan primordiales para la resiliencia operativa.
 
-## ¿Cómo Aplica el Marco Legal en Venezuela? {#marco-legal}
+## ¿Cómo Aplica el Marco Legal en Venezuela? {{#marco-legal}}
 Conforme a la Constitución de la República Bolivariana de Venezuela (CRBV, Arts. 28 y 60) y la Ley Especial contra los Delitos Informáticos (G.O. 37.313), el tratamiento de evidencias digitales goza de plena validez formal bajo rigurosa cadena de custodia.
 
 **Conclusión del párrafo:** Todo peritaje debe preservar la trazabilidad del hash criptográfico SHA-256.
 
-## ❓ Preguntas Frecuentes (FAQ) {#faq}
+## ❓ Preguntas Frecuentes (FAQ) {{#faq}}
 
 **P: ¿Qué valor probatorio tiene la evidencia digital?**
 R: Posee plena eficacia jurídica conforme a la Ley de Mensajes de Datos y Firmas Electrónicas si se custodia debidamente.

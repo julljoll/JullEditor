@@ -3,9 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --host 0.0.0.0 --port 3000",
     "build": "astro build",
-    "preview": "astro preview",
+    "preview": "astro preview --host 0.0.0.0 --port 3000",
     "sync:articles": "python3 ../scripts/sync_articles.py"
   },
   "description": "Blog Astro 100% estatico alimentado por el backend Python (astro_publisher)",

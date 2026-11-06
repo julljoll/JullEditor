@@ -1,0 +1,14 @@
+{
+  "name": "julleditor-workspace",
+  "version": "1.0.0",
+  "private": true,
+  "workspaces": [
+    "blog"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=blog",
+    "build": "npm run build --workspace=blog",
+    "preview": "npm run preview --workspace=blog",
+    "lint": "node blog/node_modules/typescript/bin/tsc --noEmit --project blog/tsconfig.json"
+  }
+}
