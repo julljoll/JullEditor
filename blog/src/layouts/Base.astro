@@ -5,7 +5,7 @@ export interface Props {
   title: string;
   description?: string;
   jsonLd?: object;
-  activeNav?: 'articles' | 'studio' | 'qa' | 'tags';
+  activeNav?: 'articles' | 'writer' | 'studio' | 'qa' | 'tags';
 }
 const { 
   title, 
@@ -49,6 +49,7 @@ const currentPath = Astro.url.pathname;
         <!-- Zona 2: Enlaces de Navegación Limpios -->
         <nav class="header-nav" aria-label="Navegación principal">
           <a href="/" class={currentPath === '/' ? 'active' : ''}>Artículos</a>
+          <a href="/writer" class={currentPath.startsWith('/writer') ? 'active' : ''}>Redactor</a>
           <a href="/studio" class={currentPath.startsWith('/studio') ? 'active' : ''}>Estudio Redactor</a>
           <a href="/qa" class={currentPath.startsWith('/qa') ? 'active' : ''}>Auditoría QA</a>
           <a href="/tags" class={currentPath.startsWith('/tags') ? 'active' : ''}>Taxonomía</a>
@@ -57,7 +58,7 @@ const currentPath = Astro.url.pathname;
 
         <!-- Zona 3: Acción Principal -->
         <div class="header-actions">
-          <a class="btn-primary" href="/studio">
+          <a class="btn-primary" href="/writer">
             <span>+</span> Redactar
           </a>
         </div>
@@ -71,13 +72,14 @@ const currentPath = Astro.url.pathname;
     <footer class="site-footer">
       <div class="footer-container">
         <div>
-          <strong>JullEditor v3.4.0</strong> · Estación Pericial & Editorial Libre de Fuga de Datos
+          <strong>JullEditor</strong> · Estación Pericial & Editorial Libre de Fuga de Datos
           <div style="font-size: 0.75rem; color: var(--fg-dim); margin-top: 0.25rem;">
             Alineado con CRBV (Arts. 28, 60), G.O. 37.313, G.O. 37.148, ISO/IEC 27037 y Manual MP/CICPC 2017.
           </div>
         </div>
         <div class="footer-links">
           <a href="/studio">Estudio Redactor</a>
+          <a href="/writer">Redactor local</a>
           <a href="/qa">Consola QA</a>
           <a href="/tags">Tags</a>
           <a href="/rss.xml">Feed RSS</a>

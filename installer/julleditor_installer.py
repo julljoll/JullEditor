@@ -267,8 +267,27 @@ class InstallerApp(tk.Tk):
             else:
                 self.log("[OK] Dependencias verificadas/instaladas.")
 
-            self.set_status("3/5. Ejecutando auto-arranque del sistema...", 60)
-            self.log("[PASO 3] Delegando validaciones en backend.bootstrap...")
+            self.set_status("3/6. Instalando dependencias Astro...", 50)
+            node = shutil.which("node")
+            npm = shutil.which("npm.cmd" if _is_windows() else "npm")
+            if not node or not npm:
+                raise RuntimeError(
+                    "Astro requiere Node.js 22 o superior con npm. "
+                    "Instálalo desde https://nodejs.org/ y vuelve a iniciar el instalador."
+                )
+            self.log("[PASO 3] Instalando dependencias JavaScript con npm ci...")
+            res = subprocess.run(
+                [npm, "ci", "--include=optional", "--workspaces=false"],
+                cwd=str(PROJECT_ROOT / "blog"),
+                capture_output=True,
+                text=True,
+            )
+            if res.returncode != 0:
+                raise RuntimeError(f"Error instalando dependencias Astro: {res.stderr[-1000:]}")
+            self.log("[OK] Dependencias Astro instaladas.")
+
+            self.set_status("4/6. Ejecutando auto-arranque del sistema...", 65)
+            self.log("[PASO 4] Delegando validaciones en backend.bootstrap...")
             res = subprocess.run(
                 [py_exe, str(RUN_PY), "--no-browser"],
                 capture_output=True,
@@ -277,13 +296,13 @@ class InstallerApp(tk.Tk):
             )
             self.log("[OK] Subrutinas de bootstrap inicializadas.")
 
-            self.set_status("4/5. Creando acceso directo en Escritorio...", 85)
+            self.set_status("5/6. Creando acceso directo en Escritorio...", 85)
             if _create_desktop_shortcut():
                 self.log("[OK] Acceso directo 'JullEditor' creado en el Escritorio.")
             else:
                 self.log("[INFO] Acceso directo en Escritorio omitido o no compatible.")
 
-            self.set_status("5/5. ¡Instalación completada!", 100)
+            self.set_status("6/6. ¡Instalación completada!", 100)
             self.log("\n=======================================================")
             self.log(" JullEditor está listo para operar 100% Offline.")
             self.log("=======================================================\n")
