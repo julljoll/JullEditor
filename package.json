@@ -6,13 +6,9 @@
     "blog"
   ],
   "scripts": {
-    "dev": "npm run dev --workspace=blog",
-    "build": "npm run build --workspace=blog",
-    "preview": "npm run preview --workspace=blog",
+    "dev": "npm --prefix blog run dev",
+    "build": "npm --prefix blog run build",
+    "preview": "npm --prefix blog run preview",
     "lint": "node blog/node_modules/typescript/bin/tsc --noEmit --project blog/tsconfig.json"
-  },
-  "dependencies": {
-    "@astrojs/node": "^11.1.11",
-    "@google/genai": "^2.32.0"
   }
 }

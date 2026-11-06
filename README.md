@@ -10,8 +10,8 @@
   <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3_(2B%20%7C%208B)-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite 3.3" />
   <img src="https://img.shields.io/badge/Runtime-Ollama_CPU_(0ms_Network)-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama CPU" />
   <img src="https://img.shields.io/badge/Backend-FastAPI_Async_SSE-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Tests-79%2F79_PASSED_(100%25)-00FF41?style=for-the-badge&logo=pytest&logoColor=black" alt="Pytest 79/79" />
-  <img src="https://img.shields.io/badge/Lint-Ruff_%7C_Mypy_VERDE-008726?style=for-the-badge&logo=ruff&logoColor=white" alt="Ruff & Mypy" />
+  <img src="https://img.shields.io/badge/Tests-120%2F120_PASSED_(100%25)-00FF41?style=for-the-badge&logo=pytest&logoColor=black" alt="Pytest 120/120" />
+  <img src="https://img.shields.io/badge/Astro_TypeScript-tsc_PASS-008726?style=for-the-badge&logo=typescript&logoColor=white" alt="Astro TypeScript check passed" />
   <img src="https://img.shields.io/badge/Cloud-Google_Colab_%7C_Oracle_Cloud-F80000?style=for-the-badge&logo=googlecolab&logoColor=white" alt="Google Colab & Oracle Cloud" />
   <img src="https://img.shields.io/badge/Jurisdicci%C3%B3n-Venezuela_%F0%9F%87%BB%F0%9F%87%AA-0055A5?style=for-the-badge" alt="Venezuela Legal" />
 </p>
@@ -54,7 +54,7 @@
 
 ## ⚙️ 2. ¿Cómo funciona internamente?
 
-El sistema combina un backend asíncrono en **FastAPI**, un motor de orquestación de prompts con perfilado dogmático, un **RAG local indexado** y una interfaz web modular de alto rendimiento construida con **Vanilla JavaScript ES6** y diseño **Dark OLED Cyber-Legal**.
+El sistema combina el backend asíncrono **FastAPI** (generación local, RAG, validaciones y streaming SSE) con un sitio **Astro SSR** (adaptador Node) que sirve el blog, el estudio editorial y el redactor local. Astro mantiene sus rutas y API de edición; el proxy del mismo origen `/backend-api/` conecta la interfaz con FastAPI sin exponer claves ni requerir CORS en el navegador. En ejecución local, Astro escucha en el puerto `3000` y FastAPI conserva el `8000`.
 
 ### 🔄 Diagrama de Flujo del Pipeline Local:
 
@@ -238,24 +238,38 @@ ollama pull granite3.3:8b
 *(Opcional: Si tu equipo tiene 8 GB de RAM o deseas máxima velocidad en CPU livianas, descarga `ollama pull granite3.3:2b`)*.
 
 #### 3. Instalar Dependencias de Python
-En la raíz del proyecto, ejecuta:
+Requisitos: Python 3.10+, Node.js 22+ y npm. En la raíz del proyecto, ejecuta:
 ```powershell
 pip install -r requirements.txt
+Set-Location blog
+npm ci --include=optional --workspaces=false
+Set-Location ..
 ```
+Las dependencias JavaScript y su `package-lock.json` están dentro de `blog/`; instala desde esa carpeta para respetar el lockfile y descargar las dependencias opcionales nativas que usa Astro.
 
 #### 4. Iniciar la Aplicación con 1 Clic
 Haz doble clic en **`start.bat`** o **`crear_articulo.bat`**. Ambos son simples *puentes* de Windows que únicamente localizan el intérprete de Python y delegan toda la lógica al orquestador **100% Python** (`run.py`):
 ```bash
-python run.py                    # Servidor web FastAPI + navegador (equivale a start.bat)
+python run.py                    # Astro + FastAPI y navegador (Astro :3000, API :8000)
 python run.py --cli              # Generador interactivo de artículos jurídico-científicos (equivale a crear_articulo.bat)
 python run.py --tui              # Interfaz TUI Textual canónica (v3.4.0): flujo editorial completo en terminal Python
 python run.py --file <ruta.md>   # CLI precargando un documento del corpus
-python run.py --port <puerto>    # Servidor web en un puerto TCP personalizado (por defecto 8000)
+python run.py --port <puerto>    # Puerto TCP personalizado para FastAPI (por defecto 8000)
+python run.py --studio-port <puerto> # Puerto TCP personalizado para Astro (por defecto 3000)
 python run.py --no-bootstrap     # Omite el análisis de hardware y la auto-instalación (entornos controlados / CI)
 python run.py --test             # Suite completa de pruebas con pytest
 ```
-El lanzador verificará el entorno, levantará Ollama si no está activo, ejecutará el servidor FastAPI y abrirá automáticamente tu navegador en:  
-👉 **`http://127.0.0.1:8000`**
+El lanzador verificará el entorno, levantará Ollama si no está activo, ejecutará FastAPI y Astro y abrirá automáticamente el sitio en **`http://127.0.0.1:3000`**. La API sigue disponible en **`http://127.0.0.1:8000`**; accede a `/writer` para generar con el motor local o a `/studio` para el estudio editorial avanzado.
+
+#### Comandos de desarrollo y build Astro
+Desde la raíz, los scripts del workspace delegan en Astro dentro de `blog/`:
+```powershell
+npm run dev       # Servidor Astro de desarrollo
+npm run build     # Build SSR para producción
+npm run preview   # Previsualizar el build
+npm run lint      # TypeScript sin emitir archivos
+```
+El build genera el servidor Node en `blog/dist/`. Para publicar un artículo nuevo, usa **Preparar para Astro** en `/writer` y vuelve a ejecutar `npm run build` para regenerar las rutas prerenderizadas. En Docker, `docker compose -f docker/docker-compose.yml up --build` construye Astro y FastAPI; Nginx sirve Astro en la raíz y conserva `/api/` para FastAPI.
 
 ---
 
@@ -269,14 +283,16 @@ Ejecuta desde la raíz del proyecto (100% Python):
 python run.py --test        # o directamente: python -m pytest -v
 ```
 **Resultado esperado:**
-* **79 pruebas pasando (100% verde)** en menos de 5 segundos (`pytest`: API, bootstrap, CLI, Docling, prompts, perfiles jurídicos, RAG, sentencias TSJ e integración E2E).
+* **120 pruebas pasando** (`pytest`: API, bootstrap, CLI, Docling, prompts, perfiles jurídicos, RAG, exportación/publicación Astro e integración).
 * Cobertura completa: endpoints de FastAPI, rechazo anti-SSRF, parseo de Docling, auto-instalador según hardware, perfiles jurídicos de Venezuela, perfil de revista científica arbitrada, tokens dark-only CSS y reglas de impresión.
 
 ### Paso 2: Verificar Calidad Estática (Ruff + Mypy)
 ```bash
-python -m ruff check .        # Lint bloqueante: 0 errores
-python -m mypy backend run.py # Tipado estático: sin errores
+python -m ruff check backend/ run.py
+python -m mypy backend run.py
+npm run lint
 ```
+En la última verificación de esta migración, `npm run lint` pasó y Ruff reportó siete hallazgos preexistentes en el backend y `run.py`; la suite Python no tuvo fallos. Mypy no formó parte de esa verificación.
 
 ### Paso 3: Comprobar el Endpoint de Salud (Healthcheck)
 Ejecuta en tu terminal o abre en el navegador:
@@ -299,12 +315,11 @@ curl http://127.0.0.1:8000/api/health
 ```
 
 ### Paso 4: Prueba de Generación en Vivo
-1. Abre `http://127.0.0.1:8000`.
-2. En la pestaña **Pegar Texto**, escribe: *"Análisis de la evidencia digital y el valor probatorio del hash SHA-256 en Venezuela"*.
-3. En el Paso 2, selecciona **Forense & TSJ**.
-4. En el Paso 3, selecciona **Revista Científica Arbitrada**.
-5. Presiona **Redactar Artículo** (<kbd>Ctrl</kbd> + <kbd>Enter</kbd>).
-6. Verifica que la generación comience de inmediato, que aparezca la tarjeta azul de **Abstract Científico** y que el scorecard alcance un índice excelente.
+1. Abre `http://127.0.0.1:3000/writer`.
+2. Pega una fuente de más de 10 caracteres o carga un archivo `.md`, `.txt` o `.json`.
+3. Selecciona tema, voz editorial y extensión; presiona **Generar artículo**.
+4. Comprueba el streaming en el editor, guarda el artículo y usa **Preparar para Astro** para validarlo y añadirlo a la colección.
+5. Para servir la nueva ruta prerenderizada, ejecuta de nuevo `npm run build`.
 
 ---
 
@@ -331,34 +346,15 @@ curl http://127.0.0.1:8000/api/health
 │   ├── logger_config.py          # Sistema de logs con rotación en logs/app.log
 │   └── data/
 │       └── legal_corpus_ve.json  # Corpus normativo venezolano estructurado
-├── frontend/                     # Interfaz web modular Dark-Only ES6
-│   ├── index.html                # Layout semántico en 3 columnas y stepper de 4 pasos
-│   ├── sitejet-lab.html          # Laboratorio de calibración visual Sitejet Builder
-│   ├── favicon.svg               # Ícono de terminal pericial
-│   ├── manifest.json             # Manifest de aplicación web
-│   ├── css/
-│   │   ├── style.css             # Tokens Dark OLED, modo revista y @media print
-│   │   ├── fonts.css             # Tipografías e iconos locales (0ms CDN)
-│   │   └── bootstrap.min.css     # Framework base local
-│   ├── fonts/                    # Archivos de fuentes locales (Geist, Fira, Outfit)
-│   └── js/
-│       ├── app.js                # Orquestador principal y sincronización de estado
-│       └── modules/              # Módulos especializados
-│           ├── live-preview.js       # Gestor de vista previa y seguimiento de streaming
-│           ├── creation-flow.js      # Controlador de pasos del stepper (1 a 4)
-│           ├── toolbar-menu.js       # Menús contextuales y dropdowns accesibles
-│           ├── markdown-renderer.js  # Renderizador Markdown con callouts y tarjetas científicas
-│           ├── wordpress-exporter.js # Exportador Gutenberg con inline styles e impresión
-│           ├── sitejet-exporter.js   # Exportador higienizado Sitejet y generador de ZIP
-│           ├── seo-audit.js          # Scorecards SEO y calidad jurídica en tiempo real
-│           ├── article-generator.js  # Cliente SSE para streaming con Ollama
-│           ├── docling-handler.js    # Manejador de subida drag & drop Docling
-│           ├── scraper-handler.js    # Controlador de ingesta por URL
-│           ├── article-history.js    # Explorador del historial de artículos RAG
-│           ├── health-check.js       # Monitor de estado de Ollama y Granite
-│           ├── layout-toggle.js      # Conmutación de esquemas visuales del lienzo editorial
-│           ├── toast-notifications.js# Notificaciones no intrusivas del sistema
-│           └── keyboard-shortcuts.js # Atajos de teclado con navegación accesible
+├── blog/                         # Sitio Astro SSR: blog y aplicaciones editoriales
+│   ├── src/pages/                # Índice, artículos, tags, QA, Studio, redactor y proxy FastAPI
+│   ├── src/layouts/              # Layout compartido, metadatos y navegación
+│   ├── src/content/blog/         # Colección Markdown validada con Zod
+│   └── astro.config.mjs          # Adaptador Node y configuración de servidor
+│   ├── package.json              # Dependencias y scripts de Astro
+│   └── package-lock.json         # Lockfile npm reproducible para Astro
+├── package.json                  # Scripts raíz delegados al workspace blog/
+├── bun.lock                      # Lockfile del workspace Bun
 ├── RAG/                          # Memoria persistente local
 │   ├── inputs/                   # Fuentes cargadas respaldadas con timestamp
 │   └── articulos/                # Artículos terminados archivados con YAML Frontmatter
@@ -366,7 +362,7 @@ curl http://127.0.0.1:8000/api/health
 ├── notebooks/                    # Ejecutables guiados para Google Colab (GPU T4 / CPU)
 ├── docker/                       # Compose, Nginx (SSE sin buffering) y systemd para Oracle Cloud
 ├── deploy/                       # Guías y scripts de despliegue remoto
-├── tests/                        # Suite de 79 pruebas automatizadas (pytest)
+├── tests/                        # Suite de 120 pruebas automatizadas (pytest)
 │   ├── test_api_endpoints.py     # Pruebas de API, SSRF, UI, tokens dark y print styles
 │   ├── test_legal_profiles.py    # Pruebas de perfiles jurídicos, revista científica y glosarios
 │   ├── test_prompts.py           # Pruebas de inyección de prompts y reglas GEO 2026
@@ -509,5 +505,5 @@ git push origin main --follow-tags
 
 <p align="center">
   <strong>Desarrollado con arquitectura Cyber-Legal Blueprint · Cumplimiento de estándares periciales, SEO / GEO 2026 y accesibilidad WCAG 2.1 AAA</strong><br/>
-  <sub>JullEditor v3.4.0 — Estación editorial y pericial 100% local, offline-first y libre de fuga de datos.</sub>
+  <sub>JullEditor v3.4.0 — Estación editorial y pericial local, offline-first y libre de fuga de datos.</sub>
 </p>

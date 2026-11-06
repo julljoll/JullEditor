@@ -20,6 +20,7 @@ import argparse
 import json
 import os
 import platform
+import shutil
 import socket
 import subprocess
 import sys
@@ -49,8 +50,32 @@ def emit_status(state: str, **extra):
 
 WORKSPACE_ROOT = Path(__file__).resolve().parent
 DEFAULT_PORT = 8000
+DEFAULT_STUDIO_PORT = 3000
+ASTRO_DIR = WORKSPACE_ROOT / "blog"
 DEFAULT_MODEL = os.getenv("GRANITE_MODEL", "granite3.3:8b")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
+
+
+def resolve_astro_runtime() -> tuple[str, Path]:
+    """Localiza Node.js y el CLI Astro instalado en el workspace."""
+    node = shutil.which("node")
+    if not node:
+        raise RuntimeError(
+            "Astro requiere Node.js 22 o superior. Instálalo y ejecuta "
+            "`npm ci --include=optional --workspaces=false` dentro de `blog/`."
+        )
+
+    cli_candidates = (
+        ASTRO_DIR / "node_modules" / "astro" / "bin" / "astro.mjs",
+        WORKSPACE_ROOT / "node_modules" / "astro" / "bin" / "astro.mjs",
+    )
+    astro_cli = next((path for path in cli_candidates if path.is_file()), None)
+    if astro_cli is None:
+        raise RuntimeError(
+            "No se encontró Astro en las dependencias del proyecto. "
+            "Ejecuta `npm ci --include=optional --workspaces=false` dentro de `blog/`."
+        )
+    return node, astro_cli
 
 
 def print_header(title: str):
@@ -82,6 +107,34 @@ def is_port_in_use(port: int) -> bool:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.settimeout(0.5)
         return s.connect_ex(("127.0.0.1", port)) == 0
+
+
+def wait_for_service(process: subprocess.Popen, port: int, name: str,
+                     timeout: float = 60.0):
+    """Espera a que un proceso abra su puerto o falla con su estado de salida."""
+    deadline = time.monotonic() + timeout
+    while time.monotonic() < deadline:
+        exit_code = process.poll()
+        if exit_code is not None:
+            raise RuntimeError(f"{name} terminó durante el arranque (código {exit_code}).")
+        try:
+            with socket.create_connection(("127.0.0.1", port), timeout=0.25):
+                return
+        except OSError:
+            time.sleep(0.25)
+    raise RuntimeError(f"{name} no abrió el puerto {port} en {timeout:.0f} segundos.")
+
+
+def stop_process(process: subprocess.Popen | None):
+    """Detiene un proceso hijo y fuerza su cierre si no responde."""
+    if process is None or process.poll() is not None:
+        return
+    process.terminate()
+    try:
+        process.wait(timeout=5)
+    except subprocess.TimeoutExpired:
+        process.kill()
+        process.wait()
 
 
 def free_port(port: int):
@@ -202,16 +255,23 @@ def run_bootstrap(auto_install: bool = True) -> dict:
     return result
 
 
-def run_web(port: int = DEFAULT_PORT, bootstrap: bool = True, no_browser: bool = False,
-            skip_deps: bool = False):
-    """Lanza el servidor web FastAPI con recarga y abre el navegador.
+def run_web(port: int = DEFAULT_PORT, studio_port: int = DEFAULT_STUDIO_PORT,
+            bootstrap: bool = True, no_browser: bool = False, skip_deps: bool = False):
+    """Lanza FastAPI y Astro juntos y abre la interfaz editorial.
 
-    no_browser=True suprime webbrowser.open (modo Electron: el shell abre su
-    propia ventana). Con --json-status además emite estados granulares.
+    FastAPI conserva la API local; Astro sirve la interfaz y el blog.
+    no_browser=True suprime webbrowser.open. Con --json-status además emite
+    estados granulares para el launcher.
     skip_deps=True omite la verificación pip del bootstrap (el runtime
     embebido del instalador ya trae las dependencias preinstaladas).
     """
-    print_header("INICIANDO JULL EDITOR v3.4.0 (CYBER-LEGAL LOCAL CPU)")
+    node, astro_cli = resolve_astro_runtime()
+    if port == studio_port:
+        raise ValueError("Los puertos de la API y de Astro deben ser distintos.")
+    if is_port_in_use(studio_port):
+        raise RuntimeError(f"El puerto de Astro {studio_port} ya está ocupado.")
+
+    print_header("INICIANDO JULL EDITOR — ASTRO + FASTAPI")
     ensure_env_file()
     if bootstrap:
         if skip_deps:
@@ -240,26 +300,49 @@ def run_web(port: int = DEFAULT_PORT, bootstrap: bool = True, no_browser: bool =
         check_ollama_service()
     free_port(port)
 
-    # Abrir navegador en segundo plano
-    if not no_browser:
-        def open_browser_delayed():
-            time.sleep(1.2)
-            webbrowser.open(f"http://127.0.0.1:{port}")
-
-        import threading
-        threading.Thread(target=open_browser_delayed, daemon=True).start()
-
-    print("\n=========================================================================")
-    print(f"   Servidor Web Activo: http://127.0.0.1:{port}")
-    print("   Presiona CTRL+C para detener la aplicación")
-    print("=========================================================================\n")
-    emit_status("starting_server", port=port)
-
-    cmd = [sys.executable, "-m", "uvicorn", "backend.app:app", "--host", "127.0.0.1", "--port", str(port), "--reload"]
+    api_process = None
+    astro_process = None
     try:
-        subprocess.run(cmd, cwd=str(WORKSPACE_ROOT))
+        api_cmd = [
+            sys.executable, "-m", "uvicorn", "backend.app:app",
+            "--host", "127.0.0.1", "--port", str(port),
+            "--reload", "--reload-dir", str(WORKSPACE_ROOT / "backend"),
+        ]
+        astro_cmd = [
+            node, str(astro_cli), "dev", "--host", "127.0.0.1",
+            "--port", str(studio_port),
+        ]
+        astro_env = os.environ.copy()
+        astro_env["BACKEND_API_URL"] = f"http://127.0.0.1:{port}"
+        astro_env["ASTRO_BASE_URL"] = f"http://127.0.0.1:{studio_port}"
+        api_process = subprocess.Popen(
+            api_cmd, cwd=str(WORKSPACE_ROOT), env=astro_env
+        )
+        astro_process = subprocess.Popen(astro_cmd, cwd=str(ASTRO_DIR), env=astro_env)
+
+        wait_for_service(api_process, port, "FastAPI")
+        wait_for_service(astro_process, studio_port, "Astro")
+
+        print("\n=========================================================================")
+        print(f"   Interfaz Astro: http://127.0.0.1:{studio_port}")
+        print(f"   API FastAPI:    http://127.0.0.1:{port}")
+        print("   Presiona CTRL+C para detener ambos servicios")
+        print("=========================================================================\n")
+        emit_status("starting_server", port=port, studio_port=studio_port)
+        if not no_browser:
+            webbrowser.open(f"http://127.0.0.1:{studio_port}")
+
+        while True:
+            for name, process in (("FastAPI", api_process), ("Astro", astro_process)):
+                exit_code = process.poll()
+                if exit_code is not None:
+                    raise RuntimeError(f"{name} terminó inesperadamente (código {exit_code}).")
+            time.sleep(0.5)
     except KeyboardInterrupt:
-        print("\n[OK] Servidor JullEditor detenido correctamente.")
+        print("\n[OK] Servicios de JullEditor detenidos.")
+    finally:
+        stop_process(astro_process)
+        stop_process(api_process)
 
 
 def run_indexing():
@@ -283,10 +366,11 @@ def main():
     parser.add_argument("--cli", action="store_true", help="Ejecutar el generador interactivo por terminal (modo Sentencia TSJ)")
     parser.add_argument("--tui", action="store_true", help="Interfaz TUI Textual (canónica v3.3+): flujo editorial completo en Python")
     parser.add_argument("--file", type=str, default=None, help="Ruta de un archivo .md para precargar en el CLI o la web")
-    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Puerto TCP del servidor web (por defecto {DEFAULT_PORT})")
+    parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"Puerto TCP de FastAPI (por defecto {DEFAULT_PORT})")
+    parser.add_argument("--studio-port", type=int, default=DEFAULT_STUDIO_PORT, help=f"Puerto TCP de Astro (por defecto {DEFAULT_STUDIO_PORT})")
     parser.add_argument("--no-bootstrap", action="store_true", help="Omitir análisis de hardware y auto-instalación de dependencias/Ollama/modelo")
-    parser.add_argument("--no-browser", action="store_true", help="No abrir el navegador automáticamente (modo escritorio/Electron)")
-    parser.add_argument("--json-status", action="store_true", help="Emitir estados de arranque como JSON en stdout (consumido por el shell Electron)")
+    parser.add_argument("--no-browser", action="store_true", help="No abrir el navegador automáticamente")
+    parser.add_argument("--json-status", action="store_true", help="Emitir estados de arranque como JSON")
     parser.add_argument("--skip-deps", action="store_true", help="Omitir verificación pip del bootstrap (runtime embebido con dependencias preinstaladas)")
 
     args = parser.parse_args()
@@ -316,8 +400,8 @@ def main():
             sys.argv = [sys.argv[0]]
         sys.exit(cli_main())
     else:
-        run_web(port=args.port, bootstrap=bootstrap, no_browser=args.no_browser,
-                skip_deps=args.skip_deps)
+        run_web(port=args.port, studio_port=args.studio_port, bootstrap=bootstrap,
+                no_browser=args.no_browser, skip_deps=args.skip_deps)
 
 
 if __name__ == "__main__":

@@ -60,8 +60,9 @@ DEFAULT_TEMPERATURE = float(os.getenv("TEMPERATURE", "0.2"))
 DEFAULT_JURISDICTION = os.getenv("DEFAULT_JURISDICTION", "auto")
 CORS_ORIGINS = os.getenv(
     "CORS_ORIGINS",
-    "http://127.0.0.1:8000,http://localhost:8000,http://localhost:4321,http://127.0.0.1:4321",
+    "http://127.0.0.1:8000,http://localhost:8000,http://localhost:3000,http://127.0.0.1:3000,http://localhost:4321,http://127.0.0.1:4321",
 ).split(",")
+ASTRO_BASE_URL = os.getenv("ASTRO_BASE_URL", "http://localhost:3000")
 
 # Código de estado 422 agnóstico a versiones de Starlette (evita StarletteDeprecationWarning)
 HTTP_422_UNPROCESSABLE = getattr(status, "HTTP_422_UNPROCESSABLE_CONTENT", 422)
@@ -905,7 +906,7 @@ async def generate_article_stream(req: GenerateRequest, request: Request):
     return StreamingResponse(event_generator(), media_type="text/event-stream")
 
 # ==============================================================================
-# RAÍZ DE API (el frontend Astro 'studio/' corre en :4321 con proxy /api)
+# RAÍZ DE API (la interfaz Astro corre en :3000)
 # ==============================================================================
 
 @app.get("/")
@@ -915,6 +916,6 @@ async def api_root():
         "app": "JullEditor API",
         "version": __version__,
         "docs": "/docs",
-        "studio": "http://localhost:4321",
-        "message": "Backend Python activo. La interfaz de redacción es el Studio Astro (studio/).",
+        "studio": ASTRO_BASE_URL,
+        "message": "Backend Python activo. La interfaz editorial y el blog corren bajo Astro.",
     }
