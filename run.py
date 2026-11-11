@@ -51,29 +51,32 @@ def emit_status(state: str, **extra):
 WORKSPACE_ROOT = Path(__file__).resolve().parent
 DEFAULT_PORT = 8000
 DEFAULT_STUDIO_PORT = 3000
-ASTRO_DIR = WORKSPACE_ROOT / "blog"
+FRONTEND_DIR = WORKSPACE_ROOT / "frontend"
+ASTRO_DIR = FRONTEND_DIR if (FRONTEND_DIR / "astro.config.mjs").is_file() else WORKSPACE_ROOT / "blog"
 DEFAULT_MODEL = os.getenv("GRANITE_MODEL", "granite3.3:8b")
 OLLAMA_BASE_URL = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434")
 
 
 def resolve_astro_runtime() -> tuple[str, Path]:
-    """Localiza Node.js y el CLI Astro instalado en el workspace."""
+    """Localiza Node.js y el CLI Astro instalado en el workspace (frontend/ o blog/)."""
     node = shutil.which("node")
     if not node:
         raise RuntimeError(
             "Astro requiere Node.js 22 o superior. Instálalo y ejecuta "
-            "`npm ci --include=optional --workspaces=false` dentro de `blog/`."
+            "`npm install` dentro de `frontend/`."
         )
 
     cli_candidates = (
         ASTRO_DIR / "node_modules" / "astro" / "bin" / "astro.mjs",
+        WORKSPACE_ROOT / "frontend" / "node_modules" / "astro" / "bin" / "astro.mjs",
+        WORKSPACE_ROOT / "blog" / "node_modules" / "astro" / "bin" / "astro.mjs",
         WORKSPACE_ROOT / "node_modules" / "astro" / "bin" / "astro.mjs",
     )
     astro_cli = next((path for path in cli_candidates if path.is_file()), None)
     if astro_cli is None:
         raise RuntimeError(
             "No se encontró Astro en las dependencias del proyecto. "
-            "Ejecuta `npm ci --include=optional --workspaces=false` dentro de `blog/`."
+            "Ejecuta `npm install` dentro de `frontend/`."
         )
     return node, astro_cli
 

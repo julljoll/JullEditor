@@ -48,3 +48,6 @@ venv/
 pip-log.txt
 pip-delete-this-directory.txt
 logs/
+
+# Legacy Symlinks / Backward-Compatibility Junctions
+blog/

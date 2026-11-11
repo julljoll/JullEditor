@@ -25,8 +25,17 @@ from backend.rag_manager import ASTRO_READY_DIR, WORKSPACE_ROOT
 
 logger = get_logger("astro_publisher")
 
-# Destinos dentro del sitio Astro estático
-BLOG_DIR = os.environ.get("JULL_BLOG_DIR", os.path.join(WORKSPACE_ROOT, "blog"))
+# Destinos dentro del sitio Astro estático (preferencia frontend/ sobre blog/)
+def _resolve_astro_dir() -> str:
+    env_dir = os.environ.get("JULL_FRONTEND_DIR") or os.environ.get("JULL_BLOG_DIR")
+    if env_dir:
+        return env_dir
+    frontend_dir = os.path.join(WORKSPACE_ROOT, "frontend")
+    if os.path.exists(os.path.join(frontend_dir, "astro.config.mjs")):
+        return frontend_dir
+    return os.path.join(WORKSPACE_ROOT, "blog")
+
+BLOG_DIR = _resolve_astro_dir()
 BLOG_CONTENT_DIR = os.path.join(BLOG_DIR, "src", "content", "blog")
 BLOG_IMAGES_DIR = os.path.join(BLOG_DIR, "public", "images", "articles")
 
@@ -219,6 +228,19 @@ def publish_article(slug: str, force: bool = False) -> dict[str, Any]:
     action = "updated" if os.path.exists(dest_md) else "created"
     with open(dest_md, "w", encoding="utf-8") as f:
         f.write(content)
+
+    # Si existe carpeta espejo (p.ej. blog/ o frontend/) sincronizar simultáneamente
+    alt_dir = os.path.join(WORKSPACE_ROOT, "blog" if "frontend" in BLOG_DIR else "frontend")
+    if os.path.isdir(alt_dir) and os.path.realpath(alt_dir) != os.path.realpath(BLOG_DIR):
+        try:
+            alt_content_dir = os.path.join(alt_dir, "src", "content", "blog")
+            if os.path.isdir(alt_content_dir):
+                alt_dest = _safe_join(alt_content_dir, f"{clean_slug}.md")
+                if alt_dest:
+                    with open(alt_dest, "w", encoding="utf-8") as f_alt:
+                        f_alt.write(content)
+        except Exception:
+            pass
 
     logger.info(f"Artículo publicado en el blog: {clean_slug} (acción: {action})")
     return {

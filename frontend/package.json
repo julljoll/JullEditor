@@ -1,0 +1,28 @@
+{
+  "name": "frontend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "dev": "astro dev --host 127.0.0.1 --port 3000",
+    "build": "astro build",
+    "preview": "astro preview --host 127.0.0.1 --port 3000",
+    "sync:articles": "python3 ../scripts/sync_articles.py"
+  },
+  "description": "Frontend Astro autónomo para JullEditor (Blog + Studio Editorial)",
+  "dependencies": {
+    "@astrojs/compiler-rs": "^0.5.2",
+    "@astrojs/markdown-remark": "^7.3.5",
+    "@astrojs/node": "^10.1.4",
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.4",
+    "@astrojs/vercel": "^10.0.8",
+    "@google/genai": "^2.32.0",
+    "astro": "^6.4.8",
+    "typescript": "^5.9.3"
+  },
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "sharp": "^0.35.5"
+  }
+}

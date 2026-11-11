@@ -31,9 +31,10 @@ def main() -> int:
         print("Node.js is required to serve the Astro application.", file=sys.stderr)
         return 1
 
+    astro_cwd = "frontend" if os.path.isdir("frontend") else "blog"
     commands = [
         ([sys.executable, "-m", "uvicorn", "backend.app:app", "--host", "0.0.0.0", "--port", "8000"], "."),
-        ([node, "dist/server/entry.mjs"], "blog"),
+        ([node, "dist/server/entry.mjs"], astro_cwd),
     ]
     signal.signal(signal.SIGTERM, stop_services)
     signal.signal(signal.SIGINT, stop_services)

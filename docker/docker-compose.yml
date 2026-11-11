@@ -40,7 +40,7 @@ services:
       - DEFAULT_JURISDICTION=auto
     volumes:
       - "../Articulos Generados:/app/Articulos Generados"
-      - ../blog/src/content/blog:/app/blog/src/content/blog
+      - ../frontend/src/content/blog:/app/frontend/src/content/blog
       - ../RAG:/app/RAG
       - ../logs:/app/logs
       - ../Informacion_docling_rag:/app/Informacion_docling_rag:ro

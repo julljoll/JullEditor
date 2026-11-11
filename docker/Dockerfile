@@ -1,13 +1,13 @@
-# ── Etapa 0: Build del sitio Astro ────────────────────────────────────────────
+# ── Etapa 0: Build del sitio Astro (Frontend) ──────────────────────────────────
 FROM node:24-bookworm-slim AS astro-builder
 
 WORKDIR /workspace
-WORKDIR /workspace/blog
-COPY blog/package.json blog/package-lock.json ./
+WORKDIR /workspace/frontend
+COPY frontend/package.json frontend/package-lock.json ./
 RUN npm ci --include=optional --workspaces=false
 WORKDIR /workspace
-COPY blog/ ./blog/
-WORKDIR /workspace/blog
+COPY frontend/ ./frontend/
+WORKDIR /workspace/frontend
 RUN node ./node_modules/astro/bin/astro.mjs build
 
 # ── Etapa 1: Builder ──────────────────────────────────────────────────────────
@@ -39,9 +39,10 @@ COPY --from=builder /install /usr/local
 
 # Copiar backend, corpus y salida de Astro.
 COPY backend/ ./backend/
-COPY --from=astro-builder /workspace/blog/package.json ./blog/package.json
-COPY --from=astro-builder /workspace/blog/node_modules ./blog/node_modules
-COPY --from=astro-builder /workspace/blog/dist ./blog/dist
+COPY --from=astro-builder /workspace/frontend/package.json ./frontend/package.json
+COPY --from=astro-builder /workspace/frontend/node_modules ./frontend/node_modules
+COPY --from=astro-builder /workspace/frontend/dist ./frontend/dist
+RUN ln -s /app/frontend /app/blog
 COPY Informacion_docling_rag/ ./Informacion_docling_rag/
 COPY .env.example ./.env
 COPY docker/start.py ./docker/start.py
