@@ -4,30 +4,31 @@
    ========================================================================== */
 
 :root {
-  --bg-oled: #07090e;
-  --bg-surface: #0d121c;
-  --bg-elevated: #131b2a;
-  --bg-card: #0f1624;
-  --bg-card-hover: #162033;
-  --border-hairline: rgba(255, 255, 255, 0.08);
-  --border-subtle: rgba(255, 255, 255, 0.14);
-  --border-focus: #38bdf8;
-  
-  --fg-primary: #f8fafc;
-  --fg-secondary: #cbd5e1;
-  --fg-muted: #8b9bb4;
-  --fg-dim: #5c6b82;
+  --bg-oled: #ffffff;
+  --bg-surface: #ffffff;
+  --bg-elevated: #f5f4ff;
+  --bg-card: rgba(255, 255, 255, 0.88);
+  --bg-card-hover: #ffffff;
+  --border-hairline: rgba(17, 24, 39, 0.1);
+  --border-subtle: rgba(17, 24, 39, 0.18);
+  --border-focus: #6455f5;
+  --accent-primary-soft: rgba(100, 85, 245, 0.12);
 
-  --accent-cyan: #38bdf8;
-  --accent-cyan-dim: rgba(56, 189, 248, 0.12);
-  --accent-green: #10b981;
-  --accent-green-dim: rgba(16, 185, 129, 0.12);
-  --accent-amber: #f59e0b;
-  --accent-amber-dim: rgba(245, 158, 11, 0.12);
-  --accent-red: #ef4444;
-  --accent-red-dim: rgba(239, 68, 68, 0.12);
+  --fg-primary: #111827;
+  --fg-secondary: #374151;
+  --fg-muted: #6b7280;
+  --fg-dim: #9ca3af;
 
-  --font-serif: "Georgia", "Cambria", "Times New Roman", serif;
+  --accent-cyan: #5b50e8;
+  --accent-cyan-dim: rgba(91, 80, 232, 0.1);
+  --accent-green: #15803d;
+  --accent-green-dim: rgba(21, 128, 61, 0.1);
+  --accent-amber: #b45309;
+  --accent-amber-dim: rgba(180, 83, 9, 0.1);
+  --accent-red: #b91c1c;
+  --accent-red-dim: rgba(185, 28, 28, 0.1);
+
+  --font-serif: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", Consolas, monospace;
 
@@ -55,9 +56,10 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: radial-gradient(circle at 50% 0%, rgba(56, 189, 248, 0.04) 0%, transparent 60%),
-              radial-gradient(circle at 10% 20%, rgba(16, 185, 129, 0.02) 0%, transparent 40%),
-              var(--bg-oled);
+  background:
+    radial-gradient(ellipse at 68% 0%, rgba(188, 82, 238, 0.1), transparent 34rem),
+    radial-gradient(ellipse at 8% 12%, rgba(50, 69, 255, 0.08), transparent 28rem),
+    var(--bg-oled);
 }
 
 /* ==========================================================================
@@ -67,7 +69,7 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(7, 9, 14, 0.88);
+  background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
   border-bottom: 1px solid var(--border-hairline);
@@ -105,7 +107,7 @@ body {
   border-radius: 4px;
   background: var(--accent-cyan-dim);
   color: var(--accent-cyan);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  border: 1px solid rgba(91, 80, 232, 0.22);
   text-transform: uppercase;
 }
 
@@ -135,6 +137,10 @@ body {
 
 .header-nav a.active {
   color: var(--accent-cyan);
+  text-decoration: underline;
+  text-decoration-color: rgba(91, 80, 232, 0.45);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.45rem;
 }
 
 /* Zona 3: Acción Principal */
@@ -149,34 +155,36 @@ body {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--accent-cyan);
-  color: #07090e;
+  background: linear-gradient(83.21deg, #3245ff 0%, #bc52ee 100%);
+  color: #ffffff;
   font-size: 0.8125rem;
   font-weight: 600;
   padding: 0.45rem 1rem;
-  border-radius: 6px;
+  border-radius: 10px;
   text-decoration: none;
   border: none;
   cursor: pointer;
-  transition: background 0.15s ease, transform 0.1s ease;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 2px 4px rgba(32, 24, 96, 0.12);
+  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
   white-space: nowrap;
 }
 
 .btn-primary:hover {
-  background: #7dd3fc;
+  filter: brightness(1.06);
   transform: translateY(-1px);
+  box-shadow: 0 5px 14px rgba(91, 80, 232, 0.22);
 }
 
 .btn-secondary {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  background: var(--bg-elevated);
+  background: #ffffff;
   color: var(--fg-primary);
   font-size: 0.8125rem;
   font-weight: 500;
   padding: 0.45rem 0.875rem;
-  border-radius: 6px;
+  border-radius: 10px;
   text-decoration: none;
   border: 1px solid var(--border-hairline);
   cursor: pointer;
@@ -185,8 +193,8 @@ body {
 }
 
 .btn-secondary:hover {
-  background: var(--bg-card-hover);
-  border-color: var(--border-subtle);
+  background: var(--bg-elevated);
+  border-color: rgba(91, 80, 232, 0.3);
 }
 
 /* ==========================================================================
@@ -222,14 +230,14 @@ main {
 }
 
 .hero-editorial h1 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: clamp(2.2rem, 4vw, 3.25rem);
-  font-weight: 600;
+  font-weight: 750;
   line-height: 1.18;
   color: var(--fg-primary);
   margin-bottom: 1rem;
   text-wrap: balance;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.045em;
 }
 
 .hero-lead {
@@ -246,9 +254,10 @@ main {
   gap: 1rem;
   margin: 2rem 0;
   padding: 1rem 1.25rem;
-  background: var(--bg-surface);
+  background: rgba(255, 255, 255, 0.78);
   border: 1px solid var(--border-hairline);
-  border-radius: 8px;
+  border-radius: 14px;
+  box-shadow: 0 12px 30px rgba(31, 41, 55, 0.045);
 }
 
 .metric-item {
@@ -317,9 +326,10 @@ main {
 .article-card {
   background: var(--bg-card);
   border: 1px solid var(--border-hairline);
-  border-radius: 10px;
+  border-radius: 14px;
   padding: 1.75rem 2rem;
-  transition: border-color 0.2s ease, background-color 0.2s ease;
+  box-shadow: 0 8px 24px rgba(31, 41, 55, 0.045);
+  transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
   text-decoration: none;
   display: block;
   color: inherit;
@@ -327,12 +337,20 @@ main {
 
 .article-card:hover {
   background: var(--bg-card-hover);
-  border-color: var(--border-subtle);
+  border-color: rgba(91, 80, 232, 0.28);
+  box-shadow: 0 14px 32px rgba(31, 41, 55, 0.09);
+  transform: translateY(-2px);
+}
+
+.article-card > a {
+  display: block;
+  color: inherit;
+  text-decoration: none;
 }
 
 .article-card.featured {
-  border-color: rgba(56, 189, 248, 0.3);
-  background: linear-gradient(180deg, rgba(56, 189, 248, 0.03) 0%, var(--bg-card) 100%);
+  border-color: rgba(91, 80, 232, 0.26);
+  background: linear-gradient(135deg, rgba(91, 80, 232, 0.045), var(--bg-card) 52%);
 }
 
 .article-card h2 {
@@ -430,13 +448,13 @@ main {
 }
 
 .post-header h1 {
-  font-family: var(--font-serif);
+  font-family: var(--font-sans);
   font-size: clamp(2.2rem, 4.5vw, 3.1rem);
-  font-weight: 600;
+  font-weight: 750;
   line-height: 1.2;
   color: var(--fg-primary);
   margin-bottom: 1.25rem;
-  letter-spacing: -0.015em;
+  letter-spacing: -0.04em;
   text-wrap: balance;
 }
 
@@ -449,8 +467,8 @@ main {
 
 /* Abstract Tarjeta Científica */
 .scientific-abstract {
-  background: rgba(15, 23, 42, 0.7);
-  border: 1px solid rgba(56, 189, 248, 0.25);
+  background: rgba(100, 85, 245, 0.045);
+  border: 1px solid rgba(91, 80, 232, 0.2);
   border-radius: 8px;
   padding: 1.5rem;
   margin: 2rem 0;
@@ -485,10 +503,10 @@ main {
 
 /* Cuerpo Tipográfico del Artículo */
 .post-body {
-  font-family: var(--font-serif);
+  font-family: Georgia, "Cambria", "Times New Roman", serif;
   font-size: 1.125rem;
   line-height: 1.8;
-  color: #d1d9e6;
+  color: var(--fg-secondary);
 }
 
 .post-body p {
@@ -555,7 +573,7 @@ main {
 .post-body pre {
   margin: 2rem 0;
   padding: 1.25rem 1.5rem;
-  background: #06090e;
+  background: #f3f4f6;
   border: 1px solid var(--border-hairline);
   border-radius: 8px;
   overflow-x: auto;
@@ -930,7 +948,8 @@ main {
    ========================================================================== */
 .site-footer {
   border-top: 1px solid var(--border-hairline);
-  background: var(--bg-surface);
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: blur(12px);
   padding: 2rem 1.5rem;
   margin-top: auto;
   font-size: 0.8125rem;
@@ -961,6 +980,40 @@ main {
 
 .footer-links a:hover {
   color: var(--fg-primary);
+}
+
+:focus-visible {
+  outline: 3px solid rgba(100, 85, 245, 0.45);
+  outline-offset: 3px;
+}
+
+@media (max-width: 900px) {
+  .header-container {
+    flex-wrap: wrap;
+    gap: 0.75rem 1rem;
+  }
+
+  .header-nav {
+    order: 3;
+    width: 100%;
+    gap: 1rem;
+    padding-top: 0.25rem;
+  }
+
+  .header-actions {
+    margin-left: auto;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 /* ==========================================================================
@@ -1100,7 +1153,7 @@ main {
 }
 
 .editorial-container strong {
-  color: #ffffff;
+  color: var(--fg-primary);
   font-weight: 700;
   letter-spacing: -0.01em;
   text-shadow: 0 0 1px rgba(255, 255, 255, 0.2);
@@ -1182,10 +1235,10 @@ main {
 }
 
 /* Clases de utilidad complementarias del formato sha256.us */
-.text-primary-dark { color: #38bdf8 !important; }
-.text-primary-darker { color: #f8fafc !important; }
-.text-primary { color: #38bdf8 !important; }
-.text-secondary-dark { color: #10b981 !important; }
+.text-primary-dark { color: #5b50e8 !important; }
+.text-primary-darker { color: #111827 !important; }
+.text-primary { color: #5b50e8 !important; }
+.text-secondary-dark { color: #15803d !important; }
 .text-bold { font-weight: 700 !important; }
 .text-uppercase { text-transform: uppercase !important; }
 .text-no-underline { text-decoration: none !important; }
@@ -1364,8 +1417,8 @@ main {
 }
 
 .chat-bubble.user {
-  background: rgba(56, 189, 248, 0.12);
-  border: 1px solid rgba(56, 189, 248, 0.3);
+  background: var(--accent-cyan-dim);
+  border: 1px solid rgba(91, 80, 232, 0.22);
   color: var(--fg-primary);
   border-bottom-right-radius: 2px;
 }
@@ -1406,7 +1459,7 @@ main {
   gap: 0.4rem;
   overflow-x: auto;
   padding: 0.5rem 1rem;
-  background: rgba(7, 9, 14, 0.6);
+  background: rgba(245, 244, 255, 0.75);
   border-top: 1px solid var(--border-hairline);
   white-space: nowrap;
 }
@@ -1425,7 +1478,7 @@ main {
 .quick-chip:hover {
   background: var(--bg-card-hover);
   color: var(--accent-cyan);
-  border-color: rgba(56, 189, 248, 0.3);
+  border-color: rgba(91, 80, 232, 0.3);
 }
 
 .chat-input-container {
