@@ -48,6 +48,7 @@ from backend.scraper import extract_article_from_url, is_safe_url
 from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
 from backend.seo_validator import audit_article_seo
 from backend.system_profiler import detect_system_resources
+from backend.studio_ai import router as studio_ai_router
 from backend.version import __version__
 
 logger = get_logger("app")
@@ -126,6 +127,7 @@ app = FastAPI(
     version=__version__,
     lifespan=lifespan
 )
+app.include_router(studio_ai_router)
 
 # Configurar CORS restrictivo y seguro
 app.add_middleware(
