@@ -3,15 +3,12 @@
   "version": "1.0.0",
   "private": true,
   "workspaces": [
-    "frontend",
-    "blog"
+    "frontend"
   ],
   "scripts": {
     "dev": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",
     "preview": "npm --prefix frontend run preview",
-    "lint": "node frontend/node_modules/typescript/bin/tsc --noEmit --project frontend/tsconfig.json",
-    "dev:blog": "npm --prefix blog run dev",
-    "build:blog": "npm --prefix blog run build"
+    "lint": "node frontend/node_modules/typescript/bin/tsc --noEmit --project frontend/tsconfig.json"
   }
 }
