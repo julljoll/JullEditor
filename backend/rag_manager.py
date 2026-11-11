@@ -817,3 +817,22 @@ def retrieve_legal_context(query_text: str, theme: str = "cybersecurity", top_k:
     rag_output.append("================================================================================\n")
     
     return "\n".join(rag_output)
+
+
+
+def get_dpk_corpus_stats() -> dict[str, Any]:
+    """Retorna estadísticas del corpus Parquet generado con IBM Data Prep Kit."""
+    from backend.data_prep.parquet_store import ParquetDatasetManager
+    parquet_dir = os.path.join(WORKSPACE_ROOT, ".julleditor_db", "parquet")
+    mgr = ParquetDatasetManager(parquet_dir)
+    stats = mgr.get_dataset_stats("legal_corpus")
+    if stats:
+        return {"status": "indexed", "stats": stats}
+    return {"status": "not_indexed", "stats": None}
+
+
+def index_legal_corpus_dpk(max_files: int | None = None) -> dict[str, Any]:
+    """Ejecuta el pipeline de indexación de IBM Data Prep Kit sobre Informacion_docling_rag/."""
+    from backend.rag.vector_store import LegalVectorStore
+    store = LegalVectorStore(os.path.join(WORKSPACE_ROOT, ".julleditor_db"))
+    return store.index_corpus_dpk(corpus_dir=DOCLING_RAG_DIR, max_files=max_files)

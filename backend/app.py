@@ -31,10 +31,18 @@ from backend.astro_publisher import get_publication_status, publish_article
 from backend.rag_manager import (
     ASTRO_READY_DIR,
     get_article_content,
+    get_dpk_corpus_stats,
+    index_legal_corpus_dpk,
     list_articles_history,
     retrieve_legal_context,
     save_final_article,
     save_rag_source,
+)
+from backend.data_prep import (
+    BaseDPKTableTransform,
+    PIIRedactorTransform,
+    create_source_prep_pipeline,
+    preprocess_source_dpk,
 )
 from backend.scraper import extract_article_from_url, is_safe_url
 from backend.sentencia_extractor import extract_sentencia_metadata, is_sentencia_text
@@ -261,6 +269,21 @@ class PublishArticleRequest(BaseModel):
 class SeoAuditRequest(BaseModel):
     markdown: str = Field(..., max_length=2000000, description="Contenido Markdown del artículo")
     jurisdiction: str | None = Field("auto", max_length=50, description="auto | venezuela | international")
+
+class DPKPreprocessRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=2000000, description="Texto o Markdown a preprocesar")
+    filename: str | None = Field("source.md", max_length=255)
+    source_url: str | None = Field("", max_length=2048)
+    category: str | None = Field("General", max_length=100)
+    redact_pii: bool = Field(True, description="Anonimizar Cédulas, RIF, emails, teléfonos")
+    dedup: bool = Field(True, description="Desduplicar bloques redundantes")
+    min_words: int = Field(30, ge=1, le=5000)
+
+class DPKRedactPIIRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=2000000, description="Texto a anonimizar PII")
+
+class DPKIndexCorpusRequest(BaseModel):
+    max_files: int | None = Field(None, ge=1, le=10000, description="Límite opcional de archivos a indexar")
 
 # ==============================================================================
 # ENDPOINTS API
@@ -647,6 +670,65 @@ async def export_drafts_status_endpoint():
     except Exception as e:
         logger.error(f"Error obteniendo estado de borradores: {e}")
         raise HTTPException(status_code=500, detail=f"Error listando borradores: {e!s}")
+
+# ==============================================================================
+# ENDPOINTS IBM DATA PREP KIT (DPK)
+# ==============================================================================
+
+@app.post("/api/data-prep/preprocess")
+async def data_prep_preprocess_endpoint(req: DPKPreprocessRequest):
+    """Preprocesa texto o markdown fuente utilizando el pipeline de IBM Data Prep Kit."""
+    try:
+        res = preprocess_source_dpk(
+            text_or_path=req.text,
+            filename=req.filename or "source.md",
+            redact_pii=req.redact_pii,
+            min_words=req.min_words,
+        )
+        return res
+    except Exception as e:
+        logger.error(f"Error en preprocesamiento DPK: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error en IBM Data Prep Kit: {e!s}")
+
+@app.post("/api/data-prep/redact-pii")
+async def data_prep_redact_pii_endpoint(req: DPKRedactPIIRequest):
+    """Anonimiza PII sensible venezolana (Cédulas, RIF, tarjetas, teléfonos) con IBM Data Prep Kit."""
+    try:
+        transform = PIIRedactorTransform()
+        table = BaseDPKTableTransform.records_to_table([{"text": req.text, "doc_id": "pii_request"}])
+        out_tables, stats = transform.transform(table)
+        records = BaseDPKTableTransform.table_to_records(out_tables[0]) if out_tables else []
+        redacted = records[0].get("text", "") if records else ""
+        audit = records[0].get("pii_audit", []) if records else []
+        return {
+            "status": "success",
+            "redacted_text": redacted,
+            "pii_audit": audit,
+            "stats": stats,
+        }
+    except Exception as e:
+        logger.error(f"Error anonimizando PII con DPK: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error en DPK PII Redactor: {e!s}")
+
+@app.get("/api/data-prep/corpus-stats")
+async def data_prep_corpus_stats_endpoint():
+    """Retorna métricas y metadatos del corpus Parquet generado con IBM Data Prep Kit."""
+    try:
+        stats = get_dpk_corpus_stats()
+        return stats
+    except Exception as e:
+        logger.error(f"Error obteniendo estadísticas DPK Parquet: {e}")
+        raise HTTPException(status_code=500, detail=f"Error consultando DPK Parquet: {e!s}")
+
+@app.post("/api/data-prep/index-corpus")
+async def data_prep_index_corpus_endpoint(req: DPKIndexCorpusRequest = DPKIndexCorpusRequest()):
+    """Ejecuta el pipeline de indexación DPK sobre Informacion_docling_rag/ y genera Apache Parquet."""
+    try:
+        result = index_legal_corpus_dpk(max_files=req.max_files)
+        return result
+    except Exception as e:
+        logger.error(f"Error indexando corpus con DPK: {e}", exc_info=True)
+        raise HTTPException(status_code=500, detail=f"Error indexando corpus con DPK: {e!s}")
 
 PRELOADED_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "data", "preloaded.json")
 

@@ -1,8 +1,8 @@
 ---
 title: "Ciberseguridad y Delitos Informáticos en Venezuela: Análisis Pericial"
 description: "Análisis pericial sobre ciberseguridad y delitos informáticos en Venezuela."
-pubDate: 2026-11-05
-updatedDate: 2026-11-05
+pubDate: 2026-11-11
+updatedDate: 2026-11-11
 author: "Jull Editor"
 slug: "ciberseguridad-y-delitos-informaticos-en-venezuela-analisis-pericial"
 tags: ["ciberseguridad", "informatica-forense", "ingenieria-social", "iso-27037"]

@@ -15,6 +15,9 @@ from typing import Any
 
 from backend.rag.chunker import LegalChunker
 from backend.rag.reranker import HybridReranker
+from backend.data_prep.base import BaseDPKTableTransform
+from backend.data_prep.pipeline import create_rag_indexing_pipeline
+from backend.data_prep.parquet_store import ParquetDatasetManager
 
 logger = logging.getLogger("julleditor.rag.vector_store")
 
@@ -40,6 +43,10 @@ class LegalVectorStore:
         self.persist_dir = Path(persist_dir)
         self.persist_dir.mkdir(parents=True, exist_ok=True)
         self.chunks_file = self.persist_dir / "legal_chunks.json"
+        self.parquet_dir = self.persist_dir / "parquet"
+        self.parquet_dir.mkdir(parents=True, exist_ok=True)
+        self.parquet_file = self.parquet_dir / "legal_corpus.parquet"
+        self.parquet_manager = ParquetDatasetManager(self.parquet_dir)
 
         self.chunks: list[dict[str, Any]] = []
         self.bm25: Any = None
@@ -100,6 +107,85 @@ class LegalVectorStore:
         self._init_bm25()
 
         return len(self.chunks)
+
+    def index_corpus_dpk(
+        self,
+        corpus_dir: str | Path | None = None,
+        save_parquet: bool = True,
+        max_files: int | None = None,
+    ) -> dict[str, Any]:
+        """Indexa archivos Markdown/Docling usando el pipeline de IBM Data Prep Kit."""
+        if corpus_dir is None:
+            workspace_root = Path(__file__).resolve().parent.parent.parent
+            corpus_dir = workspace_root / "Informacion_docling_rag"
+
+        root = Path(corpus_dir)
+        if not root.exists():
+            raise FileNotFoundError(f"Directorio de corpus no encontrado: {root}")
+
+        md_files = list(root.rglob("*.md")) + list(root.rglob("*.txt"))
+        if max_files:
+            md_files = md_files[:max_files]
+
+        if not md_files:
+            return {"status": "warning", "message": "No se encontraron archivos para indexar", "chunks_count": 0}
+
+        raw_inputs: list[dict[str, Any]] = []
+        for file_path in md_files:
+            try:
+                rel = file_path.relative_to(root)
+                category = rel.parts[0] if len(rel.parts) > 1 else "General"
+                text = file_path.read_text(encoding="utf-8", errors="ignore")
+                raw_inputs.append({
+                    "text": text,
+                    "filename": file_path.name,
+                    "source": str(rel).replace("\\", "/"),
+                    "category": category,
+                })
+            except Exception as e:
+                logger.debug(f"Error leyendo {file_path}: {e}")
+
+        if not raw_inputs:
+            return {"status": "warning", "message": "No se pudo leer ningún archivo", "chunks_count": 0}
+
+        pipeline = create_rag_indexing_pipeline()
+        out_table, stats = pipeline.run(raw_inputs, file_name="informacion_docling_rag")
+
+        parquet_path = None
+        if save_parquet:
+            saved_file = self.parquet_manager.save_table(out_table, "legal_corpus")
+            parquet_path = str(saved_file)
+
+        chunk_records = BaseDPKTableTransform.table_to_records(out_table)
+        adapted_chunks: list[dict[str, Any]] = []
+        for c in chunk_records:
+            adapted_chunks.append({
+                "text": c.get("chunk_text") or c.get("text", ""),
+                "metadata": {
+                    "law_title": c.get("law_title", ""),
+                    "article_number": c.get("article_number", ""),
+                    "category": c.get("category", ""),
+                    "source": c.get("source", ""),
+                    "word_count": c.get("word_count", 0),
+                    "token_count_est": c.get("token_count_est", 0),
+                    **(c.get("metadata") or {}),
+                },
+            })
+
+        self.chunks = adapted_chunks
+        self.chunks_file.write_text(json.dumps(self.chunks, ensure_ascii=False, indent=2), encoding="utf-8")
+        self._init_bm25()
+
+        return {
+            "status": "success",
+            "chunks_count": len(self.chunks),
+            "parquet_path": parquet_path,
+            "pipeline_stats": stats,
+        }
+
+    def get_dpk_parquet_stats(self) -> dict[str, Any] | None:
+        """Retorna estadísticas del dataset Parquet de corpus legal."""
+        return self.parquet_manager.get_dataset_stats("legal_corpus")
 
     def search(
         self,

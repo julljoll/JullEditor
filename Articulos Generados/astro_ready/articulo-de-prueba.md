@@ -1,8 +1,8 @@
 ---
 title: "Artículo de Prueba"
 description: "Artículo de opinión pericial sobre Artículo de Prueba con análisis técnico y forense."
-pubDate: 2026-11-05
-updatedDate: 2026-11-05
+pubDate: 2026-11-11
+updatedDate: 2026-11-11
 author: "Jull Editor"
 slug: "articulo-de-prueba"
 tags: ["legal-tech", "derecho-digital", "evidencia-digital", "venezuela"]
