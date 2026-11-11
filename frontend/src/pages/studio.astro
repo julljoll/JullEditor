@@ -1190,7 +1190,7 @@ Redacta aquí tu lead introductorio respondiendo a la intención de búsqueda...
       }
 
       try {
-        const res = await fetch(`/api/ai-status?endpoint=${encodeURIComponent(endpoint)}`);
+        const res = await fetch(`/backend-api/api/ai-status?endpoint=${encodeURIComponent(endpoint)}`);
         const data = await res.json();
 
         if (data.connected) {
@@ -1403,7 +1403,7 @@ Redacta aquí tu lead introductorio respondiendo a la intención de búsqueda...
           phi_model: phiModelInput ? phiModelInput.value : 'phi3',
         };
 
-        const res = await fetch('/api/ai-action', {
+        const res = await fetch('/backend-api/api/ai-action', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
@@ -1477,7 +1477,7 @@ Redacta aquí tu lead introductorio respondiendo a la intención de búsqueda...
           phi_model: phiModelInput ? phiModelInput.value : 'phi3',
         };
 
-        const res = await fetch('/api/ai-chat', {
+        const res = await fetch('/backend-api/api/ai-chat', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload),
