@@ -1,6 +1,7 @@
 ---
 export const prerender = true;
 import Base from '../layouts/Base.astro';
+import UswdsIcon from '../components/UswdsIcon.astro';
 import { getCollection, render } from 'astro:content';
 
 export async function getStaticPaths() {
@@ -56,8 +57,8 @@ const jsonLd = {
     <article class="post-content-column">
       <header class="post-header">
         <div class="kicker">
-          <span>🔬</span>
-          <span>{article.data.category || 'Doctrina Pericial'} · Jurisdicción Venezuela 🇻🇪</span>
+          <UswdsIcon name="science" />
+          <span>{article.data.category || 'Doctrina Pericial'} · Jurisdicción Venezuela</span>
         </div>
         <h1>{article.data.title}</h1>
         <p class="post-deck">{article.data.description}</p>
@@ -85,8 +86,13 @@ const jsonLd = {
 
       <!-- Descargo Ético Profesional Obligatorio -->
       <footer class="ethical-disclaimer">
-        <strong>⚖️ Descargo de Responsabilidad Profesional y Ética Pericial:</strong><br />
-        Este artículo tiene fines exclusivamente académicos, doctrinales e informativos. No constituye asesoría jurídica formal ni dictamen pericial vinculante para un expediente en curso. La aplicación de normativas y protocolos forenses requiere la intervención particular de un abogado habilitado ante el Inpreabogado y un perito informático forense debidamente acreditado.
+        <div class="ethical-disclaimer-title">
+          <UswdsIcon name="gavel" />
+          <strong>Descargo de Responsabilidad Profesional y Ética Pericial:</strong>
+        </div>
+        <p>
+          Este artículo tiene fines exclusivamente académicos, doctrinales e informativos. No constituye asesoría jurídica formal ni dictamen pericial vinculante para un expediente en curso. La aplicación de normativas y protocolos forenses requiere la intervención particular de un abogado habilitado ante el Inpreabogado y un perito informático forense debidamente acreditado.
+        </p>
       </footer>
     </article>
 
@@ -94,7 +100,7 @@ const jsonLd = {
     <aside class="post-sidebar">
       <div class="sidebar-box">
         <div class="sidebar-title">
-          <span>📑</span>
+          <UswdsIcon name="list" />
           <span>Índice Editorial</span>
         </div>
         <nav class="toc-nav" id="toc-container">
@@ -105,7 +111,7 @@ const jsonLd = {
 
       <div class="sidebar-box">
         <div class="sidebar-title">
-          <span>🔒</span>
+          <UswdsIcon name="lock" />
           <span>Verificación Forense</span>
         </div>
         <div style="font-size: 0.78125rem; font-family: var(--font-mono); color: var(--fg-secondary); line-height: 1.6;">
@@ -114,7 +120,8 @@ const jsonLd = {
           <div><strong>Jurisdicción:</strong> TSJ Venezuela</div>
           <div style="margin-top: 0.75rem;">
             <button class="btn-secondary" style="width: 100%; justify-content: center; font-size: 0.75rem;" onclick="window.print()">
-              🖨️ Imprimir Formato Oficio
+              <UswdsIcon name="print" />
+              <span>Imprimir Formato Oficio</span>
             </button>
           </div>
         </div>
@@ -122,7 +129,7 @@ const jsonLd = {
 
       <div class="sidebar-box">
         <div class="sidebar-title">
-          <span>🏷️</span>
+          <UswdsIcon name="tag" />
           <span>Descriptores</span>
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; font-size: 0.8125rem;">

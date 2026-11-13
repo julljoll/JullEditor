@@ -1,5 +1,6 @@
 ---
 // Layout Base Cyber-Legal Dark OLED — JullEditor
+import UswdsIcon from '../components/UswdsIcon.astro';
 const site = Astro.site ?? new URL('https://example.com');
 export interface Props {
   title: string;
@@ -72,7 +73,8 @@ const currentPath = Astro.url.pathname;
 
         <div class="header-actions">
           <a class="btn-primary" href="/">
-            Abrir Estudio
+            <UswdsIcon name="edit" />
+            <span>Abrir Estudio</span>
           </a>
         </div>
       </div>

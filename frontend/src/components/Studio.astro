@@ -1,6 +1,7 @@
 ---
 import Base from '../layouts/Base.astro';
 import StudioInventory from './StudioInventory.astro';
+import UswdsIcon from './UswdsIcon.astro';
 ---
 <Base
   title="Generador de artículos para Astro — JullEditor"
@@ -9,7 +10,10 @@ import StudioInventory from './StudioInventory.astro';
   wide
 >
   <section class="hero-editorial">
-    <div class="kicker"><span>✍️</span><span>JullEditor · salida Markdown para Astro</span></div>
+    <div class="kicker">
+      <UswdsIcon name="edit" />
+      <span>JullEditor · salida Markdown para Astro</span>
+    </div>
     <h1>Generador de artículos para Astro</h1>
     <p class="hero-lead">
       Completa el encargo y genera un archivo <code>.md</code> listo para revisar y copiar a
@@ -103,7 +107,8 @@ import StudioInventory from './StudioInventory.astro';
         </div>
 
         <button id="generate-article" class="btn-primary" type="submit">
-          Generar artículo Markdown
+          <UswdsIcon name="edit" />
+          <span>Generar artículo Markdown</span>
         </button>
       </form>
     </section>
@@ -127,10 +132,12 @@ import StudioInventory from './StudioInventory.astro';
       ></textarea>
       <div class="output-actions">
         <button id="copy-markdown" class="btn-secondary" type="button" disabled>
-          Copiar archivo Markdown
+          <UswdsIcon name="copy" />
+          <span>Copiar archivo Markdown</span>
         </button>
         <button id="download-markdown" class="btn-secondary" type="button" disabled>
-          Descargar .md
+          <UswdsIcon name="download" />
+          <span>Descargar .md</span>
         </button>
       </div>
       <p id="generation-status" class="studio-status" role="status" aria-live="polite"></p>

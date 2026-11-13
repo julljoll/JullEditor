@@ -119,6 +119,87 @@ body {
   border: 1px solid var(--border-hairline);
 }
 
+/* ==========================================================================
+   USWDS Official Icon System (https://github.com/uswds/uswds)
+   ========================================================================== */
+.usa-icon {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  fill: currentColor;
+  vertical-align: -0.15em;
+  flex-shrink: 0;
+}
+
+.usa-icon--size-3 {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.usa-icon--size-4 {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.usa-icon--size-5 {
+  width: 2rem;
+  height: 2rem;
+}
+
+.kicker .usa-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-right: 0.35rem;
+  vertical-align: -0.18em;
+  color: var(--color-primary);
+}
+
+.sidebar-title .usa-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  margin-right: 0.4rem;
+  vertical-align: -0.18em;
+  color: var(--color-primary);
+}
+
+.test-name .usa-icon {
+  width: 1rem;
+  height: 1rem;
+  margin-right: 0.4rem;
+  vertical-align: -0.15em;
+}
+
+.btn-secondary .usa-icon,
+.btn-primary .usa-icon {
+  margin-right: 0.4rem;
+  vertical-align: -0.15em;
+}
+
+.ethical-disclaimer-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 0.35rem;
+}
+
+.ethical-disclaimer-title .usa-icon {
+  width: 1.125rem;
+  height: 1.125rem;
+  color: var(--color-primary);
+}
+
+.text-success,
+.usa-icon.text-success {
+  color: var(--accent-green) !important;
+  fill: currentColor;
+}
+
+.text-error,
+.usa-icon.text-error {
+  color: var(--accent-red) !important;
+  fill: currentColor;
+}
+
 /* Zona 2: Enlaces de navegación */
 .header-nav {
   display: flex;

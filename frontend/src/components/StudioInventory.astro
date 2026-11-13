@@ -1,5 +1,6 @@
 ---
 import { getCollection } from 'astro:content';
+import UswdsIcon from './UswdsIcon.astro';
 
 const allArticles = await getCollection('blog');
 const articles = allArticles
@@ -81,7 +82,10 @@ const qaReport = {
 
 <section id="control-calidad" class="studio-reference" aria-labelledby="quality-heading">
   <div class="hero-editorial" style="padding: 1.25rem; margin-bottom: 1rem;">
-    <div class="kicker"><span>🛡️</span><span>Control estático de la colección</span></div>
+    <div class="kicker">
+      <UswdsIcon name="shield" />
+      <span>Control estático de la colección</span>
+    </div>
     <h2 id="quality-heading" style="font-size: 1.6rem; margin: 0.5rem 0;">Calidad del catálogo</h2>
     <p class="studio-reference-note">
       Comprobaciones de metadatos y taxonomía calculadas al generar esta página. No ejecutan pruebas
@@ -96,9 +100,11 @@ const qaReport = {
       {checks.map((check) => (
         <div class="test-row">
           <div class="test-name">
-            <span style={{ color: check.passed ? 'var(--accent-green)' : 'var(--accent-red)' }}>
-              {check.passed ? '✓' : '✗'}
-            </span>
+            {check.passed ? (
+              <UswdsIcon name="check_circle" className="text-success" />
+            ) : (
+              <UswdsIcon name="cancel" className="text-error" />
+            )}
             <span><strong>{check.name}:</strong> {check.detail}</span>
           </div>
           <span class={`test-status-tag ${check.passed ? 'tag-pass' : 'tag-fail'}`}>
@@ -106,7 +112,10 @@ const qaReport = {
           </span>
         </div>
       ))}
-      <button id="download-catalog-report" class="btn-secondary" type="button">Descargar informe JSON</button>
+      <button id="download-catalog-report" class="btn-secondary" type="button">
+        <UswdsIcon name="download" />
+        <span>Descargar informe JSON</span>
+      </button>
     </section>
 
     <section id="taxonomia" class="studio-reference-card" aria-labelledby="taxonomy-heading">
