@@ -152,8 +152,8 @@ const qaReport = {
     URL.revokeObjectURL(url);
   });
 
-  const filterButtons = document.querySelectorAll<HTMLButtonElement>('[data-tag-filter]');
-  const articleCards = document.querySelectorAll<HTMLElement>('.catalog-article');
+  const filterButtons = document.querySelectorAll('[data-tag-filter]');
+  const articleCards = document.querySelectorAll('.catalog-article');
   filterButtons.forEach((button) => {
     button.addEventListener('click', () => {
       const selectedTag = button.dataset.tagFilter || 'all';
