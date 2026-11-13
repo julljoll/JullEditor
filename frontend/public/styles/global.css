@@ -1,39 +1,44 @@
 /* ==========================================================================
-   JullEditor — Cyber-Legal Dark OLED Design System
-   Estación Editorial y Pericial de Redacción Jurídica y Ciberseguridad Forense
+   JullEditor — USWDS-inspired accessible design tokens
    ========================================================================== */
 
 :root {
-  --bg-oled: #ffffff;
+  --color-primary: #005ea8;
+  --color-primary-dark: #1a4480;
+  --color-ink: #1b1b1b;
+  --color-muted: #565c65;
+  --color-border: #a9aeb1;
+  --color-focus: #2491ff;
+  --bg-oled: #f0f0f0;
   --bg-surface: #ffffff;
-  --bg-elevated: #f5f4ff;
-  --bg-card: rgba(255, 255, 255, 0.88);
+  --bg-elevated: #f0f0f0;
+  --bg-card: #ffffff;
   --bg-card-hover: #ffffff;
-  --border-hairline: rgba(17, 24, 39, 0.1);
-  --border-subtle: rgba(17, 24, 39, 0.18);
-  --border-focus: #6455f5;
-  --accent-primary-soft: rgba(100, 85, 245, 0.12);
+  --border-hairline: #dfe1e2;
+  --border-subtle: #a9aeb1;
+  --border-focus: var(--color-primary);
+  --accent-primary-soft: #e7f2f8;
 
-  --fg-primary: #111827;
-  --fg-secondary: #374151;
-  --fg-muted: #6b7280;
-  --fg-dim: #9ca3af;
+  --fg-primary: var(--color-ink);
+  --fg-secondary: #3d4551;
+  --fg-muted: var(--color-muted);
+  --fg-dim: #71767a;
 
-  --accent-cyan: #5b50e8;
-  --accent-cyan-dim: rgba(91, 80, 232, 0.1);
-  --accent-green: #15803d;
-  --accent-green-dim: rgba(21, 128, 61, 0.1);
-  --accent-amber: #b45309;
-  --accent-amber-dim: rgba(180, 83, 9, 0.1);
-  --accent-red: #b91c1c;
-  --accent-red-dim: rgba(185, 28, 28, 0.1);
+  --accent-cyan: var(--color-primary);
+  --accent-cyan-dim: #e7f2f8;
+  --accent-green: #216e1f;
+  --accent-green-dim: #e7f4e4;
+  --accent-amber: #936f38;
+  --accent-amber-dim: #fef0c8;
+  --accent-red: #b50909;
+  --accent-red-dim: #f4e3db;
 
-  --font-serif: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-serif: Georgia, "Times New Roman", serif;
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", Consolas, monospace;
 
-  --max-width-content: 1180px;
-  --max-width-studio: 1880px;
+  --max-width-content: 1200px;
+  --max-width-studio: 1440px;
   --max-width-prose: 720px;
 }
 
@@ -57,10 +62,7 @@ body {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background:
-    radial-gradient(ellipse at 68% 0%, rgba(188, 82, 238, 0.1), transparent 34rem),
-    radial-gradient(ellipse at 8% 12%, rgba(50, 69, 255, 0.08), transparent 28rem),
-    var(--bg-oled);
+  background: var(--bg-oled);
 }
 
 /* ==========================================================================
@@ -70,11 +72,9 @@ body {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(255, 255, 255, 0.88);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
+  background: var(--bg-surface);
   border-bottom: 1px solid var(--border-hairline);
-  padding: 0.875rem 1.5rem;
+  padding: 0.75rem 1.5rem;
 }
 
 .header-container {
@@ -101,15 +101,13 @@ body {
 }
 
 .brand-badge {
-  font-family: var(--font-mono);
-  font-size: 0.6875rem;
-  font-weight: 600;
-  padding: 0.15rem 0.45rem;
-  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 0;
   background: var(--accent-cyan-dim);
   color: var(--accent-cyan);
-  border: 1px solid rgba(91, 80, 232, 0.22);
-  text-transform: uppercase;
+  border: 1px solid var(--border-hairline);
 }
 
 /* Zona 2: Enlaces de navegación */
@@ -122,26 +120,25 @@ body {
 }
 
 .header-nav a {
-  color: var(--fg-muted);
+  color: var(--fg-secondary);
   text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: color 0.15s ease;
+  font-size: 1rem;
+  font-weight: 600;
   white-space: nowrap;
   flex-shrink: 0;
 }
 
 .header-nav a:hover,
 .header-nav a.active {
-  color: var(--fg-primary);
+  color: var(--color-primary-dark);
 }
 
 .header-nav a.active {
-  color: var(--accent-cyan);
+  color: var(--color-primary-dark);
   text-decoration: underline;
-  text-decoration-color: rgba(91, 80, 232, 0.45);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 0.45rem;
+  text-decoration-color: currentColor;
+  text-decoration-thickness: 0.15rem;
+  text-underline-offset: 0.35rem;
 }
 
 /* Zona 3: Acción Principal */
@@ -155,47 +152,55 @@ body {
 .btn-primary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  background: linear-gradient(83.21deg, #3245ff 0%, #bc52ee 100%);
+  min-height: 2.75rem;
+  background: var(--color-primary);
   color: #ffffff;
-  font-size: 0.8125rem;
-  font-weight: 600;
-  padding: 0.45rem 1rem;
-  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.625rem 1rem;
+  border-radius: 0;
   text-decoration: none;
   border: none;
   cursor: pointer;
-  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.18), 0 2px 4px rgba(32, 24, 96, 0.12);
-  transition: filter 0.15s ease, transform 0.1s ease, box-shadow 0.15s ease;
+  transition: background-color 0.15s ease;
   white-space: nowrap;
 }
 
 .btn-primary:hover {
-  filter: brightness(1.06);
-  transform: translateY(-1px);
-  box-shadow: 0 5px 14px rgba(91, 80, 232, 0.22);
+  background: var(--color-primary-dark);
 }
 
 .btn-secondary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  background: #ffffff;
-  color: var(--fg-primary);
-  font-size: 0.8125rem;
-  font-weight: 500;
-  padding: 0.45rem 0.875rem;
-  border-radius: 10px;
+  min-height: 2.75rem;
+  background: var(--bg-surface);
+  color: var(--color-primary-dark);
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.625rem 1rem;
+  border-radius: 0;
   text-decoration: none;
-  border: 1px solid var(--border-hairline);
+  border: 1px solid var(--color-primary);
   cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease;
+  transition: background-color 0.15s ease;
   white-space: nowrap;
 }
 
 .btn-secondary:hover {
-  background: var(--bg-elevated);
-  border-color: rgba(91, 80, 232, 0.3);
+  background: var(--accent-cyan-dim);
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled {
+  background: #dfe1e2;
+  border-color: #dfe1e2;
+  color: #565c65;
+  cursor: not-allowed;
 }
 
 /* ==========================================================================
@@ -218,8 +223,8 @@ main.site-main-wide {
    PORTADA Y CATÁLOGO DE ARTÍCULOS
    ========================================================================== */
 .hero-editorial {
-  padding-bottom: 2.5rem;
-  margin-bottom: 2rem;
+  padding: 1.75rem 0 1.5rem;
+  margin-bottom: 1.5rem;
   border-bottom: 1px solid var(--border-hairline);
 }
 
@@ -237,20 +242,19 @@ main.site-main-wide {
 
 .hero-editorial h1 {
   font-family: var(--font-sans);
-  font-size: clamp(2.2rem, 4vw, 3.25rem);
-  font-weight: 750;
-  line-height: 1.18;
+  font-size: clamp(2rem, 3vw, 2.5rem);
+  font-weight: 700;
+  line-height: 1.2;
   color: var(--fg-primary);
-  margin-bottom: 1rem;
+  margin-bottom: 0.75rem;
   text-wrap: balance;
-  letter-spacing: -0.045em;
 }
 
 .hero-lead {
   font-size: 1.125rem;
-  line-height: 1.7;
+  line-height: 1.5;
   color: var(--fg-secondary);
-  max-width: 820px;
+  max-width: 58rem;
 }
 
 /* Barrita de métricas operacionales */
@@ -343,7 +347,7 @@ main.site-main-wide {
 
 .article-card:hover {
   background: var(--bg-card-hover);
-  border-color: rgba(91, 80, 232, 0.28);
+  border-color: var(--color-primary);
   box-shadow: 0 14px 32px rgba(31, 41, 55, 0.09);
   transform: translateY(-2px);
 }
@@ -355,8 +359,8 @@ main.site-main-wide {
 }
 
 .article-card.featured {
-  border-color: rgba(91, 80, 232, 0.26);
-  background: linear-gradient(135deg, rgba(91, 80, 232, 0.045), var(--bg-card) 52%);
+  border-color: var(--color-primary);
+  background: var(--accent-cyan-dim);
 }
 
 .article-card h2 {
@@ -473,9 +477,9 @@ main.site-main-wide {
 
 /* Abstract Tarjeta Científica */
 .scientific-abstract {
-  background: rgba(100, 85, 245, 0.045);
-  border: 1px solid rgba(91, 80, 232, 0.2);
-  border-radius: 8px;
+  background: var(--accent-cyan-dim);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0;
   padding: 1.5rem;
   margin: 2rem 0;
 }
@@ -724,8 +728,8 @@ main.site-main-wide .hero-editorial {
   margin: 0 0 1.25rem;
   padding: 0.85rem 1rem;
   background: var(--accent-cyan-dim);
-  border: 1px solid rgba(91, 80, 232, 0.2);
-  border-radius: 8px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 0;
   color: var(--fg-secondary);
   font-size: 0.875rem;
 }
@@ -781,27 +785,28 @@ main.site-main-wide .studio-grid > main.studio-panel {
 
 .studio-panel {
   background: var(--bg-surface);
-  border: 1px solid var(--border-hairline);
-  border-radius: 10px;
-  padding: 1.25rem;
+  border: 1px solid var(--color-border);
+  border-radius: 0;
+  padding: 1.5rem;
 }
 
 .panel-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
-  padding-bottom: 0.875rem;
-  margin-bottom: 1rem;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  margin-bottom: 1.25rem;
   border-bottom: 1px solid var(--border-hairline);
 }
 
 .panel-title {
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-family: var(--font-sans);
+  font-size: 1.25rem;
+  text-transform: none;
+  letter-spacing: normal;
   color: var(--fg-primary);
-  font-weight: 600;
+  font-weight: 700;
   display: flex;
   align-items: center;
   gap: 0.5rem;
@@ -809,41 +814,41 @@ main.site-main-wide .studio-grid > main.studio-panel {
 
 /* Form Controls en Studio */
 .form-group {
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
 .form-label {
   display: block;
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--fg-secondary);
-  margin-bottom: 0.35rem;
-  font-family: var(--font-mono);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--fg-primary);
+  margin-bottom: 0.5rem;
+  font-family: var(--font-sans);
 }
 
 .form-input,
 .form-select,
 .form-textarea {
   width: 100%;
-  background: var(--bg-oled);
-  border: 1px solid var(--border-hairline);
+  min-height: 2.75rem;
+  background: var(--bg-surface);
+  border: 1px solid var(--color-border);
   color: var(--fg-primary);
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
-  font-size: 0.84375rem;
+  border-radius: 0;
+  padding: 0.625rem 0.75rem;
+  font-size: 1rem;
+  line-height: 1.5;
   font-family: inherit;
-  transition: border-color 0.15s ease;
 }
 
 .form-input:focus,
 .form-select:focus,
 .form-textarea:focus {
-  outline: none;
-  border-color: var(--border-focus);
+  border-color: var(--color-primary);
 }
 
 .form-textarea {
-  font-family: var(--font-mono);
+  font-family: inherit;
   line-height: 1.5;
   resize: vertical;
 }
@@ -1062,9 +1067,26 @@ main.site-main-wide .studio-grid > main.studio-panel {
   color: var(--fg-primary);
 }
 
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: -9999px;
+  z-index: 200;
+  padding: 0.75rem 1rem;
+  background: var(--bg-surface);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+.skip-link:focus {
+  left: 1rem;
+  top: 1rem;
+}
+
 :focus-visible {
-  outline: 3px solid rgba(100, 85, 245, 0.45);
-  outline-offset: 3px;
+  outline: 0.25rem solid var(--color-focus);
+  outline-offset: 0.25rem;
+  box-shadow: 0 0 0 0.25rem #ffffff;
 }
 
 @media (max-width: 900px) {
@@ -1498,7 +1520,7 @@ main.site-main-wide .studio-grid > main.studio-panel {
 
 .chat-bubble.user {
   background: var(--accent-cyan-dim);
-  border: 1px solid rgba(91, 80, 232, 0.22);
+  border: 1px solid var(--border-subtle);
   color: var(--fg-primary);
   border-bottom-right-radius: 2px;
 }
@@ -1539,7 +1561,7 @@ main.site-main-wide .studio-grid > main.studio-panel {
   gap: 0.4rem;
   overflow-x: auto;
   padding: 0.5rem 1rem;
-  background: rgba(245, 244, 255, 0.75);
+  background: var(--bg-elevated);
   border-top: 1px solid var(--border-hairline);
   white-space: nowrap;
 }
@@ -1558,7 +1580,7 @@ main.site-main-wide .studio-grid > main.studio-panel {
 .quick-chip:hover {
   background: var(--bg-card-hover);
   color: var(--accent-cyan);
-  border-color: rgba(91, 80, 232, 0.3);
+  border-color: var(--color-primary);
 }
 
 .chat-input-container {

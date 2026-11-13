@@ -11,6 +11,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.app import app
+import backend.astro_publisher as pub
 from backend.exporters.astro_exporter import (
     clean_body_for_astro,
     export_as_astro_md,
@@ -95,11 +96,10 @@ class TestCleanBodyForAstro:
         assert "Meta Descripción" not in cleaned
         assert "## Sección Real" in cleaned
 
-    def test_converts_schema_json_to_html_comment(self):
+    def test_removes_schema_json_from_markdown_body(self):
         md = '## Conclusiones\n\n```json\n{\n  "@context": "https://schema.org",\n  "@type": "TechArticle"\n}\n```\n\nFin.'
         cleaned = clean_body_for_astro(md)
-        assert "<!-- SCHEMA_JSONLD" in cleaned
-        assert '"@context": "https://schema.org"' in cleaned
+        assert '"@context": "https://schema.org"' not in cleaned
         assert "```json" not in cleaned
 
     def test_replaces_windows_mojibake(self):
@@ -145,25 +145,41 @@ class TestExportAsAstroMd:
         astro_md = export_as_astro_md(title, content, metadata)
 
         assert astro_md.startswith("---")
-        assert 'title: "Análisis Pericial de Ciberseguridad en Venezuela"' in astro_md
-        assert 'author: "Dr. Perito Forense"' in astro_md
-        assert "pubDate:" in astro_md
-        assert "updatedDate:" in astro_md
-        assert "slug:" in astro_md
-        assert "tags:" in astro_md
-        assert 'category: "Opinión Pericial"' in astro_md or 'category: "cybersecurity"' in astro_md
-        assert "readingTime:" in astro_md
-        assert "<!-- SCHEMA_JSONLD" in astro_md
+        meta = pub.parse_frontmatter(astro_md)
+        assert meta is not None
+        assert meta["title"] == title
+        assert meta["author"] == "Dr. Perito Forense"
+        assert meta["pubDate"]
+        assert meta["slug"] == "analisis-pericial-de-ciberseguridad-en-venezuela"
+        assert 1 <= len(meta["tags"]) <= 6
+        assert meta["category"] in {"Opinión Pericial", "cybersecurity"}
+        assert meta["readingTime"] >= 1
+        assert meta["draft"] is False
+        assert meta["featured"] is False
+        assert "# Análisis Pericial de Ciberseguridad en Venezuela" not in astro_md
+        assert "<" not in astro_md
         assert "```json" not in astro_md
 
     def test_slug_in_frontmatter_is_valid_url(self):
         title = "Sentencia N° 123: ¿Es Válida la Prueba Digital en Venezuela?"
         content = "Cuerpo del artículo sobre la sentencia."
         astro_md = export_as_astro_md(title, content, {})
-        slug_match = re.search(r'slug:\s*"([^"]+)"', astro_md)
-        assert slug_match is not None
-        slug_val = slug_match.group(1)
+        meta = pub.parse_frontmatter(astro_md)
+        assert meta is not None
+        slug_val = meta["slug"]
         assert re.match(r"^[a-z0-9-]+$", slug_val)
+
+    def test_rejects_html_body(self):
+        with pytest.raises(ValueError, match="Markdown estándar"):
+            export_as_astro_md("Artículo legal de prueba", "<div>Texto</div>")
+
+    def test_omits_optional_fields_without_source_values(self):
+        article = export_as_astro_md("Artículo legal de prueba", "Texto de análisis.")
+        meta = pub.parse_frontmatter(article)
+        assert meta is not None
+        assert "updatedDate" not in meta
+        assert "heroImage" not in meta
+        assert "seoKeyword" not in meta
 
 
 class TestAstroApiEndpoints:

@@ -38,56 +38,23 @@ def test_ai_status_uses_backend_configured_ollama_endpoint(monkeypatch):
     }
 
 
-def test_ai_chat_requires_messages_or_instruction():
+def test_ai_chat_is_disabled_for_article_only_studio():
     response = client.post("/api/ai-chat", json={})
 
-    assert response.status_code == 400
-    assert response.json()["error"] == "No se enviaron mensajes para la conversación."
-
-
-def test_ai_chat_preserves_response_contract(monkeypatch):
-    async def fake_chat(messages, system_instruction, provider):
-        assert messages[-1] == {"role": "user", "content": "Corrige el texto"}
-        assert "ARTÍCULO ACTUAL EN EL EDITOR DEL USUARIO" in system_instruction
-        assert provider == "local"
-        return {
-            "reply": "```markdown\n---\ntitle: Prueba\n---\n<div class=\"editorial-container\">Texto</div>\n```",
-            "providerUsed": "local",
-            "modelName": "phi3",
-        }
-
-    monkeypatch.setattr(studio_ai, "_chat_with_model", fake_chat)
-    response = client.post(
-        "/api/ai-chat",
-        json={
-            "messages": [{"role": "user", "content": "Corrige el texto"}],
-            "current_article": "Borrador",
-            "provider": "local",
-        },
-    )
-
-    assert response.status_code == 200
-    data = response.json()
-    assert data["success"] is True
-    assert data["providerUsed"] == "local"
-    assert data["modelName"] == "phi3"
-    assert data["updatedArticle"] == "---\ntitle: Prueba\n---\n<div class=\"editorial-container\">Texto</div>"
+    assert response.status_code == 410
 
 
 def test_ai_action_preserves_generated_article_metadata(monkeypatch):
     async def fake_generate(prompt, system_instruction, provider, temperature, max_tokens):
-        assert "Tema: LegalTech" in prompt
+        assert "Categoría: LegalTech" in prompt
+        assert "Devuelve exactamente un objeto JSON" in system_instruction
         assert provider == "google"
         assert temperature == 0.25
-        assert max_tokens == 6500
+        assert max_tokens == 8000
         return {
             "text": (
-                '---\ntitle: "Análisis LegalTech"\n'
-                'description: "Descripción generada"\n'
-                'slug: "analisis-legaltech"\n'
-                'seoKeyword: "legaltech"\n'
-                'category: "LegalTech"\n---\n'
-                "Contenido del artículo"
+                '{"description":"Descripción generada","tags":["legaltech"],'
+                '"body":"## Análisis\\n\\nContenido del artículo"}'
             ),
             "providerUsed": "google",
             "modelName": "test-google-model",
@@ -96,7 +63,14 @@ def test_ai_action_preserves_generated_article_metadata(monkeypatch):
     monkeypatch.setattr(studio_ai, "_generate_with_provider", fake_generate)
     response = client.post(
         "/api/ai-action",
-        json={"source_text": "Notas de prueba", "theme": "LegalTech", "provider": "google"},
+        json={
+            "source_text": "Notas de prueba",
+            "title": "Análisis LegalTech",
+            "author": "Autora de prueba",
+            "theme": "LegalTech",
+            "provider": "google",
+            "seo_keyword": "legaltech",
+        },
     )
 
     assert response.status_code == 200
@@ -104,6 +78,9 @@ def test_ai_action_preserves_generated_article_metadata(monkeypatch):
     assert data["success"] is True
     assert data["action"] == "generate"
     assert data["title"] == "Análisis LegalTech"
+    assert data["content"].startswith("---\n")
+    assert "<" not in data["content"]
+    assert "# Análisis LegalTech" not in data["content"]
     assert data["description"] == "Descripción generada"
     assert data["slug"] == "analisis-legaltech"
     assert data["seoKeyword"] == "legaltech"
@@ -127,6 +104,8 @@ def test_ai_action_does_not_return_client_submitted_provider_key(monkeypatch):
         "/api/ai-action",
         json={
             "source_text": "Notas de prueba",
+            "title": "Artículo LegalTech de prueba",
+            "author": "Autora de prueba",
             "provider": "openai",
             "api_key": secret,
         },
@@ -137,15 +116,14 @@ def test_ai_action_does_not_return_client_submitted_provider_key(monkeypatch):
     assert "api_key" not in response.text
 
 
-def test_ai_action_returns_validation_error_for_unsafe_source_url(monkeypatch):
-    async def reject_url(_url):
-        raise ValueError("URL rechazada por seguridad")
-
-    monkeypatch.setattr(studio_ai, "extract_article_from_url", reject_url)
+def test_ai_action_rejects_non_generation_actions():
     response = client.post(
         "/api/ai-action",
-        json={"action": "reversion", "source_url": "http://127.0.0.1/internal"},
+        json={
+            "action": "summarize",
+            "title": "Artículo de prueba",
+            "author": "Autora de prueba",
+        },
     )
 
     assert response.status_code == 422
-    assert "URL rechazada por seguridad" in response.json()["error"]

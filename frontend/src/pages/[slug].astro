@@ -28,7 +28,7 @@ const formattedDate = article.data.pubDate.toLocaleDateString('es-ES', {
 
 const jsonLd = {
   '@context': 'https://schema.org',
-  '@type': 'TechArticle',
+  '@type': 'BlogPosting',
   headline: article.data.title,
   description: article.data.description,
   datePublished: article.data.pubDate.toISOString(),
@@ -77,25 +77,6 @@ const jsonLd = {
           )}
         </div>
       </header>
-
-      <!-- Abstract Científico Estructurado -->
-      <section class="scientific-abstract">
-        <div class="abstract-title">
-          <span>📜</span>
-          <span>Abstract Científico & Resumen Ejecutivo</span>
-        </div>
-        <div class="abstract-grid">
-          <div class="abstract-row">
-            <strong>OBJETO DEL ANÁLISIS:</strong> Evaluación pericial y dogmática sobre {article.data.title} con estricta sujeción al derecho positivo venezolano.
-          </div>
-          <div class="abstract-row">
-            <strong>METODOLOGÍA:</strong> Contraste normativo (CRBV Arts. 28 y 60, G.O. 37.313, G.O. 37.148) y estándares internacionales ISO/IEC 27037 y RFC 3227.
-          </div>
-          <div class="abstract-row">
-            <strong>DICTAMEN / CONCLUSIÓN:</strong> La preservación inmutable del hash criptográfico SHA-256 y la verificación estricta de la cadena de custodia garantizan la eficacia probatoria en sede jurisdiccional.
-          </div>
-        </div>
-      </section>
 
       <!-- Cuerpo del Artículo -->
       <div class="post-body">

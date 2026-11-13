@@ -16,6 +16,7 @@ Reglas de seguridad:
 import os
 import re
 import shutil
+from datetime import date, datetime
 from typing import Any
 
 import yaml
@@ -55,13 +56,11 @@ def _safe_join(base_dir: str, candidate: str) -> str | None:
 
 def parse_frontmatter(markdown_content: str) -> dict[str, Any] | None:
     """Extrae y valida el bloque YAML de frontmatter de un .md estilo Astro."""
-    if not markdown_content.startswith("---"):
-        return None
-    parts = markdown_content.split("---", 2)
-    if len(parts) < 3:
+    match = re.match(r"\A---\r?\n(.*?)\r?\n---(?:\r?\n|$)", markdown_content, re.DOTALL)
+    if not match:
         return None
     try:
-        meta = yaml.safe_load(parts[1])
+        meta = yaml.safe_load(match.group(1))
     except yaml.YAMLError:
         return None
     return meta if isinstance(meta, dict) else None
@@ -77,25 +76,64 @@ def validate_frontmatter(meta: dict[str, Any]) -> list[str]:
         if field not in meta or meta[field] in (None, ""):
             errors.append(f"Campo requerido ausente en frontmatter: '{field}'")
 
+    title = meta.get("title")
+    if not isinstance(title, str) or not 1 <= len(title) <= 200:
+        errors.append("'title' debe contener entre 1 y 200 caracteres")
+
     desc = meta.get("description")
-    if isinstance(desc, str) and len(desc) > 170:
-        errors.append(f"description excede 170 caracteres ({len(desc)})")
+    if not isinstance(desc, str) or not 1 <= len(desc) <= 170:
+        errors.append("'description' debe contener entre 1 y 170 caracteres")
+
+    author = meta.get("author")
+    if not isinstance(author, str) or not author.strip():
+        errors.append("'author' debe ser un texto no vacío")
 
     tags = meta.get("tags")
-    if tags is not None and not isinstance(tags, list):
-        errors.append("'tags' debe ser una lista")
+    if not isinstance(tags, list) or not 1 <= len(tags) <= 6:
+        errors.append("'tags' debe contener entre 1 y 6 elementos")
+    elif any(not isinstance(tag, str) or not tag.strip() for tag in tags):
+        errors.append("Cada elemento de 'tags' debe ser un texto no vacío")
 
     pub = meta.get("pubDate")
-    if pub is not None and not re.match(r"^\d{4}-\d{2}-\d{2}", str(pub)):
-        errors.append(f"'pubDate' no tiene formato YYYY-MM-DD: {pub!r}")
+    for field in ("pubDate", "updatedDate"):
+        value = meta.get(field)
+        if value is None and field == "updatedDate":
+            continue
+        try:
+            if isinstance(value, (date, datetime)):
+                date.fromisoformat(value.isoformat()[:10])
+            elif isinstance(value, str) and re.fullmatch(r"\d{4}-\d{2}-\d{2}", value):
+                date.fromisoformat(value)
+            else:
+                raise ValueError
+        except ValueError:
+            errors.append(f"'{field}' debe ser una fecha válida con formato YYYY-MM-DD")
+
+    slug = meta.get("slug")
+    if slug is not None and (
+        not isinstance(slug, str)
+        or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", slug)
+    ):
+        errors.append("'slug' debe usar minúsculas, números y guiones simples")
+
+    for field in ("category", "heroImage", "seoKeyword"):
+        value = meta.get(field)
+        if value is not None and not isinstance(value, str):
+            errors.append(f"'{field}' debe ser un texto")
 
     draft = meta.get("draft")
     if draft is not None and not isinstance(draft, bool):
         errors.append("'draft' debe ser booleano")
 
+    featured = meta.get("featured")
+    if featured is not None and not isinstance(featured, bool):
+        errors.append("'featured' debe ser booleano")
+
     reading = meta.get("readingTime")
-    if reading is not None and not isinstance(reading, int):
-        errors.append("'readingTime' debe ser entero")
+    if reading is not None and (
+        isinstance(reading, bool) or not isinstance(reading, int) or reading <= 0
+    ):
+        errors.append("'readingTime' debe ser un entero positivo")
 
     return errors
 

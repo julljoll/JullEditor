@@ -6,11 +6,12 @@ Preserva y potencia el SEO profesional de primer nivel, metadata enriquecida
 y formato limpio sin artefactos.
 """
 
-import html
 import re
 import unicodedata
 from datetime import datetime
 from typing import Any
+
+import yaml
 
 
 def slugify_astro(text: str) -> str:
@@ -152,15 +153,14 @@ def extract_tags(content: str, theme: str, metadata: dict[str, Any] | None = Non
                 if len(tags) >= 6:
                     break
 
-    return tags[:8]
+    return tags[:6]
 
 
 def clean_body_for_astro(markdown: str) -> str:
     """
     Limpia y optimiza el cuerpo Markdown para renderizado perfecto en Astro MD / MDX:
     1. Elimina encabezados redundantemente repetidos como '## Meta Descripción'
-    2. Encapsula bloques JSON-LD Schema.org en comentarios HTML <!-- SCHEMA_JSONLD ... -->
-       para no romper el parser MDX ni renderizar JSON como código visible
+    2. Elimina bloques JSON-LD del cuerpo; el layout Astro gestiona los datos estructurados
     3. Normaliza encoding dañado típico de terminales Windows-1252 / mojibake
     4. Corrige espacios y saltos de línea excesivos
     """
@@ -175,15 +175,18 @@ def clean_body_for_astro(markdown: str) -> str:
         flags=re.MULTILINE | re.IGNORECASE,
     )
 
-    # 2. Convertir bloques ```json Schema.org a comentarios HTML
-    def _schema_replacer(m: re.Match) -> str:
-        json_body = m.group(1).strip()
-        return f"\n\n<!-- SCHEMA_JSONLD\n{json_body}\n-->\n\n"
-
+    # 2. Eliminar bloques JSON-LD; no forman parte del cuerpo Markdown.
     markdown = re.sub(
-        r"```(?:json)?\s*(\{[\s\S]*?\"@context\"[\s\S]*?\})\s*```",
-        _schema_replacer,
+        r"```(?:json)?\s*\{[\s\S]*?\"@context\"[\s\S]*?\}\s*```",
+        "",
         markdown,
+        flags=re.IGNORECASE,
+    )
+    markdown = re.sub(
+        r"<!--\s*SCHEMA_JSONLD[\s\S]*?-->",
+        "",
+        markdown,
+        flags=re.IGNORECASE,
     )
 
     # 3. Reparar mojibake / caracteres corruptos comunes de Windows
@@ -223,28 +226,16 @@ def export_as_astro_md(
     markdown_content: str,
     metadata: dict[str, Any] | None = None,
     author: str = "Jull Editor",
-    editorial_layout: bool = True,
+    editorial_layout: bool = False,
 ) -> str:
     """
-    Transforma el artículo generado en un archivo Markdown 100% compatible
-    con Astro Content Collections (Astro Framework blog).
-
-    Soporta dos modalidades:
-    1. editorial_layout=True (predeterminado): Formato editorial periodístico
-       de 3 columnas enriquecido con HTML5/CSS ('Formato Blog -Astro.md')
-       con Dropcap, Pull Quote, Callout Boxes, FAQ grid y Bio E-E-A-T.
-    2. editorial_layout=False: Formato Markdown estándar limpio con
-       frontmatter canónico.
+    Genera un archivo Markdown puro para la colección Astro.
+    `editorial_layout` se conserva por compatibilidad con clientes existentes,
+    pero no altera el formato de salida.
     """
     meta = dict(metadata or {})
     if author and not meta.get("author"):
         meta["author"] = author
-
-    if editorial_layout and meta.get("editorial_mode") != "classic":
-        from backend.exporters.astro_compiler import AstroEditorialCompiler
-
-        compiler = AstroEditorialCompiler(meta)
-        return compiler.compile(title, markdown_content)
 
     # Si el contenido ya incluye frontmatter interno previo, separarlo
     content_to_process = markdown_content
@@ -260,58 +251,64 @@ def export_as_astro_md(
         description = f"Artículo técnico sobre {title} analizado con rigor jurídico y tecnológico."
     description = _format_description(description)
 
-    # Limpiar cuerpo
+    # Limpiar cuerpo y evitar un segundo H1: el layout Astro usa `title`.
     body = clean_body_for_astro(body)
+    body = re.sub(r"^#\s+.+(?:\r?\n|$)\s*", "", body, count=1)
+    if re.search(r"</?[A-Za-z][\w-]*(?:\s+[^>]*)?\s*/?>", body):
+        raise ValueError("El cuerpo debe ser Markdown estándar, no HTML.")
 
     # Normalizar título limpio
-    clean_title = title.replace('"', '\\"').strip()
+    clean_title = title.strip()
     if not clean_title:
-        h1_match = re.search(r"^#\s+(.+)$", body, re.MULTILINE)
-        clean_title = h1_match.group(1).strip() if h1_match else "Articulo de Blog"
-        clean_title = clean_title.replace('"', '\\"')
+        raise ValueError("El título es obligatorio para generar el archivo Astro.")
+    if len(clean_title) > 200:
+        raise ValueError("El título excede el máximo de 200 caracteres del esquema Astro.")
 
     # Fechas
     now = datetime.now()
     pub_date_str = meta.get("pub_date") or meta.get("date") or now.strftime("%Y-%m-%d")
-    # Asegurar formato YYYY-MM-DD
     if " " in str(pub_date_str):
         pub_date_str = str(pub_date_str).split(" ")[0]
-    updated_date_str = now.strftime("%Y-%m-%d")
 
     # Slug y tags
     slug = meta.get("slug") or slugify_astro(title)
     theme = meta.get("theme", "science_tech")
-    tags = extract_tags(body, theme, meta)
+    tags = extract_tags(body, theme, meta)[:6]
 
     # Estadísticas de lectura
     word_count = len(body.split())
     reading_time = max(1, round(word_count / 200))
 
-    # Keyword primaria
-    seo_keyword = meta.get("seo_keyword") or meta.get("keyword") or (tags[0] if tags else slug)
-
     # Autor
     author_name = meta.get("author") or author
 
-    # Generar frontmatter YAML válido para Astro
-    # Usamos sintaxis segura para listas y valores entrecomillados
-    tags_formatted = "[" + ", ".join(f'"{t}"' for t in tags) + "]"
+    frontmatter_data: dict[str, Any] = {
+        "title": clean_title,
+        "description": description,
+        "pubDate": str(pub_date_str),
+        "author": author_name,
+        "slug": slug,
+        "tags": tags,
+        "category": meta.get("category") or theme,
+        "readingTime": reading_time,
+        "featured": bool(meta.get("featured", False)),
+        "draft": bool(meta.get("draft", False)),
+    }
+    updated_date = meta.get("updated_date") or meta.get("updatedDate")
+    if updated_date:
+        frontmatter_data["updatedDate"] = str(updated_date)
+    hero_image = meta.get("hero_image") or meta.get("heroImage")
+    if hero_image:
+        frontmatter_data["heroImage"] = str(hero_image)
+    seo_keyword = meta.get("seo_keyword") or meta.get("seoKeyword") or meta.get("keyword")
+    if seo_keyword:
+        frontmatter_data["seoKeyword"] = str(seo_keyword)
 
-    frontmatter = f"""---
-title: "{clean_title}"
-description: "{description}"
-pubDate: {pub_date_str}
-updatedDate: {updated_date_str}
-author: "{author_name}"
-slug: "{slug}"
-tags: {tags_formatted}
-category: "{theme}"
-heroImage: "../../assets/blog-placeholder-1.jpg"
-draft: false
-featured: false
-readingTime: {reading_time}
-seoKeyword: "{seo_keyword}"
----
+    frontmatter = yaml.safe_dump(frontmatter_data, allow_unicode=True, sort_keys=False).strip()
+    result = f"---\n{frontmatter}\n---\n\n{body.strip()}\n"
+    from backend.astro_publisher import parse_frontmatter, validate_frontmatter
 
-"""
-    return frontmatter + body + "\n"
+    errors = validate_frontmatter(parse_frontmatter(result) or {})
+    if errors:
+        raise ValueError("Frontmatter incompatible con Astro: " + "; ".join(errors))
+    return result

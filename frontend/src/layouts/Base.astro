@@ -39,24 +39,25 @@ const currentPath = Astro.url.pathname;
     <link rel="stylesheet" href="/styles/global.css" />
   </head>
   <body>
-    <!-- Top Bar Contract (3 Zonas Estrictas) -->
+    <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
     <header class="site-header">
       <div class="header-container">
-        <!-- Zona 1: Brand Wordmark -->
         <a class="brand" href="/">
           <span>JullEditor</span>
-          <span class="brand-badge">Cyber-Legal</span>
+          <span class="brand-badge">Artículos Astro</span>
         </a>
 
-        <!-- Zona 2: Enlaces de Navegación Limpios -->
         <nav class="header-nav" aria-label="Navegación principal">
-          <a href="/" class={currentPath === '/' || currentPath === '/studio' ? 'active' : ''}>Estudio Redactor</a>
+          <a
+            href="/"
+            class={currentPath === '/' || currentPath === '/studio' ? 'active' : ''}
+            aria-current={currentPath === '/' || currentPath === '/studio' ? 'page' : undefined}
+          >Estudio Redactor</a>
           <a href="/#control-calidad">Control de calidad</a>
           <a href="/#taxonomia">Taxonomía</a>
           <a href="/rss.xml">RSS</a>
         </nav>
 
-        <!-- Zona 3: Acción Principal -->
         <div class="header-actions">
           <a class="btn-primary" href="/">
             Abrir Estudio
@@ -65,7 +66,7 @@ const currentPath = Astro.url.pathname;
       </div>
     </header>
 
-    <main class:list={['site-main', { 'site-main-wide': wide }]}>
+    <main id="main-content" tabindex="-1" class:list={['site-main', { 'site-main-wide': wide }]}>
       <slot />
     </main>
 
