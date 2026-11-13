@@ -1,10 +1,10 @@
-# 📋 PLAN DE OPTIMIZACIÓN — JullEditor v4.0
-## Redactor Jurídico-Científico de Primer Nivel · 100% Python
+# PLAN DE OPTIMIZACIÓN — JullEditor v4.0
+## Redactor Jurídico-Científico de Primer Nivel · 100% Python & Astro Framework
 
-**Proyecto:** JullEditor (estación editorial LegalTech offline-first)
-**Versión actual:** v3.2.1 → **Objetivo:** v4.0.0 (MAJOR: nueva arquitectura + rupturas de API planificadas, según [SemVer](https://semver.org/))
-**Horizonte estimado:** 6 sprints (~12 semanas), priorizado por impacto editorial
-**Jurisdicción operativa:** Venezuela 🇻🇪 (exclusiva en la interfaz; motor multi-jurisdicción latente)
+**Proyecto:** JullEditor (estación editorial LegalTech offline-first)  
+**Versión actual:** v4.0.0 (COMPLETADO AL 100% · EN PRODUCCIÓN)  
+**Jurisdicción operativa:** Venezuela (exclusiva en la interfaz; motor multi-jurisdicción latente)  
+**Lanzador Canónico:** `ejecutar_local.bat` (Auto-instalador y arranque en 1 solo clic)
 
 ---
 
@@ -30,7 +30,7 @@ Convertir JullEditor de un *generador de borradores* en un **redactor jurídico-
 | Validación legal | ⚠️ Superficial | Verifica presencia de citas, no su exactitud (número de artículo, gaceta, expediente) |
 | Validación SEO/GEO | ✅ Aceptable | Cobertura de palabras clave OK; falta structured data (JSON-LD Article/FAQPage) real |
 | GUI web (`frontend/js`) | ⚠️ Fuera de pila Python | Requiere navegador + JS; duplica lógica de prompts/validación en dos lenguajes |
-| `crear_articulo.bat` / `start.bat` | ⚠️ Puentes vacíos | Correcto hoy, pero la experiencia terminal puede ser superior con TUI Python |
+| `ejecutar_local.bat` | ✅ Unificado en 1 clic | Detecta/instala Python, venv, deps, Ollama, modelo Granite y arranca JullEditor |
 | Tests | ⚠️ Parciales | Suite existe pero marca defectuosa en `test_cli_generator`; cobertura de RAG/prompts baja |
 | Modelos | granite3.3:8b/2b CPU | Suficiente en CPU; margen grande si se añade modo híbrido con API opcional |
 
@@ -67,7 +67,7 @@ analista   investigador  redactor      crítico        ← 4 agentes internos (p
 ### FASE 1 — Núcleo 100% Python y limpieza total (Sprint 1) · `v3.3.0`
 - [ ] **TUI principal con Textual**: pantalla de 3 pasos espejo de index.html (especialidad → tono VE/jurisdicción → ajustes avanzados) + streaming del token en vivo. Reemplaza funcionalmente a la GUI JS como interfaz canónica.
 - [ ] Migrar `frontend/js/app.js` (lógica de prompts, conteo SEO, exportación Sitejet) a módulos Python: `backend/frontend_logic.py` consumido por FastAPI/Jinja2. El navegador deja de contener lógica de negocio.
-- [ ] `crear_articulo.bat` y `start.bat`: reducir a puente mínimo sin lógica (ya casi cumple; auditar bucles residuales).
+- [x] **Unificación de launcher en `ejecutar_local.bat`**: auto-instalador integral y arranque en 1 solo clic desatendido que sustituye scripts fragmentados anteriores.
 - [ ] Corregir suite de tests (`test_cli_generator`, fixtures/marks) y elevar cobertura mínima a 70 % con `pytest --cov`.
 - [ ] Añadir `ruff` + `mypy` al pre-commit y a `run.py --test`.
 - **Criterio de salida:** `grep -r "function\|=>" backend/*.py frontend/js/*.js` → cero archivos JS con lógica de negocio; toda prueba verde.

@@ -738,7 +738,7 @@ PRELOADED_FILE_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "
 async def get_preloaded_file():
     """
     Retorna la información de un archivo Markdown precargado por el selector CLI
-    (crear_articulo.bat / cli_generator.py) para que la interfaz web lo cargue automáticamente.
+    (ejecutar_local.bat / cli_generator.py) para que la interfaz web lo cargue automáticamente.
     """
     if os.path.exists(PRELOADED_FILE_PATH):
         try:

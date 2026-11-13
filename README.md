@@ -101,13 +101,13 @@ Para desarrollo en macOS/Linux, activa el entorno con `source .venv/bin/activate
 
 Si estás en Windows y deseas una configuración y arranque 100% automático:
 1. Haz doble clic en **`ejecutar_local.bat`**:
-   - Detecta e instala Python 3.12 y sus dependencias automáticamente en entorno virtual.
-   - Detecta e instala Ollama si no está presente en el equipo.
-   - Inicia el servicio de IA local en segundo plano.
-   - Analiza la RAM de tu PC y descarga el modelo local **IBM Granite 3.3** óptimo (`granite3.3:8b` si tienes ≥8 GB de RAM o `granite3.3:2b` si tienes menos).
-   - Inicia FastAPI y Astro, y abre automáticamente tu navegador en `http://localhost:3000` con el motor local listo para redactar y reversionar artículos sin conexión.
+   - Detecta e instala Python 3.12 y sus dependencias automáticamente en un entorno virtual (`.venv`).
+   - Detecta e instala Ollama de forma silenciosa si no está presente en el equipo.
+   - Inicia el servicio de IA local en segundo plano (`ollama serve`).
+   - Analiza la memoria RAM de tu PC y descarga el modelo local **IBM Granite 3.3** óptimo (`granite3.3:8b` si tienes ≥8 GB de RAM o `granite3.3:2b` si tienes menos).
+   - Inicia FastAPI y Astro, y abre automáticamente tu navegador en `http://localhost:3000` con el motor local listo para redactar, extraer y reversionar artículos sin conexión.
 
-*(Nota: los archivos `start.bat` y `primer paso instalar ia local.bat` también delegan a `ejecutar_local.bat` para máxima compatibilidad).*
+Este archivo `.bat` único consolida todo el proceso en un solo paso desatendido.
 
 Si usarás un proveedor local en Linux o macOS, instala y arranca Ollama, y asegúrate de que el modelo seleccionado esté disponible allí. Para configurar modelos cloud, consulta [Elegir un motor de IA](#elegir-un-motor-de-ia).
 
@@ -219,9 +219,13 @@ sudo systemctl enable --now granite-blog.service
 
 Antes de exponer el servicio, configura TLS y reglas de red en la VM y restringe los puertos de backend/modelo. Los artículos guardados deben estar en almacenamiento persistente del host.
 
-### Google Colab
+### Extracción y Parseo de Artículos Externos
 
-El repositorio conserva [`notebooks/granite_blog_colab.ipynb`](notebooks/granite_blog_colab.ipynb) como referencia experimental para iniciar Ollama y FastAPI en Colab. **No es una ruta de despliegue lista para usar**: el notebook aún contiene una URL de clonación de ejemplo y referencia `requirements-colab.txt`, que no existe en el repositorio. Además, levanta FastAPI, no el frontend Astro. Para una interfaz web integrada y mantenida, usa Vercel o el compose de Docker.
+El Studio incorpora un extractor y limpiador de fuentes web (`/backend-api/api/scrape`):
+- Pega cualquier URL de blog o noticia técnica/jurídica en el campo **URL de artículo de otro blog**.
+- Haz clic en **Extraer y Parsear Artículo**.
+- El sistema extrae automáticamente el contenido limpio, preserva el título y metadatos, y lo vuelca al campo de texto fuente con atribución de autor y copyright.
+- Desde allí, el motor local **IBM Granite 3.3** puede sintetizarlo, reversionarlo o enriquecerlo con el marco jurídico venezolano.
 
 ## Exportar, publicar e imprimir
 
@@ -323,8 +327,8 @@ Las pruebas de proveedor usan mocks; no requieren credenciales reales ni llamada
 | `frontend/src/content/blog/` | Colección de artículos Astro |
 | `Informacion_docling_rag/` | Fuentes jurídicas y técnicas locales |
 | `tests/` | Pruebas Python |
+| `ejecutar_local.bat` | Lanzador y auto-instalador 100% desatendido para Windows |
 | `docker/` | Dockerfile, Compose y configuración de Nginx |
-| `notebooks/` | Notebook experimental de Colab |
 | `deploy/oracle/` | Unidad systemd para iniciar Docker Compose en una VM Linux de Oracle Cloud |
 | `requirements.txt` | Dependencias Python para desarrollo local |
 | `requirements-cloud.txt` | Dependencias Python necesarias para Docker |

@@ -8,7 +8,7 @@ la GUI JS como interfaz principal; los .bat siguen siendo el puente de entrada.
 
 Uso:
     python -m backend.tui_app
-    python run.py --tui          (o crear_articulo.bat → opción [T])
+    python run.py --tui          (o ejecutar_local.bat)
 """
 
 import json

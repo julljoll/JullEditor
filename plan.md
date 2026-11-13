@@ -1,9 +1,10 @@
-# 🚀 PLAN MAESTRO: CONVERSIÓN DE JULLEDITOR EN GENERADOR DE ARTÍCULOS EDITORIALES PARA EL FRAMEWORK ASTRO (v2.0)
+# PLAN MAESTRO: CONVERSIÓN DE JULLEDITOR EN GENERADOR DE ARTÍCULOS EDITORIALES PARA EL FRAMEWORK ASTRO (v4.0.0)
 
-> **Estado:** 📋 Aprobado para Ejecución  
-> **Arquitectura:** Offline-First · Python 3.12 · IBM Granite 3.3 · Ollama · Astro Framework (Content Collections)  
-> **Destino:** `src/content/blog/{slug}.md` en blogs desarrollados con Astro (p. ej. *sha256.us*)  
-> **Documento Base:** `Formato Blog -Astro.md` + `.agents/` + `PLAN_MAESTRO_v4.md`  
+> **Estado:** COMPLETADO AL 100% · EN PRODUCCIÓN
+> **Arquitectura:** Offline-First · Python 3.12 (FastAPI) · IBM Granite 3.3 & Ollama · Astro Framework (Content Collections) · USWDS Design System
+> **Lanzador Canónico:** `ejecutar_local.bat` (Instalación automática y arranque en 1 solo clic)
+> **Destino:** `frontend/src/content/blog/{slug}.md` y persistencia dual en `Articulos Generados/` (.md y .html)
+> **Documento Base:** `Formato Blog -Astro.md` + `.agents/AGENTS.md` + `.agents/plans/PLAN_MAESTRO_v4.md`  
 
 ---
 

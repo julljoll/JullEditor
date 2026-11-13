@@ -1,7 +1,7 @@
 """
 Módulo de Auto-Arranque (Bootstrap) para JullEditor — 100% Python.
 
-Encargado de que el doble clic en crear_articulo.bat funcione incluso en una
+Encargado de que el doble clic en ejecutar_local.bat funcione incluso en una
 computadora recién formateada:
 
   1. Analiza la computadora donde se está ejecutando (CPU, RAM, SO, arquitectura).

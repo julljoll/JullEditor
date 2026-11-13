@@ -1,6 +1,8 @@
-# 📋 Plan de Reorientación — JullEditor → Estación de Redacción para Blog Astro Estático
+# Plan de Reorientación — JullEditor → Estación de Redacción para Blog Astro Estático
 
-**Objetivo:** convertir el proyecto en una herramienta cuyo **único propósito es redactar artículos** (con IA local IBM Granite) y **exportarlos como contenido Markdown listo para un blog Astro estático**. Todo el backend permanece en **Python (FastAPI)**; el frontend pasa a ser **Astro**, eliminando el HTML/CSS/JS vanilla actual.
+> **Estado:** COMPLETADO AL 100% · EN PRODUCCIÓN (v4.0.0)  
+> **Lanzador Local Canónico:** `ejecutar_local.bat`  
+> **Objetivo cumplido:** La aplicación opera con una interfaz **Astro unificada** (`frontend/`) para el Blog y el Studio, alimentada por un backend **Python (FastAPI)** y **Ollama local (IBM Granite 3.3)**, con persistencia directa en colecciones de contenido de Astro y `Articulos Generados/`.
 
 ---
 

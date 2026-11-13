@@ -58,9 +58,8 @@ def _create_desktop_shortcut() -> bool:
             desktop_dir = Path.home() / "Desktop"
 
         shortcut_path = desktop_dir / "JullEditor.lnk"
-        bat_target = PROJECT_ROOT / "crear_articulo.bat"
-        # (Plan Astro 2026) frontend/ vanilla eliminado; el favicon vive en blog/public.
-        icon_target = PROJECT_ROOT / "blog" / "public" / "favicon.ico"
+        bat_target = PROJECT_ROOT / "ejecutar_local.bat"
+        icon_target = PROJECT_ROOT / "frontend" / "public" / "favicon.ico"
 
         ps_script = f"""
         $WshShell = New-Object -comObject WScript.Shell
@@ -278,7 +277,7 @@ class InstallerApp(tk.Tk):
             self.log("[PASO 3] Instalando dependencias JavaScript con npm ci...")
             res = subprocess.run(
                 [npm, "ci", "--include=optional", "--workspaces=false"],
-                cwd=str(PROJECT_ROOT / "blog"),
+                cwd=str(PROJECT_ROOT / "frontend"),
                 capture_output=True,
                 text=True,
             )

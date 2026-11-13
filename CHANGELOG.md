@@ -4,6 +4,25 @@ Todas las modificaciones notables a **JullEditor** están documentadas en este a
 
 El formato se basa en [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/) y este proyecto se adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
+## [4.0.0] - 2026-11-13
+
+### Añadido
+- **Lanzador y Auto-Instalador Único en 1 Clic (`ejecutar_local.bat`)**:
+  - Unificación completa de la experiencia de instalación y arranque para usuarios sin conocimientos técnicos.
+  - Comprobación y despliegue desatendido de Python 3.12, entorno virtual (`.venv`), dependencias pip, Ollama, modelo óptimo **IBM Granite 3.3** (`granite3.3:8b` o `2b` según memoria RAM) y apertura automática de JullEditor en `http://localhost:3000`.
+- **Extractor y Parser de Artículos Externos en Studio (`/backend-api/api/scrape`)**:
+  - Incorporada sección en la interfaz para pegar links de otros blogs, extraer su contenido limpio preservando títulos y metadatos, y verterlo estructurado en el editor para enriquecimiento con el marco legal venezolano y regeneración con IA local.
+- **Sistema de Diseño Oficial USWDS sin Emojis**:
+  - Reemplazo integral de emojis en la interfaz y componentes por iconos SVG nativos del sistema de diseño **USWDS (U.S. Web Design System)** (`UswdsIcon.astro`), cumpliendo estándares WCAG 2.1 AA/AAA en modo oscuro de alto contraste.
+- **Persistencia Dual en `Articulos Generados/`**:
+  - Generación paralela de archivos Markdown (`.md`) para colecciones de contenido de Astro y documentos HTML5 autónomos con microdatos Schema.org (`TechArticle` y `FAQPage`).
+
+### Eliminado
+- **Limpieza de Scripts Batch Fragmentados**:
+  - Eliminados los scripts redundantes `primer paso instalar ia local.bat`, `crear_articulo.bat` y `start.bat`, consolidando toda la operativa en `ejecutar_local.bat`.
+- **Limpieza de Archivos Obsoletos**:
+  - Eliminado `bun.lock` (reemplazado por `package-lock.json` de npm en `frontend/`) y el notebook experimental de Google Colab no mantenido.
+
 ---
 
 ## [3.5.0] - 2026-11-06

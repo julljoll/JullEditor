@@ -1,21 +1,17 @@
-# 📋 PLAN MAESTRO DE OPTIMIZACIÓN PROFESIONAL — JullEditor v4.0
+# PLAN MAESTRO DE OPTIMIZACIÓN PROFESIONAL — JullEditor v4.0
 
 ## Documento Canónico de Ejecución Paso a Paso para Agentes IA
 
-> **Propósito:** Este documento es la fuente única de verdad para llevar JullEditor
-> desde su estado actual (v3.4.0) hasta un nivel profesional de producción (v4.0.0).
-> Está diseñado para que **cualquier agente IA** pueda ejecutarlo paso a paso sin
-> ambigüedad ni errores. Cada fase tiene prerequisitos, acciones exactas, archivos
-> a modificar/crear, comandos a ejecutar, y criterios de salida verificables.
+> **Estado:** COMPLETADO AL 100% · EN PRODUCCIÓN (v4.0.0)  
+> **Arquitectura:** Offline-First · Python 3.12 (FastAPI) · IBM Granite 3.3 vía Ollama · Astro Framework (`frontend/`)  
+> **Lanzador Canónico:** `ejecutar_local.bat` (Auto-instalador y arranque en 1 solo clic desatendido)
 
-**Fecha de creación:** 2026-10-27
-**Versión actual del proyecto:** v3.4.0
-**Versión objetivo:** v4.0.0
-**Repositorio:** `gh repo clone julljoll/JullEditor` (https://github.com/julljoll/JullEditor.git)
-**Rama de trabajo:** `main`
-**Sistema operativo objetivo:** Windows 10/11 (64-bit)
-**Lenguaje exclusivo:** Python ≥ 3.10 (toda lógica propia)
-**Modelo IA local:** IBM Granite 3.3 vía Ollama
+**Versión del proyecto:** v4.0.0  
+**Repositorio:** `gh repo clone julljoll/JullEditor` (https://github.com/julljoll/JullEditor.git)  
+**Rama de trabajo:** `main`  
+**Sistema operativo objetivo:** Windows 10/11 (64-bit) / Linux / macOS  
+**Lenguaje exclusivo:** Python ≥ 3.10 (toda lógica propia) + Astro / TypeScript  
+**Modelo IA local:** IBM Granite 3.3 vía Ollama (100% Offline)
 
 ---
 
@@ -51,9 +47,8 @@ JullEditor/
 ├── Informacion_docling_rag/  # Corpus jurídico VE (12 subdirs, ~96 fuentes)
 ├── Articulos Generados/      # Salida de artículos (.md + .html)
 ├── tests/                    # 10 archivos de test (79/79 verdes)
-├── run.py                    # Orquestador principal (307 líneas)
-├── crear_articulo.bat        # Launcher Windows con auto-install Python
-├── start.bat                 # Launcher simplificado
+├── run.py                    # Orquestador principal
+├── ejecutar_local.bat        # Launcher y auto-instalador 100% en 1 clic
 ├── pyproject.toml            # Config proyecto + ruff + mypy
 ├── requirements.txt          # 11 dependencias
 └── .env.example              # Variables de entorno
@@ -135,7 +130,7 @@ JullEditor v4.0/
 ├── Informacion_docling_rag/      # EXISTENTE
 ├── tests/                        # AMPLIADO
 ├── run.py                        # EXISTENTE (entry point)
-├── crear_articulo.bat            # EXISTENTE (puente)
+├── ejecutar_local.bat            # UNIFICADO (auto-instalador y arranque en 1 clic)
 ├── pyproject.toml                # MEJORADO (entry_points, deps)
 └── requirements.txt              # ACTUALIZADO
 ```
@@ -758,13 +753,13 @@ webview.start()
 ```
 1. Descargar el proyecto desde GitHub (ZIP o git clone)
 2. Abrir la carpeta del proyecto
-3. Hacer doble clic en crear_articulo.bat
-4. El .bat automáticamente:
+3. Hacer doble clic en ejecutar_local.bat
+4. El script automáticamente:
    a. Instala Python 3.12 si no existe (winget o python.org)
-   b. Instala dependencias pip
-   c. Instala Ollama si falta
-   d. Descarga el modelo Granite acorde a tu RAM
-   e. Abre JullEditor en el navegador
+   b. Crea entorno virtual e instala dependencias pip
+   c. Instala Ollama si falta e inicia el servicio en segundo plano
+   d. Descarga el modelo Granite acorde a tu RAM (8b / 2b)
+   e. Inicia FastAPI + Astro y abre JullEditor en el navegador (http://localhost:3000)
 ```
 
 ### Método 2: Instalador GUI (v4.0)
