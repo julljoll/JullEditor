@@ -97,15 +97,17 @@ Pop-Location
 
 Para desarrollo en macOS/Linux, activa el entorno con `source .venv/bin/activate`; ejecuta los comandos npm dentro de `frontend/`.
 
-### Inicio rápido en Windows (sin conocimientos técnicos)
+### Inicio rápido en Windows (sin conocimientos técnicos · 1 solo clic)
 
-Si estás en Windows y deseas una configuración asistida de 1 clic:
-1. Haz doble clic en **`primer paso instalar ia local.bat`**:
-   - Detecta e instala Ollama automáticamente (vía winget o instalador oficial silencioso).
+Si estás en Windows y deseas una configuración y arranque 100% automático:
+1. Haz doble clic en **`ejecutar_local.bat`**:
+   - Detecta e instala Python 3.12 y sus dependencias automáticamente en entorno virtual.
+   - Detecta e instala Ollama si no está presente en el equipo.
    - Inicia el servicio de IA local en segundo plano.
-   - Analiza la RAM de tu PC y descarga el modelo **IBM Granite 3.3** adecuado (`granite3.3:8b` si tienes ≥8 GB de RAM o `granite3.3:2b` si tienes menos).
-   - Realiza una prueba de ejecución en vivo para confirmar que el modelo está listo.
-2. Luego haz doble clic en **`start.bat`** (o `crear_articulo.bat`) para iniciar JullEditor. En el Studio, el motor seleccionado por defecto es **Ollama local (IBM Granite / offline)**.
+   - Analiza la RAM de tu PC y descarga el modelo local **IBM Granite 3.3** óptimo (`granite3.3:8b` si tienes ≥8 GB de RAM o `granite3.3:2b` si tienes menos).
+   - Inicia FastAPI y Astro, y abre automáticamente tu navegador en `http://localhost:3000` con el motor local listo para redactar y reversionar artículos sin conexión.
+
+*(Nota: los archivos `start.bat` y `primer paso instalar ia local.bat` también delegan a `ejecutar_local.bat` para máxima compatibilidad).*
 
 Si usarás un proveedor local en Linux o macOS, instala y arranca Ollama, y asegúrate de que el modelo seleccionado esté disponible allí. Para configurar modelos cloud, consulta [Elegir un motor de IA](#elegir-un-motor-de-ia).
 

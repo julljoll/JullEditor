@@ -135,8 +135,7 @@ def test_studio_template_renders_url_scraper_and_bat_guide():
 
     assert "source-url-input" in source
     assert "btn-scrape-url" in source
-    assert "primer paso instalar ia local.bat" in source
-    assert "start.bat" in source
+    assert "ejecutar_local.bat" in source
     assert "IBM Granite 3.3" in source
 
 

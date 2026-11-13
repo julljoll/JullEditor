@@ -133,22 +133,12 @@ import UswdsIcon from './UswdsIcon.astro';
           </div>
           <div class="local-engine-model">IBM Granite 3.3 & Ollama</div>
           <p class="local-engine-desc">
-            Este proyecto está concebido para ejecutarse <strong>completamente en tu computadora local</strong> de forma privada, sin suscripciones de pago, sin servicios en la nube y sin enviar datos al exterior.
+            Instalación y arranque en un solo clic. Para instalar dependencias, configurar la IA local y abrir JullEditor en tu navegador, ejecuta en la carpeta raíz:
           </p>
 
-          <div class="bat-guide">
-            <div class="bat-guide-title">
-              <UswdsIcon name="shield" />
-              <span>¿Cómo instalar y ejecutar en local mediante los archivos <code>.bat</code>?</span>
-            </div>
-            <ol class="bat-steps-list">
-              <li>
-                <strong>Paso 1 (Instalación automática de IA):</strong> En la carpeta raíz del proyecto, haz doble clic en <code>primer paso instalar ia local.bat</code>. Detecta tu memoria RAM, instala Ollama automáticamente si no lo tienes, descarga el modelo de IA local (<strong>IBM Granite 3.3</strong>) y verifica su funcionamiento.
-              </li>
-              <li>
-                <strong>Paso 2 (Iniciar JullEditor):</strong> Haz doble clic en <code>start.bat</code> (o <code>crear_articulo.bat</code>). Iniciará el backend local y abrirá esta interfaz en tu navegador (<code>http://localhost:3000</code>) lista para redactar, extraer y regenerar artículos sin conexión a internet.
-              </li>
-            </ol>
+          <div class="bat-run-pill">
+            <UswdsIcon name="shield" />
+            <code>ejecutar_local.bat</code>
           </div>
 
           <div id="ollama-live-status" class="local-engine-live-status">
@@ -352,6 +342,34 @@ import UswdsIcon from './UswdsIcon.astro';
       display: inline-block;
     }
 
+    .bat-run-pill {
+      margin-top: 0.65rem;
+      margin-bottom: 0.5rem;
+      padding: 0.45rem 0.75rem;
+      background: var(--bg-oled, #f0f0f0);
+      border-radius: 6px;
+      border-left: 3px solid var(--color-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.45rem;
+    }
+
+    .bat-run-pill .usa-icon {
+      color: var(--color-primary);
+      width: 1rem;
+      height: 1rem;
+    }
+
+    .bat-run-pill code {
+      font-family: var(--font-mono, monospace);
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--color-primary-dark);
+      background: rgba(0, 94, 168, 0.08);
+      padding: 0.15rem 0.45rem;
+      border-radius: 4px;
+    }
+
     .studio-status:empty {
       display: none;
     }
@@ -423,13 +441,13 @@ import UswdsIcon from './UswdsIcon.astro';
         } else {
           if (dot) dot.className = 'status-indicator-dot offline';
           if (statusText) {
-            statusText.textContent = 'Ollama no detectado en localhost:11434. Ejecuta "primer paso instalar ia local.bat".';
+            statusText.textContent = 'Ollama no detectado. Haz doble clic en "ejecutar_local.bat" para iniciar todo.';
           }
         }
       } catch {
         if (dot) dot.className = 'status-indicator-dot offline';
         if (statusText) {
-          statusText.textContent = 'Ollama local no disponible. Ejecuta "primer paso instalar ia local.bat".';
+          statusText.textContent = 'Servidor local desconectado. Haz doble clic en "ejecutar_local.bat" para arrancarlo.';
         }
       }
     }
