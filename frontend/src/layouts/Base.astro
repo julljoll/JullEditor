@@ -35,6 +35,9 @@ const currentPath = Astro.url.pathname;
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#ffffff" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="shortcut icon" href="/favicon.ico" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
     {jsonLd && <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />}
     <link rel="stylesheet" href="/styles/global.css" />
   </head>
@@ -42,7 +45,16 @@ const currentPath = Astro.url.pathname;
     <a class="skip-link" href="#main-content">Saltar al contenido principal</a>
     <header class="site-header">
       <div class="header-container">
-        <a class="brand" href="/">
+        <a class="brand" href="/" aria-label="JullEditor - Inicio">
+          <img
+            src="/images/gutenberg-emblem.png"
+            alt="Logo Gutenberg"
+            class="brand-logo"
+            width="32"
+            height="32"
+            loading="eager"
+            decoding="async"
+          />
           <span>JullEditor</span>
           <span class="brand-badge">Artículos Astro</span>
         </a>

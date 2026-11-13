@@ -9,8 +9,8 @@ client = TestClient(app)
 
 
 def test_studio_template_does_not_render_or_persist_provider_keys():
-    template = Path(__file__).parents[1] / "frontend" / "src" / "pages" / "studio.astro"
-    source = template.read_text(encoding="utf-8")
+    component = Path(__file__).parents[1] / "frontend" / "src" / "components" / "Studio.astro"
+    source = component.read_text(encoding="utf-8")
 
     assert "apiKeyInput" not in source
     assert "name=\"api_key\"" not in source
@@ -85,7 +85,7 @@ def test_ai_action_preserves_generated_article_metadata(monkeypatch):
     assert data["slug"] == "analisis-legaltech"
     assert data["seoKeyword"] == "legaltech"
     assert data["category"] == "LegalTech"
-    assert data["content"].endswith("Contenido del artículo")
+    assert data["content"].rstrip().endswith("Contenido del artículo")
     assert data["words"] > 0
     assert data["readingTime"] == 1
     assert data["provider"] == "google"

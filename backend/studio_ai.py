@@ -234,7 +234,7 @@ class StudioChatRequest(BaseModel):
 
 class StudioActionRequest(BaseModel):
     action: Literal["generate"] = "generate"
-    provider: Literal["google", "openai", "anthropic", "local"] = "google"
+    provider: Literal["google", "openai", "anthropic", "local"] = "local"
     source_text: str | None = Field(default=None, max_length=120000)
     title: str = Field(..., min_length=1, max_length=200)
     author: str = Field(..., min_length=1, max_length=200)

@@ -1,5 +1,6 @@
 ---
 import Base from '../layouts/Base.astro';
+import StudioInventory from './StudioInventory.astro';
 ---
 <Base
   title="Generador de artículos para Astro — JullEditor"
@@ -16,7 +17,7 @@ import Base from '../layouts/Base.astro';
     </p>
   </section>
 
-  <div class="article-studio">
+  <div class="article-studio" id="studio-editor">
     <section class="studio-panel" aria-labelledby="request-heading">
       <div class="panel-header">
         <h2 class="panel-title" id="request-heading">Datos del artículo</h2>
@@ -89,20 +90,16 @@ import Base from '../layouts/Base.astro';
           ></textarea>
         </div>
 
-        <div class="form-group">
-          <label class="form-label" for="article-provider">Motor de redacción</label>
-          <select
-            id="article-provider"
-            class="form-select"
-            name="provider"
-            aria-describedby="provider-hint"
-          >
-            <option value="google">Google Gemini</option>
-            <option value="openai">OpenAI</option>
-            <option value="anthropic">Anthropic</option>
-            <option value="local">Ollama local</option>
-          </select>
-          <small id="provider-hint" class="form-hint">El proveedor y sus credenciales se configuran en el backend.</small>
+        <div class="local-engine-card">
+          <div class="local-engine-header">
+            <span class="local-engine-title">Motor de redacción</span>
+            <span class="local-engine-badge">SOLO LOCAL</span>
+          </div>
+          <div class="local-engine-model">Microsoft Phi-4-mini</div>
+          <p class="local-engine-desc">
+            Requiere Ollama instalado y activo. Descarga el modelo con <code>ollama pull phi4-mini</code>; consulta la ficha oficial. No requiere claves de servicios cloud. El texto se procesa con Ollama accesible desde FastAPI; en un sitio remoto, el backend necesita su propio modelo y no puede usar automáticamente Ollama instalado en la computadora visitante.
+          </p>
+          <input type="hidden" id="article-provider" name="provider" value="local" />
         </div>
 
         <button id="generate-article" class="btn-primary" type="submit">
@@ -120,7 +117,7 @@ import Base from '../layouts/Base.astro';
         La salida contiene frontmatter y cuerpo Markdown, sin HTML, bloques de código envolventes
         ni pasos de publicación. Revísala y cópiala manualmente al directorio indicado.
       </p>
-      <label class="sr-only" for="article-output">Contenido Markdown generado</label>
+      <label class="form-label article-output-label" for="article-output">Contenido Markdown generado</label>
       <textarea
         id="article-output"
         class="form-textarea article-output"
@@ -129,7 +126,7 @@ import Base from '../layouts/Base.astro';
         placeholder="El archivo .md generado aparecerá aquí."
       ></textarea>
       <div class="output-actions">
-        <button id="copy-markdown" class="btn-primary" type="button" disabled>
+        <button id="copy-markdown" class="btn-secondary" type="button" disabled>
           Copiar archivo Markdown
         </button>
         <button id="download-markdown" class="btn-secondary" type="button" disabled>
@@ -139,6 +136,8 @@ import Base from '../layouts/Base.astro';
       <p id="generation-status" class="studio-status" role="status" aria-live="polite"></p>
     </section>
   </div>
+
+  <StudioInventory />
 
   <style>
     .article-studio {
@@ -172,6 +171,15 @@ import Base from '../layouts/Base.astro';
       margin: 0 0 1rem;
     }
 
+    .article-output-label {
+      margin-top: 1rem;
+      margin-bottom: 0.35rem;
+      display: block;
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--fg-secondary);
+    }
+
     .article-output {
       min-height: 34rem;
       font-family: var(--font-mono);
@@ -186,6 +194,62 @@ import Base from '../layouts/Base.astro';
       flex-wrap: wrap;
       gap: 0.75rem;
       margin-top: 1rem;
+    }
+
+    .local-engine-card {
+      border: 1px solid var(--border-hairline, #e2e8f0);
+      border-radius: 6px;
+      padding: 0.85rem 1rem;
+      background: var(--bg-surface, #ffffff);
+      margin-top: 0.5rem;
+      margin-bottom: 1.25rem;
+    }
+
+    .local-engine-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.35rem;
+    }
+
+    .local-engine-title {
+      font-size: 0.8125rem;
+      font-weight: 600;
+      color: var(--fg-secondary, #475569);
+    }
+
+    .local-engine-badge {
+      font-size: 0.6875rem;
+      font-family: var(--font-mono, monospace);
+      font-weight: 700;
+      color: #0284c7;
+      background: rgba(2, 132, 199, 0.08);
+      border: 1px solid rgba(2, 132, 199, 0.3);
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      letter-spacing: 0.03em;
+    }
+
+    .local-engine-model {
+      font-size: 0.9375rem;
+      font-weight: 700;
+      color: var(--fg-main, #0f172a);
+      margin-bottom: 0.45rem;
+    }
+
+    .local-engine-desc {
+      font-size: 0.775rem;
+      line-height: 1.5;
+      color: var(--fg-muted, #64748b);
+      margin: 0;
+    }
+
+    .local-engine-desc code {
+      font-family: var(--font-mono, monospace);
+      background: rgba(0, 0, 0, 0.05);
+      padding: 0.1rem 0.25rem;
+      border-radius: 3px;
+      font-size: 0.75rem;
     }
 
     .studio-status:empty {
@@ -215,6 +279,13 @@ import Base from '../layouts/Base.astro';
   </style>
 
   <script>
+    // Limpieza de credenciales guardadas por versiones anteriores en el navegador
+    try {
+      localStorage.removeItem('julleditor_gemini_api_key');
+      localStorage.removeItem('julleditor_phi_endpoint');
+      localStorage.removeItem('julleditor_phi_model');
+    } catch {}
+
     const form = document.querySelector<HTMLFormElement>('#article-form');
     const output = document.querySelector<HTMLTextAreaElement>('#article-output');
     const status = document.querySelector<HTMLElement>('#generation-status');
@@ -249,40 +320,33 @@ import Base from '../layouts/Base.astro';
             author: values.get('author'),
             theme: values.get('theme'),
             tone: values.get('tone'),
-            seo_keyword: values.get('seo_keyword'),
-            source_text: values.get('source_text'),
-            custom_instructions: values.get('custom_instructions'),
-            provider: values.get('provider'),
+            seo_keyword: values.get('seo_keyword') || undefined,
+            source_text: values.get('source_text') || undefined,
+            custom_instructions: values.get('custom_instructions') || undefined,
+            provider: values.get('provider') || 'local',
           }),
         });
-        const data = await response.json() as { content?: string; slug?: string; error?: string };
-        if (!response.ok || !data.content) {
-          throw new Error(data.error || 'No se pudo generar un archivo Astro válido.');
+        const result = await response.json();
+        if (!response.ok || !result.success) {
+          throw new Error(result.error || result.detail || 'No se pudo generar el artículo.');
         }
 
-        output.value = data.content;
-        if (wordCount) {
-          wordCount.textContent = `${data.content.trim().split(/\s+/).length} palabras · ${data.slug || 'archivo .md'}`;
-        }
+        output.value = result.content;
+        if (wordCount) wordCount.textContent = `${result.words} palabras · lectura ~${result.readingTime} min`;
         if (copyButton) copyButton.disabled = false;
         if (downloadButton) downloadButton.disabled = false;
-        status.textContent = 'Archivo generado y validado. No se publicó ni desplegó.';
+        status.textContent = `Archivo generado para Astro (${result.provider} / ${result.model}).`;
       } catch (error) {
-        const message = error instanceof Error ? error.message : 'Error desconocido al generar el artículo.';
-        status.textContent = `Error: ${message}`;
+        status.textContent = error instanceof Error ? error.message : 'Error generando el artículo.';
       } finally {
         generateButton.disabled = false;
       }
     });
 
     copyButton?.addEventListener('click', async () => {
-      if (!output || !status || !output.value) return;
-      try {
-        await navigator.clipboard.writeText(output.value);
-        status.textContent = 'Archivo Markdown copiado al portapapeles.';
-      } catch {
-        status.textContent = 'No se pudo acceder al portapapeles. Selecciona y copia el contenido del editor.';
-      }
+      if (!output || !output.value) return;
+      await navigator.clipboard.writeText(output.value);
+      if (status) status.textContent = 'Markdown copiado al portapapeles.';
     });
 
     downloadButton?.addEventListener('click', () => {
