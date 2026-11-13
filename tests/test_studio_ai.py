@@ -127,3 +127,43 @@ def test_ai_action_rejects_non_generation_actions():
     )
 
     assert response.status_code == 422
+
+
+def test_studio_template_renders_url_scraper_and_bat_guide():
+    component = Path(__file__).parents[1] / "frontend" / "src" / "components" / "Studio.astro"
+    source = component.read_text(encoding="utf-8")
+
+    assert "source-url-input" in source
+    assert "btn-scrape-url" in source
+    assert "primer paso instalar ia local.bat" in source
+    assert "start.bat" in source
+    assert "IBM Granite 3.3" in source
+
+
+def test_ai_action_accepts_source_url_and_includes_it_in_prompt(monkeypatch):
+    captured_prompt = []
+
+    async def fake_generate(prompt, system_instruction, provider, temperature, max_tokens):
+        captured_prompt.append(prompt)
+        return {
+            "text": '{"description":"Desc","tags":["tsj"],"body":"## Cuerpo\\n\\nContenido"}',
+            "providerUsed": "local",
+            "modelName": "granite3.3:8b",
+        }
+
+    monkeypatch.setattr(studio_ai, "_generate_with_provider", fake_generate)
+    response = client.post(
+        "/api/ai-action",
+        json={
+            "source_text": "Texto extraído",
+            "source_url": "https://ejemplo.com/articulo-original",
+            "title": "Artículo Mejorado",
+            "author": "Perito Informático",
+            "theme": "LegalTech",
+            "provider": "local",
+        },
+    )
+
+    assert response.status_code == 200
+    assert "URL fuente original de referencia: https://ejemplo.com/articulo-original" in captured_prompt[0]
+

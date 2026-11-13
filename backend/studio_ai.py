@@ -236,6 +236,7 @@ class StudioActionRequest(BaseModel):
     action: Literal["generate"] = "generate"
     provider: Literal["google", "openai", "anthropic", "local"] = "local"
     source_text: str | None = Field(default=None, max_length=120000)
+    source_url: str | None = Field(default=None, max_length=1000)
     title: str = Field(..., min_length=1, max_length=200)
     author: str = Field(..., min_length=1, max_length=200)
     theme: str = Field(default="Investigación", max_length=80)
@@ -497,8 +498,10 @@ def _build_article_prompt(
    target_words: int,
    seo_keyword: str | None,
    custom_instructions: str,
+   source_url: str | None = None,
 ) -> str:
-   return f"""Genera un artículo único para una colección de contenido estática Astro.
+   url_info = f"\nURL fuente original de referencia: {source_url}" if source_url else ""
+   return f"""Genera un artículo único para una colección de contenido estática Astro.{url_info}
 
 METADATOS DEL ENCARGO
 Título: {title}
@@ -544,6 +547,7 @@ async def ai_action(req: StudioActionRequest):
         req.target_words,
         req.seo_keyword,
         req.custom_instructions,
+        req.source_url,
     )
     try:
         result = await _generate_with_provider(

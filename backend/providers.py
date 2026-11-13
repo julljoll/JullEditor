@@ -332,7 +332,7 @@ def get_provider(
         (local_model or "").strip()
         or os.getenv("OLLAMA_MODEL", "").strip()
         or os.getenv("GRANITE_MODEL", "").strip()
-        or "phi4-mini-jull"
+        or "granite3.3:8b"
     )
     return OllamaProvider(
         endpoint=validate_local_endpoint(endpoint),

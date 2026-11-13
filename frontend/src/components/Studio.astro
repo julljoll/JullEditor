@@ -16,8 +16,8 @@ import UswdsIcon from './UswdsIcon.astro';
     </div>
     <h1>Generador de artículos para Astro</h1>
     <p class="hero-lead">
-      Completa el encargo y genera un archivo <code>.md</code> listo para revisar y copiar a
-      <code>frontend/src/content/blog/</code>. El estudio no publica ni despliega artículos.
+      Redacta artículos desde notas o pega el enlace de otro blog para extraerlo, mejorarlo y regenerarlo en formato <code>.md</code> para
+      <code>frontend/src/content/blog/</code>. Ejecución 100% local y offline con IA en tu equipo.
     </p>
   </section>
 
@@ -27,6 +27,35 @@ import UswdsIcon from './UswdsIcon.astro';
         <h2 class="panel-title" id="request-heading">Datos del artículo</h2>
       </div>
       <form id="article-form">
+        <!-- Sección de extracción y mejora desde URL externa -->
+        <div class="scrape-panel" id="url-scraper-section">
+          <div class="scrape-header">
+            <div class="scrape-header-title">
+              <UswdsIcon name="link" />
+              <span>Importar y mejorar artículo desde enlace web (URL externa)</span>
+            </div>
+            <span class="scrape-badge">Scraper & Reversión</span>
+          </div>
+          <p class="scrape-description">
+            Pega el enlace de un blog, noticia o doctrina. JullEditor extraerá su texto limpio sin publicidad, completará los campos automáticamente y preparará la base para mejorarlo y regenerarlo con rigor pericial.
+          </p>
+          <div class="scrape-input-group">
+            <input
+              id="source-url-input"
+              name="source_url"
+              type="url"
+              class="form-input"
+              placeholder="https://ejemplo.com/blog/articulo-original"
+              aria-label="URL del artículo externo a extraer y mejorar"
+            />
+            <button id="btn-scrape-url" class="btn-secondary" type="button">
+              <UswdsIcon name="download" />
+              <span>Extraer y Cargar</span>
+            </button>
+          </div>
+          <div id="scrape-status" class="scrape-status" role="status" aria-live="polite"></div>
+        </div>
+
         <div class="form-group">
           <label class="form-label" for="article-title">Título de trabajo</label>
           <input id="article-title" class="form-input" name="title" maxlength="200" required />
@@ -96,13 +125,37 @@ import UswdsIcon from './UswdsIcon.astro';
 
         <div class="local-engine-card">
           <div class="local-engine-header">
-            <span class="local-engine-title">Motor de redacción</span>
-            <span class="local-engine-badge">SOLO LOCAL</span>
+            <div class="local-engine-title-wrap">
+              <UswdsIcon name="memory" />
+              <span class="local-engine-title">Motor de IA Local (100% Offline)</span>
+            </div>
+            <span class="local-engine-badge">SOLO LOCAL · PRIVADO</span>
           </div>
-          <div class="local-engine-model">Microsoft Phi-4-mini</div>
+          <div class="local-engine-model">IBM Granite 3.3 & Ollama</div>
           <p class="local-engine-desc">
-            Requiere Ollama instalado y activo. Descarga el modelo con <code>ollama pull phi4-mini</code>; consulta la ficha oficial. No requiere claves de servicios cloud. El texto se procesa con Ollama accesible desde FastAPI; en un sitio remoto, el backend necesita su propio modelo y no puede usar automáticamente Ollama instalado en la computadora visitante.
+            Este proyecto está concebido para ejecutarse <strong>completamente en tu computadora local</strong> de forma privada, sin suscripciones de pago, sin servicios en la nube y sin enviar datos al exterior.
           </p>
+
+          <div class="bat-guide">
+            <div class="bat-guide-title">
+              <UswdsIcon name="shield" />
+              <span>¿Cómo instalar y ejecutar en local mediante los archivos <code>.bat</code>?</span>
+            </div>
+            <ol class="bat-steps-list">
+              <li>
+                <strong>Paso 1 (Instalación automática de IA):</strong> En la carpeta raíz del proyecto, haz doble clic en <code>primer paso instalar ia local.bat</code>. Detecta tu memoria RAM, instala Ollama automáticamente si no lo tienes, descarga el modelo de IA local (<strong>IBM Granite 3.3</strong>) y verifica su funcionamiento.
+              </li>
+              <li>
+                <strong>Paso 2 (Iniciar JullEditor):</strong> Haz doble clic en <code>start.bat</code> (o <code>crear_articulo.bat</code>). Iniciará el backend local y abrirá esta interfaz en tu navegador (<code>http://localhost:3000</code>) lista para redactar, extraer y regenerar artículos sin conexión a internet.
+              </li>
+            </ol>
+          </div>
+
+          <div id="ollama-live-status" class="local-engine-live-status">
+            <span class="status-indicator-dot"></span>
+            <span id="ollama-status-text">Verificando conexión con Ollama local…</span>
+          </div>
+
           <input type="hidden" id="article-provider" name="provider" value="local" />
         </div>
 
@@ -203,60 +256,100 @@ import UswdsIcon from './UswdsIcon.astro';
       margin-top: 1rem;
     }
 
-    .local-engine-card {
-      border: 1px solid var(--border-hairline, #e2e8f0);
+    /* Panel de extracción web */
+    .scrape-panel {
+      border: 1px solid var(--border-hairline, #dfe1e2);
       border-radius: 6px;
-      padding: 0.85rem 1rem;
+      padding: 1rem;
       background: var(--bg-surface, #ffffff);
-      margin-top: 0.5rem;
       margin-bottom: 1.25rem;
     }
 
-    .local-engine-header {
+    .scrape-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 0.35rem;
     }
 
-    .local-engine-title {
-      font-size: 0.8125rem;
-      font-weight: 600;
-      color: var(--fg-secondary, #475569);
+    .scrape-header-title {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.875rem;
+      font-weight: 700;
+      color: var(--fg-primary, #1b1b1b);
     }
 
-    .local-engine-badge {
+    .scrape-header-title .usa-icon {
+      color: var(--color-primary);
+    }
+
+    .scrape-badge {
       font-size: 0.6875rem;
       font-family: var(--font-mono, monospace);
       font-weight: 700;
-      color: #0284c7;
-      background: rgba(2, 132, 199, 0.08);
-      border: 1px solid rgba(2, 132, 199, 0.3);
-      padding: 0.1rem 0.4rem;
+      color: var(--color-primary);
+      background: var(--accent-primary-soft, #e7f2f8);
+      border: 1px solid rgba(0, 94, 168, 0.25);
+      padding: 0.15rem 0.45rem;
       border-radius: 4px;
       letter-spacing: 0.03em;
     }
 
-    .local-engine-model {
-      font-size: 0.9375rem;
-      font-weight: 700;
-      color: var(--fg-main, #0f172a);
-      margin-bottom: 0.45rem;
-    }
-
-    .local-engine-desc {
-      font-size: 0.775rem;
+    .scrape-description {
+      font-size: 0.8125rem;
       line-height: 1.5;
-      color: var(--fg-muted, #64748b);
-      margin: 0;
+      color: var(--fg-muted, #565c65);
+      margin: 0 0 0.75rem;
     }
 
-    .local-engine-desc code {
-      font-family: var(--font-mono, monospace);
-      background: rgba(0, 0, 0, 0.05);
-      padding: 0.1rem 0.25rem;
-      border-radius: 3px;
-      font-size: 0.75rem;
+    .scrape-input-group {
+      display: flex;
+      gap: 0.5rem;
+      align-items: center;
+    }
+
+    .scrape-input-group .form-input {
+      flex: 1;
+    }
+
+    .scrape-input-group .btn-secondary {
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .scrape-status {
+      margin-top: 0.6rem;
+      font-size: 0.8125rem;
+      line-height: 1.45;
+    }
+
+    .scrape-status:empty {
+      display: none;
+    }
+
+    .scrape-status .status-loading {
+      color: var(--color-primary);
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    .scrape-status .status-success {
+      color: var(--accent-green);
+      display: inline-block;
+      font-weight: 600;
+    }
+
+    .scrape-status .status-error {
+      color: var(--accent-red);
+      display: inline-block;
+    }
+
+    .scrape-status .status-warning {
+      color: var(--accent-amber);
+      display: inline-block;
     }
 
     .studio-status:empty {
@@ -301,7 +394,128 @@ import UswdsIcon from './UswdsIcon.astro';
     const copyButton = document.querySelector<HTMLButtonElement>('#copy-markdown');
     const downloadButton = document.querySelector<HTMLButtonElement>('#download-markdown');
 
-    function clearOutput() {
+    const scrapeUrlInput = document.querySelector<HTMLInputElement>('#source-url-input');
+    const scrapeButton = document.querySelector<HTMLButtonElement>('#btn-scrape-url');
+    const scrapeStatus = document.querySelector<HTMLElement>('#scrape-status');
+    const titleInput = document.querySelector<HTMLInputElement>('#article-title');
+    const authorInput = document.querySelector<HTMLInputElement>('#article-author');
+    const keywordInput = document.querySelector<HTMLInputElement>('#article-keyword');
+    const sourceNotes = document.querySelector<HTMLTextAreaElement>('#source-notes');
+    const customInstructions = document.querySelector<HTMLTextAreaElement>('#article-instructions');
+
+    // Comprobación en vivo del estado de Ollama local
+    const dot = document.querySelector<HTMLElement>('.status-indicator-dot');
+    const statusText = document.querySelector<HTMLElement>('#ollama-status-text');
+
+    async function checkOllamaLocalStatus() {
+      try {
+        const res = await fetch('/backend-api/api/ai-status');
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        if (data.connected) {
+          if (dot) dot.className = 'status-indicator-dot online';
+          if (statusText) {
+            const modelsStr = Array.isArray(data.models) && data.models.length > 0
+              ? ` · Modelos: ${data.models.join(', ')}`
+              : ' · Listo para inferencia';
+            statusText.textContent = `Ollama activo localmente en puerto 11434${modelsStr}`;
+          }
+        } else {
+          if (dot) dot.className = 'status-indicator-dot offline';
+          if (statusText) {
+            statusText.textContent = 'Ollama no detectado en localhost:11434. Ejecuta "primer paso instalar ia local.bat".';
+          }
+        }
+      } catch {
+        if (dot) dot.className = 'status-indicator-dot offline';
+        if (statusText) {
+          statusText.textContent = 'Ollama local no disponible. Ejecuta "primer paso instalar ia local.bat".';
+        }
+      }
+    }
+    checkOllamaLocalStatus();
+
+    // Extracción y parseo de artículos desde URL externa
+    async function handleScrapeArticle() {
+      const url = scrapeUrlInput?.value.trim();
+      if (!url) {
+        if (scrapeStatus) {
+          scrapeStatus.innerHTML = '<span class="status-warning">Por favor ingresa la URL de un artículo (ejemplo: https://sitio.com/articulo).</span>';
+        }
+        scrapeUrlInput?.focus();
+        return;
+      }
+
+      if (scrapeButton) scrapeButton.disabled = true;
+      if (scrapeStatus) {
+        scrapeStatus.innerHTML = '<span class="status-loading">Conectando y extrayendo contenido del artículo mediante el scraper local…</span>';
+      }
+
+      try {
+        const response = await fetch('/backend-api/api/scrape', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ url }),
+        });
+        const data = await response.json();
+        if (!response.ok || data.status === 'error') {
+          throw new Error(data.detail || data.error || 'No fue posible extraer el contenido de la URL.');
+        }
+
+        // Poblar campos del formulario automáticamente
+        if (titleInput && data.title) {
+          titleInput.value = data.title;
+        }
+        if (authorInput) {
+          authorInput.value = data.source_author || authorInput.value || 'Redacción JullEditor';
+        }
+        if (keywordInput && !keywordInput.value.trim() && data.title) {
+          const words = data.title.split(/\s+/).filter((w: string) => w.length > 4);
+          if (words.length > 0) keywordInput.value = words.slice(0, 2).join(' ').toLowerCase();
+        }
+        if (sourceNotes && data.text) {
+          sourceNotes.value = `--- FUENTE ORIGINAL EXTRAÍDA PARA REVERSIÓN Y MEJORA ---
+Fuente Original: ${data.url || url}
+Título Original: ${data.title || 'Sin título'}
+Palabras extraídas: ${data.word_count || 0}
+Fecha de la fuente: ${data.source_date || 'No especificada'}
+
+TEXTO COMPLETO EXTRAÍDO:
+${data.text}`;
+        }
+        if (customInstructions && !customInstructions.value.trim()) {
+          customInstructions.value = 'Reescribir y mejorar integralmente el artículo extraído: elevar el rigor técnico-jurídico, eliminar sesgos y publicidad, estructurar con claridad doctrinal y regenerar el documento en formato canónico para Astro.';
+        }
+
+        const checkIconSvg = '<svg class="usa-icon text-success" aria-hidden="true" role="img" focusable="false" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>';
+        const errorIconSvg = '<svg class="usa-icon text-error" aria-hidden="true" role="img" focusable="false" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>';
+
+        if (scrapeStatus) {
+          scrapeStatus.innerHTML = `<span class="status-success">${checkIconSvg} Contenido extraído con éxito (${data.word_count || 0} palabras). Se completaron los datos del formulario. Revisa los campos y haz clic en "Generar artículo Markdown" abajo para regenerarlo y mejorarlo.</span>`;
+        }
+      } catch (err: any) {
+        const errorIconSvg = '<svg class="usa-icon text-error" aria-hidden="true" role="img" focusable="false" viewBox="0 0 24 24"><path fill="currentColor" d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10 10-4.47 10-10S17.53 2 12 2zm5 13.59L15.59 17 12 13.41 8.41 17 7 15.59 10.59 12 7 8.41 8.41 7 12 10.59 15.59 7 17 8.41 13.41 12 17 15.59z"/></svg>';
+        if (scrapeStatus) {
+          scrapeStatus.innerHTML = `<span class="status-error">${errorIconSvg} ${err.message || 'Error al conectar con la URL.'} Si el sitio bloquea el acceso automático, puedes copiar y pegar el texto en "Pregunta, fuentes y apuntes".</span>`;
+        }
+      } finally {
+        if (scrapeButton) scrapeButton.disabled = false;
+      }
+    }
+
+    scrapeButton?.addEventListener('click', handleScrapeArticle);
+    scrapeUrlInput?.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        handleScrapeArticle();
+      }
+    });
+
+    function clearOutput(e?: Event) {
+      // No limpiar si el usuario solo está interactuando con el campo de scraping
+      if (e && (e.target === scrapeUrlInput || (e.target as HTMLElement)?.closest('#url-scraper-section'))) {
+        return;
+      }
       if (output) output.value = '';
       if (wordCount) wordCount.textContent = 'Aún no generado';
       if (copyButton) copyButton.disabled = true;
@@ -329,6 +543,7 @@ import UswdsIcon from './UswdsIcon.astro';
             tone: values.get('tone'),
             seo_keyword: values.get('seo_keyword') || undefined,
             source_text: values.get('source_text') || undefined,
+            source_url: values.get('source_url') || undefined,
             custom_instructions: values.get('custom_instructions') || undefined,
             provider: values.get('provider') || 'local',
           }),
