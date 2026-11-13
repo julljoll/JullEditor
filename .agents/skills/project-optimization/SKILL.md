@@ -1,13 +1,13 @@
 ---
 name: project-optimization
-description: Skill canónico que orienta la optimización profesional de JullEditor v4.0. Lee el PLAN_MAESTRO_v4.md y ejecuta las fases paso a paso. Garantiza que cada cambio cumpla con las restricciones del proyecto (100% Python, offline-first, SemVer, anti-alucinación, Venezuela exclusiva).
+description: Skill canónico que orienta la optimización profesional de JullEditor v4.0. Lee el PLAN_MAESTRO.md y ejecuta las fases paso a paso. Garantiza que cada cambio cumpla con las restricciones del proyecto (100% Python, offline-first, SemVer, anti-alucinación, Venezuela exclusiva).
 ---
 
 # Skill: Optimización Profesional JullEditor v4.0
 
 ## Propósito
 Este skill orienta la ejecución paso a paso del **Plan Maestro de Optimización**
-ubicado en `.agents/plans/PLAN_MAESTRO_v4.md`. Cualquier agente IA que active
+ubicado en `.agents/PLAN_MAESTRO.md`. Cualquier agente IA que active
 este skill DEBE leer primero ese plan completo antes de ejecutar cualquier acción.
 
 ## Reglas de Ejecución
@@ -43,7 +43,7 @@ Nunca eliminar endpoints de la API sin deprecación previa.
 
 ### 7. Lectura Obligatoria Pre-Ejecución
 Antes de ejecutar CUALQUIER fase, leer estos archivos:
-- `.agents/plans/PLAN_MAESTRO_v4.md` (el plan completo)
+- `.agents/PLAN_MAESTRO.md` (el plan completo)
 - `.agents/AGENTS.md` (reglas editoriales)
 - `backend/editorial_catalog.py` (fuente de verdad editorial)
 - `backend/version.py` (versión actual)
@@ -65,7 +65,7 @@ en el dossier construido por el Agente Investigador.
 
 ```mermaid
 flowchart TD
-    A[Leer PLAN_MAESTRO_v4.md] --> B{¿Qué fase ejecutar?}
+    A[Leer PLAN_MAESTRO.md] --> B{¿Qué fase ejecutar?}
     B --> C[Leer criterios de salida de la fase]
     C --> D[Ejecutar pasos en orden]
     D --> E[Ejecutar tests]
@@ -82,7 +82,7 @@ flowchart TD
 
 | Archivo | Rol | Cuándo leer |
 |---|---|---|
-| `.agents/plans/PLAN_MAESTRO_v4.md` | Plan completo | Siempre al inicio |
+| `.agents/PLAN_MAESTRO.md` | Plan completo | Siempre al inicio |
 | `.agents/AGENTS.md` | Reglas editoriales | Siempre al inicio |
 | `backend/editorial_catalog.py` | Catálogo editorial | Al modificar UI/opciones |
 | `backend/version.py` | Versión SemVer | Al cerrar cada fase |
