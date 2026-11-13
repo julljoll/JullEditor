@@ -5,13 +5,15 @@ export interface Props {
   title: string;
   description?: string;
   jsonLd?: object;
-  activeNav?: 'articles' | 'writer' | 'studio' | 'qa' | 'tags';
+  activeNav?: 'studio';
+  wide?: boolean;
 }
 const { 
   title, 
   description = 'JullEditor: Estación Editorial y Pericial de Redacción Jurídica, Ciberseguridad Forense y Artículos Científicos.', 
   jsonLd,
-  activeNav
+  activeNav,
+  wide = false,
 } = Astro.props;
 
 const canonical = new URL(Astro.url.pathname, site).href;
@@ -48,24 +50,22 @@ const currentPath = Astro.url.pathname;
 
         <!-- Zona 2: Enlaces de Navegación Limpios -->
         <nav class="header-nav" aria-label="Navegación principal">
-          <a href="/" class={currentPath === '/' ? 'active' : ''}>Artículos</a>
-          <a href="/writer" class={currentPath.startsWith('/writer') ? 'active' : ''}>Redactor</a>
-          <a href="/studio" class={currentPath.startsWith('/studio') ? 'active' : ''}>Estudio Redactor</a>
-          <a href="/qa" class={currentPath.startsWith('/qa') ? 'active' : ''}>Auditoría QA</a>
-          <a href="/tags" class={currentPath.startsWith('/tags') ? 'active' : ''}>Taxonomía</a>
+          <a href="/" class={currentPath === '/' || currentPath === '/studio' ? 'active' : ''}>Estudio Redactor</a>
+          <a href="/#control-calidad">Control de calidad</a>
+          <a href="/#taxonomia">Taxonomía</a>
           <a href="/rss.xml">RSS</a>
         </nav>
 
         <!-- Zona 3: Acción Principal -->
         <div class="header-actions">
-          <a class="btn-primary" href="/writer">
-            <span>+</span> Redactar
+          <a class="btn-primary" href="/">
+            Abrir Estudio
           </a>
         </div>
       </div>
     </header>
 
-    <main>
+    <main class:list={['site-main', { 'site-main-wide': wide }]}>
       <slot />
     </main>
 
@@ -78,10 +78,9 @@ const currentPath = Astro.url.pathname;
           </div>
         </div>
         <div class="footer-links">
-          <a href="/studio">Estudio Redactor</a>
-          <a href="/writer">Redactor local</a>
-          <a href="/qa">Consola QA</a>
-          <a href="/tags">Tags</a>
+          <a href="/">Estudio Redactor</a>
+          <a href="/#control-calidad">Control de calidad</a>
+          <a href="/#taxonomia">Taxonomía</a>
           <a href="/rss.xml">Feed RSS</a>
         </div>
       </div>

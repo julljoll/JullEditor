@@ -33,6 +33,7 @@
   --font-mono: "JetBrains Mono", "SF Mono", "Fira Code", Consolas, monospace;
 
   --max-width-content: 1180px;
+  --max-width-studio: 1880px;
   --max-width-prose: 720px;
 }
 
@@ -77,7 +78,7 @@ body {
 }
 
 .header-container {
-  max-width: var(--max-width-content);
+  max-width: var(--max-width-studio);
   margin: 0 auto;
   display: flex;
   align-items: center;
@@ -206,6 +207,11 @@ main {
   width: 100%;
   margin: 0 auto;
   padding: 2.5rem 1.5rem 4rem;
+}
+
+main.site-main-wide {
+  max-width: var(--max-width-studio);
+  padding: 1.5rem clamp(1.25rem, 2vw, 2.5rem) 4rem;
 }
 
 /* ==========================================================================
@@ -707,8 +713,68 @@ main {
   align-items: start;
 }
 
-@media (max-width: 1200px) {
+main.site-main-wide .hero-editorial {
+  margin-bottom: 1.25rem;
+}
+
+.studio-device-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  margin: 0 0 1.25rem;
+  padding: 0.85rem 1rem;
+  background: var(--accent-cyan-dim);
+  border: 1px solid rgba(91, 80, 232, 0.2);
+  border-radius: 8px;
+  color: var(--fg-secondary);
+  font-size: 0.875rem;
+}
+
+.studio-device-note > span {
+  font-size: 1.1rem;
+  line-height: 1.4;
+}
+
+.studio-device-note div {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.35rem;
+}
+
+.studio-device-note strong {
+  color: var(--fg-primary);
+}
+
+main.site-main-wide .studio-grid {
+  grid-template-columns: minmax(290px, 0.85fr) minmax(0, 1.7fr) minmax(280px, 0.8fr);
+  gap: 1rem;
+}
+
+main.site-main-wide .studio-panel {
+  min-width: 0;
+  padding: 1rem;
+}
+
+main.site-main-wide .studio-grid > main.studio-panel {
+  padding: 1rem;
+}
+
+@media (min-width: 1025px) and (max-width: 1300px) {
+  main.site-main-wide .studio-grid {
+    grid-template-columns: minmax(280px, 0.8fr) minmax(0, 1.6fr);
+  }
+
+  main.site-main-wide .studio-grid > .studio-panel:last-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 1024px) {
   .studio-grid {
+    grid-template-columns: 1fr;
+  }
+
+  main.site-main-wide .studio-grid {
     grid-template-columns: 1fr;
   }
 }
@@ -877,41 +943,55 @@ main {
 .audit-icon.fail { color: var(--accent-red); }
 .audit-icon.warn { color: var(--accent-amber); }
 
-/* ==========================================================================
-   CONSOLA DE QA TESTING (/qa.astro)
-   ========================================================================== */
-.qa-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 1.5rem;
+/* Herramientas editoriales integradas en Studio */
+.studio-reference {
+  margin-top: 1.5rem;
+  scroll-margin-top: 1rem;
 }
 
-.qa-card {
+.studio-reference-nav,
+.taxonomy-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1rem 0;
+}
+
+.studio-reference-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.studio-reference-card {
+  min-width: 0;
+  padding: 1rem;
   background: var(--bg-surface);
   border: 1px solid var(--border-hairline);
   border-radius: 8px;
-  padding: 1.5rem;
 }
 
-.qa-card-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-hairline);
+.studio-reference-card h2,
+.studio-reference-card h3 {
+  margin-top: 0;
 }
 
-.qa-title {
-  font-family: var(--font-mono);
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--fg-primary);
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+.studio-reference-note {
+  color: var(--fg-muted);
+  font-size: 0.8125rem;
 }
 
+.catalog-article[hidden] {
+  display: none;
+}
+
+@media (max-width: 700px) {
+  .studio-reference-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Filas del informe estático integrado en Studio */
 .test-row {
   display: flex;
   align-items: center;

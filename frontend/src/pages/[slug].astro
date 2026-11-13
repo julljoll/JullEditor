@@ -146,9 +146,9 @@ const jsonLd = {
         </div>
         <div style="display: flex; flex-wrap: wrap; gap: 0.4rem; font-size: 0.8125rem;">
           {article.data.tags.map((t) => (
-            <a href={`/tags/${t.toLowerCase()}`} class="tag-item" style="color: var(--accent-cyan); text-decoration: none;">
+            <span class="tag-item" style="color: var(--accent-cyan);">
               #{t}
-            </a>
+            </span>
           ))}
         </div>
       </div>

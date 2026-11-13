@@ -1,0 +1,167 @@
+---
+import { getCollection } from 'astro:content';
+
+const allArticles = await getCollection('blog');
+const articles = allArticles
+  .filter((article) => !article.data.draft)
+  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf());
+
+const schemaAudit = allArticles.map((article) => {
+  const { title, description, pubDate, tags, author, readingTime } = article.data;
+  const slug = article.data.slug || article.id.replace(/\.md$/, '');
+  const issues: string[] = [];
+
+  if (!title || title.length > 200) issues.push('Título vacío o excede 200 caracteres');
+  if (!description || description.length > 170) issues.push('Descripción vacía o excede 170 caracteres');
+  if (!(pubDate instanceof Date) || Number.isNaN(pubDate.getTime())) issues.push('Fecha inválida');
+  if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) issues.push('Slug no cumple el formato kebab-case');
+  if (!Array.isArray(tags) || tags.length === 0 || tags.length > 6) issues.push('Debe tener entre 1 y 6 descriptores');
+  if (!author?.trim()) issues.push('Autor requerido');
+  if (typeof readingTime !== 'number' || readingTime <= 0) issues.push('Tiempo de lectura inválido');
+
+  return { slug, title, issues };
+});
+
+const slugCounts = new Map<string, number>();
+for (const article of allArticles) {
+  const slug = article.data.slug || article.id.replace(/\.md$/, '');
+  slugCounts.set(slug, (slugCounts.get(slug) ?? 0) + 1);
+}
+const duplicateSlugs = [...slugCounts.entries()]
+  .filter(([, count]) => count > 1)
+  .map(([slug]) => slug);
+
+const tagCounts = new Map<string, number>();
+for (const article of articles) {
+  for (const tag of article.data.tags) {
+    const key = tag.toLowerCase();
+    tagCounts.set(key, (tagCounts.get(key) ?? 0) + 1);
+  }
+}
+const tags = [...tagCounts.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]));
+const invalidTags = tags.filter(([tag]) => !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(tag)).map(([tag]) => tag);
+
+const checks = [
+  {
+    name: 'Metadatos de artículos',
+    passed: schemaAudit.every((article) => article.issues.length === 0),
+    detail: `${schemaAudit.filter((article) => article.issues.length === 0).length} de ${allArticles.length} artículos cumplen las comprobaciones locales de metadatos.`,
+  },
+  {
+    name: 'Unicidad de slugs',
+    passed: duplicateSlugs.length === 0,
+    detail: duplicateSlugs.length === 0
+      ? `${slugCounts.size} slugs únicos en la colección.`
+      : `Slugs duplicados: ${duplicateSlugs.join(', ')}.`,
+  },
+  {
+    name: 'Descriptores de la taxonomía',
+    passed: tags.length > 0 && invalidTags.length === 0,
+    detail: invalidTags.length === 0
+      ? `${tags.length} descriptores normalizados para el filtro del Studio.`
+      : `Descriptores que requieren revisión: ${invalidTags.join(', ')}.`,
+  },
+];
+const passedChecks = checks.filter((check) => check.passed).length;
+const qaReport = {
+  scope: 'Comprobaciones estáticas del contenido Astro durante el build; no son pruebas de runtime ni del backend.',
+  articles: allArticles.length,
+  checks,
+  schemaAudit,
+  duplicateSlugs,
+  invalidTags,
+};
+---
+
+<nav class="studio-reference-nav" aria-label="Secciones del estudio">
+  <a class="btn-secondary" href="#studio-editor">Editor</a>
+  <a class="btn-secondary" href="#control-calidad">Control de calidad</a>
+  <a class="btn-secondary" href="#taxonomia">Taxonomía</a>
+</nav>
+
+<section id="control-calidad" class="studio-reference" aria-labelledby="quality-heading">
+  <div class="hero-editorial" style="padding: 1.25rem; margin-bottom: 1rem;">
+    <div class="kicker"><span>🛡️</span><span>Control estático de la colección</span></div>
+    <h2 id="quality-heading" style="font-size: 1.6rem; margin: 0.5rem 0;">Calidad del catálogo</h2>
+    <p class="studio-reference-note">
+      Comprobaciones de metadatos y taxonomía calculadas al generar esta página. No ejecutan pruebas
+      del backend, llamadas de IA ni verificaciones en tiempo de ejecución.
+    </p>
+  </div>
+
+  <div class="studio-reference-grid">
+    <section class="studio-reference-card" aria-labelledby="catalog-checks-heading">
+      <h3 id="catalog-checks-heading">Resumen de verificaciones</h3>
+      <p>{passedChecks} de {checks.length} comprobaciones estáticas aprobadas · {allArticles.length} artículos examinados.</p>
+      {checks.map((check) => (
+        <div class="test-row">
+          <div class="test-name">
+            <span style={{ color: check.passed ? 'var(--accent-green)' : 'var(--accent-red)' }}>
+              {check.passed ? '✓' : '✗'}
+            </span>
+            <span><strong>{check.name}:</strong> {check.detail}</span>
+          </div>
+          <span class={`test-status-tag ${check.passed ? 'tag-pass' : 'tag-fail'}`}>
+            {check.passed ? 'VÁLIDO' : 'REVISAR'}
+          </span>
+        </div>
+      ))}
+      <button id="download-catalog-report" class="btn-secondary" type="button">Descargar informe JSON</button>
+    </section>
+
+    <section id="taxonomia" class="studio-reference-card" aria-labelledby="taxonomy-heading">
+      <h3 id="taxonomy-heading">Taxonomía editorial</h3>
+      <p class="studio-reference-note">Filtra las publicaciones por descriptor sin salir del Estudio.</p>
+      <div class="taxonomy-filters" aria-label="Filtrar artículos por descriptor">
+        <button class="btn-secondary" type="button" data-tag-filter="all" aria-pressed="true">
+          Todos ({articles.length})
+        </button>
+        {tags.map(([tag, count]) => (
+          <button class="btn-secondary" type="button" data-tag-filter={tag} aria-pressed="false">
+            #{tag} ({count})
+          </button>
+        ))}
+      </div>
+      <div id="taxonomy-articles" class="article-grid">
+        {articles.map((article) => {
+          const slug = article.data.slug || article.id.replace(/\.md$/, '');
+          return (
+            <article class="article-card catalog-article" data-tags={article.data.tags.map((tag) => tag.toLowerCase()).join(',')}>
+              <a href={`/${slug}`}>
+                <h4>{article.data.title}</h4>
+                <p>{article.data.description}</p>
+              </a>
+            </article>
+          );
+        })}
+      </div>
+    </section>
+  </div>
+</section>
+
+<script define:vars={{ qaReport }}>
+  document.getElementById('download-catalog-report')?.addEventListener('click', () => {
+    const report = { ...qaReport, generatedAt: new Date().toISOString() };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' }));
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `julleditor-catalog-check-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  });
+
+  const filterButtons = document.querySelectorAll<HTMLButtonElement>('[data-tag-filter]');
+  const articleCards = document.querySelectorAll<HTMLElement>('.catalog-article');
+  filterButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const selectedTag = button.dataset.tagFilter || 'all';
+      filterButtons.forEach((item) => item.setAttribute('aria-pressed', String(item === button)));
+      articleCards.forEach((card) => {
+        const cardTags = (card.dataset.tags || '').split(',');
+        card.hidden = selectedTag !== 'all' && !cardTags.includes(selectedTag);
+      });
+    });
+  });
+</script>

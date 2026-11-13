@@ -16,7 +16,9 @@
 </p>
 
 > [!IMPORTANT]
-> **Alcance de los proveedores:** `/writer` genera con Ollama local. Google Gemini, OpenAI, Anthropic y Ollama están disponibles en las acciones y el chat de `/studio`. Si eliges un proveedor cloud, el texto de la solicitud se envía a ese proveedor; el modo local requiere una instancia Ollama accesible al backend.
+> **Interfaz principal:** el Estudio Redactor se abre en `/` y también está disponible en `/studio`. Google Gemini, OpenAI, Anthropic y Ollama se pueden seleccionar para sus acciones y chat. Si eliges un proveedor cloud, el texto de la solicitud se envía a ese proveedor; el modo local requiere una instancia Ollama accesible al backend.
+
+> **Recomendación de uso:** el panel está diseñado para computadoras y aprovecha monitores amplios para mostrar edición, configuración y auditoría en paralelo. En pantallas estrechas los paneles se apilan sin ocultar funciones.
 
 ## En esta página
 
@@ -35,9 +37,8 @@
 
 | Área | Función |
 |---|---|
-| **Blog** | Sitio editorial generado con Astro. |
-| **Writer** (`/writer`) | Redacción con Ollama local, texto o archivos de referencia, y preparación del artículo para la colección Astro. |
-| **Studio** (`/studio`) | Acciones de generación, resumen, transformación y chat editorial con un proveedor seleccionable. |
+| **Studio** (`/`, `/studio`) | Entrada principal de la aplicación: acciones de generación, resumen, transformación y chat editorial; integra las comprobaciones estáticas del catálogo y la taxonomía filtrable. |
+| **Artículos publicados** (`/<slug>`) | Las páginas de artículos existentes se mantienen accesibles desde sus URLs. |
 | **Backend** | FastAPI ofrece la API, el motor local y las integraciones del Studio. |
 | **Contenido** | Corpus local de fuentes venezolanas y técnicas para apoyar el trabajo editorial. |
 
@@ -45,9 +46,9 @@
 
 ```mermaid
 flowchart LR
-    U[Persona usuaria] --> A[Astro: blog, Writer y Studio]
+    U[Persona usuaria] --> A[Astro: Studio y artículos publicados]
     A -->|proxy /backend-api/| F[FastAPI]
-    F -->|/writer y generación principal| O[Ollama local]
+    F -->|/api/generate-stream| O[Ollama local]
     F -->|Studio: proveedor local| O
     F -->|Studio: si se selecciona| C[Google, OpenAI o Anthropic]
 ```
@@ -56,28 +57,18 @@ En un despliegue local, `run.py` inicia Astro y FastAPI. En Vercel se despliega 
 
 ## Flujo de trabajo
 
-### Writer: redactar desde una fuente
+### Studio: redactar, editar o reversionar
 
-1. En `/writer`, pega el texto o carga un archivo `.md`, `.markdown`, `.txt` o `.json`.
-2. Indica el título, una URL opcional de atribución, tema, voz editorial y extensión.
-3. Genera el borrador con el motor local Ollama; puedes detener la generación mientras está en curso.
-4. Guarda el resultado y, si vas a incorporarlo al blog, usa **Preparar para Astro**. El backend valida y copia el archivo a la colección; vuelve a compilar Astro para regenerar las rutas del sitio.
-
-La URL en `/writer` es un dato de atribución. Para extraer y reversionar el contenido de una página web, usa la acción de reversionado de `/studio`.
-
-### Studio: editar, resumir o reversionar
-
-1. En `/studio`, selecciona el proveedor local o uno de los proveedores cloud configurados en FastAPI.
+1. Abre `/` o `/studio` y selecciona el proveedor local o uno de los proveedores cloud configurados en FastAPI.
 2. Elige generación, resumen, transformación o reversionado por URL; también puedes editar el Markdown y continuar en el chat.
 3. Revisa el borrador en la vista Revista, Editor Markdown o Vista CMS.
+4. Usa las secciones integradas de **Control de calidad** y **Taxonomía** para revisar metadatos estáticos y filtrar los artículos publicados.
 
 El reversionado por URL solo extrae contenido cuando se proporciona una URL. La selección de proveedor y el contenido de la solicitud se envían a FastAPI; si seleccionas un motor cloud, el contenido se envía al proveedor correspondiente.
 
 ### Temas y enfoques
 
-En `/writer` se pueden seleccionar **Ciberseguridad**, **Derecho digital y LegalTech**, **Inteligencia artificial y datos**, **Ciencia y tecnología** y **Sentencia TSJ**. Sus perfiles de voz incluyen enfoques conversacionales, didácticos, analíticos y de análisis jurisprudencial o doctrinal.
-
-El Studio ofrece plantillas de informática forense/TSJ, delitos informáticos, firmas y mensajes de datos, IA/gobernanza y documento en blanco. La lista visible puede diferir entre interfaces.
+El Studio ofrece plantillas de informática forense/TSJ, delitos informáticos, firmas y mensajes de datos, IA/gobernanza y documento en blanco, con perfiles editoriales configurables.
 
 ## Inicio local
 
@@ -87,7 +78,7 @@ El Studio ofrece plantillas de informática forense/TSJ, delitos informáticos, 
 |---|---|
 | Python | 3.10 o superior |
 | Node.js | 22 o superior |
-| Ollama | Necesario para `/writer` y para el modo local del Studio |
+| Ollama | Necesario para las funciones locales de generación del Studio |
 | npm | Incluido con Node.js; las dependencias de Astro se instalan desde `frontend/` |
 
 ### Instalar
@@ -108,7 +99,7 @@ Para desarrollo en macOS/Linux, activa el entorno con `source .venv/bin/activate
 
 Si usarás un proveedor local, instala y arranca Ollama, y asegúrate de que el modelo seleccionado esté disponible allí. Para configurar modelos cloud, consulta [Elegir un motor de IA](#elegir-un-motor-de-ia).
 
-`python run.py` ejecuta el bootstrap del proyecto, que comprueba las dependencias, Ollama y un modelo recomendado. Si prefieres instalar o descargar un modelo manualmente, sigue las instrucciones de [Ollama](https://ollama.com/download) y ejecuta `ollama pull <modelo>`; configura después `GRANITE_MODEL` para Writer o `OLLAMA_MODEL` para el Studio según corresponda.
+`python run.py` ejecuta el bootstrap del proyecto, que comprueba las dependencias, Ollama y un modelo recomendado. Si prefieres instalar o descargar un modelo manualmente, sigue las instrucciones de [Ollama](https://ollama.com/download) y ejecuta `ollama pull <modelo>`; configura después `OLLAMA_MODEL` o `GRANITE_MODEL` según corresponda.
 
 ### Arrancar
 
@@ -142,10 +133,10 @@ Para operar Astro directamente, ejecuta sus comandos desde `frontend/` (la API F
 
 | Interfaz | Motores disponibles |
 |---|---|
-| `/writer` y endpoint principal de generación (`/api/generate-stream`) | Ollama local |
-| `/studio` — acciones y chat (`/api/ai-action`, `/api/ai-chat`) | Google Gemini, OpenAI Chat Completions, Anthropic Messages u Ollama local |
+| Studio — endpoint principal de generación (`/api/generate-stream`) | Ollama local |
+| `/` y `/studio` — acciones y chat (`/api/ai-action`, `/api/ai-chat`) | Google Gemini, OpenAI Chat Completions, Anthropic Messages u Ollama local |
 
-Los adaptadores del Studio usan las APIs oficiales de esos proveedores cloud. No implican compatibilidad cloud para `/writer` ni para `/api/generate-stream`.
+Los adaptadores del Studio usan las APIs oficiales de esos proveedores cloud. No implican compatibilidad cloud para `/api/generate-stream`.
 
 ### Configuración del backend
 
@@ -162,7 +153,7 @@ Define las variables en el entorno de **FastAPI**, nunca en el frontend ni en va
 | `OLLAMA_BASE_URL` | URL base de Ollama accesible desde FastAPI |
 | `OLLAMA_MODEL` | Modelo local seleccionado por el Studio |
 
-Los proveedores cloud requieren que estén configurados tanto la clave como el modelo correspondiente. Para inferencia local, el Writer usa `GRANITE_MODEL`; el Studio usa `OLLAMA_MODEL` y puede recurrir a `GRANITE_MODEL`. Si FastAPI está en otro host o contenedor, `localhost` apunta a ese host/contenedor, no al equipo del navegador.
+Los proveedores cloud requieren que estén configurados tanto la clave como el modelo correspondiente. Para inferencia local, el Studio usa `OLLAMA_MODEL` y puede recurrir a `GRANITE_MODEL`. Si FastAPI está en otro host o contenedor, `localhost` apunta a ese host/contenedor, no al equipo del navegador.
 
 El frontend envía la selección del proveedor y el contenido de la solicitud, pero no recoge ni guarda claves cloud. Si seleccionas Google, OpenAI o Anthropic, considera que el texto fuente y la conversación se transmiten al proveedor elegido y aplica sus condiciones de privacidad.
 
@@ -170,7 +161,7 @@ El frontend envía la selección del proveedor y el contenido de la solicitud, p
 
 ### Vercel
 
-Vercel aloja el frontend Astro y su proxy; **no aloja este backend FastAPI ni Ollama**. Configura un backend remoto accesible por HTTPS antes de habilitar `/studio` o `/writer` en producción.
+Vercel aloja el frontend Astro y su proxy; **no aloja este backend FastAPI ni Ollama**. Configura un backend remoto accesible por HTTPS antes de habilitar las funciones de IA del Studio en producción.
 
 1. En Vercel, establece **Root Directory** en `frontend`.
 2. Usa el framework **Astro**, el comando de instalación `npm ci --include=optional --workspaces=false` y el comando de build `npm run build`.
@@ -224,18 +215,18 @@ El repositorio conserva [`notebooks/granite_blog_colab.ipynb`](notebooks/granite
 
 | Acción | Dónde | Resultado |
 |---|---|---|
-| Guardar borrador | `/writer` | Archivo guardado en el backend |
-| Preparar para Astro | `/writer` | Valida y copia el Markdown a la colección `frontend/src/content/blog/`; luego hay que ejecutar el build para regenerar las rutas |
-| Copiar Markdown Astro | `/studio` | Markdown con metadatos editoriales |
-| Copiar HTML CMS | `/studio` | HTML para copiar y revisar en el CMS |
-| Descargar `.md` | `/studio` | Archivo Markdown del borrador |
+| Copiar Markdown Astro | Studio (`/` o `/studio`) | Markdown con metadatos editoriales |
+| Copiar HTML CMS | Studio (`/` o `/studio`) | HTML para copiar y revisar en el CMS |
+| Descargar `.md` | Studio (`/` o `/studio`) | Archivo Markdown del borrador |
 | Imprimir artículo | Página del artículo | Abre el diálogo de impresión del navegador; desde ahí se puede elegir una impresora o guardar como PDF |
+
+Las antiguas páginas independientes `/writer`, `/qa`, `/tags` y `/tags/[tag]` ya no se publican. Las comprobaciones de catálogo y el filtro temático están integrados en el Studio; las páginas publicadas de artículos conservan sus rutas.
 
 La pestaña **Vista CMS** del Studio se describe en la interfaz como simulación Gutenberg/Sitejet; no es una integración oficial ni garantiza una renderización idéntica en esos servicios.
 
 | Atajo | Comportamiento |
 |---|---|
-| `Enter` en el campo del chat de `/studio` | Envía el mensaje al proveedor seleccionado. |
+| `Enter` en el campo del chat del Studio | Envía el mensaje al proveedor seleccionado. |
 | `Ctrl+P` (Windows/Linux) o `Cmd+P` (macOS) | Atajo estándar del navegador para abrir el diálogo de impresión; también está disponible el botón **Imprimir Formato Oficio** en la página del artículo. |
 
 No hay otros atajos globales propios de la aplicación documentados actualmente.
@@ -265,8 +256,8 @@ No. El Studio no presenta un formulario de claves ni incluye credenciales en las
 </details>
 
 <details>
-<summary><strong>¿El modo cloud está disponible en Writer?</strong></summary>
-No. Los adaptadores cloud actuales se usan en las acciones y el chat del Studio. `/writer` y `/api/generate-stream` continúan conectados a Ollama.
+<summary><strong>¿Las verificaciones de Control de calidad son pruebas de runtime?</strong></summary>
+No. Son comprobaciones estáticas sobre metadatos y descriptores de la colección durante el build; no ejercitan el backend, los proveedores de IA ni el comportamiento de ejecución.
 </details>
 
 <details>
@@ -316,7 +307,7 @@ Las pruebas de proveedor usan mocks; no requieren credenciales reales ni llamada
 | `backend/studio_ai.py` | Acciones y chat del Studio |
 | `backend/providers.py` | Contrato/adaptadores de Google, OpenAI, Anthropic y Ollama para Studio |
 | `backend/` | Otros módulos de generación, corpus/RAG, validaciones y exportación |
-| `frontend/src/pages/` | Páginas Astro del blog, Writer, Studio y proxy `/backend-api/` |
+| `frontend/src/pages/` | Studio, páginas de artículos publicados y proxy `/backend-api/` |
 | `frontend/src/content/blog/` | Colección de artículos Astro |
 | `Informacion_docling_rag/` | Fuentes jurídicas y técnicas locales |
 | `tests/` | Pruebas Python |
