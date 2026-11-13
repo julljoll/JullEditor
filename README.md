@@ -1,516 +1,338 @@
-# ⚖️ JullEditor — LegalTech & Blog Studio
+# JullEditor
 
 <p align="center">
-  <strong>Estación Editorial y Pericial de Redacción de Artículos Científicos, Blog y LegalTech con IBM Granite 3.3 Local (CPU-Only)</strong><br>
-  <em>Optimizada para Ciberseguridad Forense, Cadena de Custodia, Inteligencia Artificial, Derecho Digital, con enfoque exclusivo en la jurisdicción de Venezuela 🇻🇪.</em>
+  <strong>Estudio editorial y pericial para crear, revisar y preparar artículos técnicos y jurídicos.</strong><br>
+  Una interfaz Astro, un backend FastAPI y motores locales con opción de proveedores cloud en el Studio.
 </p>
 
 <p align="center">
-  <img src="https://img.shields.io/badge/Release-v3.4.0-00FF41?style=for-the-badge&logo=github&logoColor=white" alt="Release v3.4.0" />
-  <img src="https://img.shields.io/badge/Local_AI-IBM_Granite_3.3_(2B%20%7C%208B)-00FF41?style=for-the-badge&logo=ibm&logoColor=black" alt="IBM Granite 3.3" />
-  <img src="https://img.shields.io/badge/Runtime-Ollama_CPU_(0ms_Network)-FECF06?style=for-the-badge&logo=ollama&logoColor=black" alt="Ollama CPU" />
-  <img src="https://img.shields.io/badge/Backend-FastAPI_Async_SSE-008726?style=for-the-badge&logo=fastapi&logoColor=white" alt="FastAPI" />
-  <img src="https://img.shields.io/badge/Tests-120%2F120_PASSED_(100%25)-00FF41?style=for-the-badge&logo=pytest&logoColor=black" alt="Pytest 120/120" />
-  <img src="https://img.shields.io/badge/Astro_TypeScript-tsc_PASS-008726?style=for-the-badge&logo=typescript&logoColor=white" alt="Astro TypeScript check passed" />
-  <img src="https://img.shields.io/badge/Cloud-Google_Colab_%7C_Oracle_Cloud-F80000?style=for-the-badge&logo=googlecolab&logoColor=white" alt="Google Colab & Oracle Cloud" />
-  <img src="https://img.shields.io/badge/Jurisdicci%C3%B3n-Venezuela_%F0%9F%87%BB%F0%9F%87%AA-0055A5?style=for-the-badge" alt="Venezuela Legal" />
+  <a href="#inicio-local">Inicio local</a> ·
+  <a href="#flujo-de-trabajo">Flujo de trabajo</a> ·
+  <a href="#elegir-un-motor-de-ia">Motores de IA</a> ·
+  <a href="#despliegues">Despliegues</a> ·
+  <a href="#marco-editorial-y-jurídico">Marco editorial y jurídico</a> ·
+  <a href="#exportar-publicar-e-imprimir">Exportar e imprimir</a> ·
+  <a href="#verificación">Verificación</a>
 </p>
 
----
+> [!IMPORTANT]
+> **Alcance de los proveedores:** `/writer` genera con Ollama local. Google Gemini, OpenAI, Anthropic y Ollama están disponibles en las acciones y el chat de `/studio`. Si eliges un proveedor cloud, el texto de la solicitud se envía a ese proveedor; el modo local requiere una instancia Ollama accesible al backend.
 
-## 📑 Tabla de Contenidos
-1. [¿Para qué sirve este Proyecto?](#-1-para-qué-sirve-este-proyecto)
-2. [¿Cómo funciona internamente?](#-2-cómo-funciona-internamente)
-3. [¿Cómo se utiliza el Proyecto? (Manual Paso a Paso)](#-3-cómo-se-utiliza-el-proyecto-manual-paso-a-paso)
-4. [Especialidades Temáticas y Marco Jurídico Soportado](#-4-especialidades-temáticas-y-marco-jurídico-soportado)
-5. [Atajos de Teclado (Power Users)](#-5-atajos-de-teclado-power-users)
-6. [Requisitos del Sistema e Instalación Local](#-6-requisitos-del-sistema-e-instalación)
-7. [Protocolo de Verificación del Funcionamiento](#-7-protocolo-de-verificación-del-funcionamiento)
-8. [Arquitectura y Estructura del Código](#-8-arquitectura-y-estructura-del-código)
-9. [Laboratorio de Compatibilidad Sitejet Builder](#-9-laboratorio-de-compatibilidad-sitejet-builder)
-10. [Despliegue en la Nube (Google Colab & Oracle Cloud)](#-10-despliegue-en-la-nube-google-colab--oracle-cloud)
-11. [Preguntas Frecuentes (FAQ)](#-11-preguntas-frecuentes-faq)
-12. [Versionado SemVer y Publicación de Releases](#-12-versionado-semver-y-publicación-de-releases)
+## En esta página
 
----
+| Quiero… | Ir a |
+|---|---|
+| Instalar y arrancar la aplicación en mi equipo | [Inicio local](#inicio-local) |
+| Elegir una fuente, tema y modo de edición | [Flujo de trabajo](#flujo-de-trabajo) |
+| Configurar Google, OpenAI, Anthropic u Ollama para Studio | [Elegir un motor de IA](#elegir-un-motor-de-ia) |
+| Desplegar en Vercel o con Docker | [Despliegues](#despliegues) |
+| Copiar, preparar o imprimir un artículo | [Exportar, publicar e imprimir](#exportar-publicar-e-imprimir) |
+| Ejecutar las comprobaciones | [Verificación](#verificación) |
+| Consultar el alcance jurídico y sus límites | [Marco editorial y jurídico](#marco-editorial-y-jurídico) |
+| Consultar preguntas frecuentes y versión | [FAQ y versionado](#preguntas-frecuentes-y-versionado) |
 
-## 💡 1. ¿Para qué sirve este Proyecto?
+## Qué incluye
 
-**JullEditor** es una estación de trabajo pericial y editorial concebida para transformar borradores, apuntes técnicos, peritajes, fallos jurisprudenciales o documentos estructurados de **Docling** en **artículos de nivel científico universitario y publicaciones de blog de alto impacto** optimizadas para buscadores y motores de respuesta de inteligencia artificial (**Google AI Overviews, Perplexity, ChatGPT Search**).
+| Área | Función |
+|---|---|
+| **Blog** | Sitio editorial generado con Astro. |
+| **Writer** (`/writer`) | Redacción con Ollama local, texto o archivos de referencia, y preparación del artículo para la colección Astro. |
+| **Studio** (`/studio`) | Acciones de generación, resumen, transformación y chat editorial con un proveedor seleccionable. |
+| **Backend** | FastAPI ofrece la API, el motor local y las integraciones del Studio. |
+| **Contenido** | Corpus local de fuentes venezolanas y técnicas para apoyar el trabajo editorial. |
 
-### 🎯 Problemas Críticos que Resuelve:
-* **Cero Fuga de Información Confidencial (Privacidad Absoluta):** Funciona **100% de manera local y offline** en tu ordenador con **IBM Granite 3.3** vía **Ollama**. Ni un solo dato, contrato, expediente o nota pericial sale a servidores de terceros ni APIs comerciales.
-* **Cero Alucinación Jurídica (Temperatura 0.2):** Los LLMs genéricos inventan artículos de leyes, números de gacetas o fallos inexistentes. Esta plataforma restringe estrictamente la inferencia al corpus normativo positivo real y penaliza severamente cualquier invención.
-* **Publicaciones con Estándar Universitario Arbitrado:** Permite generar artículos con el rigor metodológico exigido por revistas científicas de facultades de Derecho e Informática Forense (título bilingüe, resumen estructurado / abstract, análisis dogmático, directrices ISO/NIST, jurisprudencia del TSJ y referencias en formato APA 7ma edición).
-* **Exportación Directa Multi-CMS sin Pérdida de Formato:** Proporciona código HTML higienizado y enriquecido con estilos inline listo para copiar y pegar directamente en los constructores más populares (**WordPress Gutenberg, Elementor, Sitejet Builder**) o imprimir en formato físico de oficio (`@media print`).
-
-### 👥 ¿A quién está dirigido?
-* **Abogados y Consultores Legales:** Elaboración de artículos de doctrina, análisis de sentencias y compliance normativo.
-* **Peritos e Ingenieros Forenses:** Publicaciones técnicas sobre evidencia digital, mismidad, hash criptográfico SHA-256 y protocolos de cadena de custodia.
-* **Investigadores Académicos y Docentes:** Generación de papers y ensayos para revistas científicas arbitradas.
-* **Redactores de Ciberseguridad y Tech:** Creación de guías técnicas en profundidad (Pilar SEO de 1.000 a 1.500 palabras) con microdatos Schema.org completos.
-
----
-
-## ⚙️ 2. ¿Cómo funciona internamente?
-
-El sistema combina el backend asíncrono **FastAPI** (generación local, RAG, validaciones y streaming SSE) con un sitio **Astro SSR** (adaptador Node) que sirve el blog, el estudio editorial y el redactor local. Astro mantiene sus rutas y API de edición; el proxy del mismo origen `/backend-api/` conecta la interfaz con FastAPI sin exponer claves ni requerir CORS en el navegador. En ejecución local, Astro escucha en el puerto `3000` y FastAPI conserva el `8000`.
-
-### 🔄 Diagrama de Flujo del Pipeline Local:
+### Arquitectura
 
 ```mermaid
-flowchart TD
-    subgraph INGESTA["1. Ingesta Offline-First (0ms Latencia)"]
-        A1["Docling Markdown / JSON<br/>(Informacion_docling_rag/)"] --> B["Limpieza y Normalización<br/>(Extracción H1, conteo)"]
-        A2["Texto Pegado Directo<br/>(Notas / Dictámenes)"] --> B
-        A3["URL Web Segura<br/>(Validación Anti-SSRF)"] --> B
-    end
-
-    subgraph RAG["2. Memoria y Corpus RAG Local"]
-        B --> C["Indexación RAG<br/>(96 Fuentes Normativas)"]
-        C --> D["Persistencia Inmutable<br/>(RAG/inputs/)"]
-    end
-
-    subgraph PROMPT["3. Orquestador de Prompts y Perfiles"]
-        D --> E{"Perfil Seleccionado"}
-        E -->|"Revista Científica"| P1["Estructura Doctoral (12 Bloques)<br/>Abstract Bilingüe + APA 7 + TSJ"]
-        E -->|"Doctrinal / Litigante"| P2["Perfil Jurídico Venezuela<br/>Fórmulas Procesales + Glosario"]
-        E -->|"Tech / Ciberseguridad"| P3["Wireframe SEO / GEO 2026<br/>Answer-First + FAQ"]
-    end
-
-    subgraph INFERENCIA["4. Motor de Inferencia Local (Ollama)"]
-        P1 --> F["IBM Granite 3.3 (2B / 8B)<br/>num_ctx: 8192 | temp: 0.2 | threads: 4"]
-        P2 --> F
-        P3 --> F
-        F --> G["Streaming SSE en Vivo<br/>(Server-Sent Events)"]
-    end
-
-    subgraph VISUALIZADOR["5. Interfaz Dark-Only & Exportación"]
-        G --> H["Renderizado Dinámico en 3 Columnas<br/>(Revista / Markdown / WP iFrame)"]
-        H --> I["Doble Auditoría en Tiempo Real<br/>(SEO Estructural + Calidad Jurídica GEO)"]
-        I --> J1["Copiar WordPress Gutenberg"]
-        I --> J2["Copiar Sitejet Builder"]
-        I --> J3["Imprimir Oficio (@media print)"]
-        I --> J4["Auto-guardado RAG/articulos/"]
-    end
+flowchart LR
+    U[Persona usuaria] --> A[Astro: blog, Writer y Studio]
+    A -->|proxy /backend-api/| F[FastAPI]
+    F -->|/writer y generación principal| O[Ollama local]
+    F -->|Studio: proveedor local| O
+    F -->|Studio: si se selecciona| C[Google, OpenAI o Anthropic]
 ```
 
-### 🧠 Parámetros de Inferencia de IBM Granite:
-* **Modelo Predeterminado:** `granite3.3:8b` (o `granite3.3:2b` para portátiles con recursos ajustados).
-* **Context Window (`num_ctx`):** 8.192 tokens para soportar análisis exhaustivos y textos extensos sin truncamiento.
-* **Temperatura:** `0.2` (Rigor Factual y Científico) para eliminar la invención de normativas o sentencias.
-* **Hilos de CPU (`num_thread`):** 4 hilos optimizados para equilibrio entre velocidad y responsividad del sistema.
-* **Persistencia en Memoria (`keep_alive`):** `30m` para evitar recargas del modelo en memoria RAM entre generaciones sucesivas.
+En un despliegue local, `run.py` inicia Astro y FastAPI. En Vercel se despliega Astro; FastAPI y, cuando se usa, Ollama deben ejecutarse en una infraestructura externa accesible.
 
----
+## Flujo de trabajo
 
-## 🖥️ 3. ¿Cómo se utiliza el Proyecto? (Manual Paso a Paso)
+### Writer: redactar desde una fuente
 
-La interfaz se divide en **3 columnas de trabajo** inspiradas en el estándar pericial **USWDS Cyber-Legal Dark Mode**:
+1. En `/writer`, pega el texto o carga un archivo `.md`, `.markdown`, `.txt` o `.json`.
+2. Indica el título, una URL opcional de atribución, tema, voz editorial y extensión.
+3. Genera el borrador con el motor local Ollama; puedes detener la generación mientras está en curso.
+4. Guarda el resultado y, si vas a incorporarlo al blog, usa **Preparar para Astro**. El backend valida y copia el archivo a la colección; vuelve a compilar Astro para regenerar las rutas del sitio.
 
-```
-┌─────────────────────────┬───────────────────────────────┬─────────────────────────┐
-│ 1. PANEL DE CONTROL     │ 2. VISOR DEL ARTÍCULO         │ 3. AUDITORÍA SEO & UX   │
-│ (Stepper de 4 Pasos)    │ (Lienzo Central en 3 Col.)    │ (Scorecard Doble 2026)  │
-│                         │                               │                         │
-│ • Modo de Ingesta       │ • Pestañas: Revista/MD/WP     │ • Score SEO Estructural │
-│ • Especialidad Temática │ • Simulador Desktop/Tab/Móvil │ • Score Calidad Jurídica│
-│ • Perfil de Voz y Tono  │ • Cajas Didácticas y Callouts │ • Detección Answer-First│
-│ • Longitud y Temp       │ • Copiar WordPress / Sitejet  │ • Glosario y Descargo   │
-│ • Botón 'Redactar'      │ • Impresión Formato Oficio    │ • Auditoría Profunda    │
-└─────────────────────────┴───────────────────────────────┴─────────────────────────┘
-```
+La URL en `/writer` es un dato de atribución. Para extraer y reversionar el contenido de una página web, usa la acción de reversionado de `/studio`.
 
-### Paso 1: Seleccionar la Fuente de Origen (Columna 1)
-Dispones de tres modalidades de ingesta:
-1. **Docling (.MD / .JSON) [Recomendado - 0ms Latencia]:** Sube archivos procesados con Docling. Extrae automáticamente títulos limpios, elimina artefactos OCR y los almacena en `RAG/inputs/`.
-2. **Pegar Texto:** Pega notas periciales, apuntes o resúmenes de leyes directamente en el editor.
-3. **Enlace URL:** Introduce un enlace web. El scraper seguro de HTTPX extraerá el contenido limpiando menús y rastreadores con protección anti-SSRF.
+### Studio: editar, resumir o reversionar
 
-### Paso 2: Seleccionar la Especialidad Temática (Columna 1)
-Haz clic en una de las píldoras temáticas:
-* **🔬 Forense & TSJ (`forensic_law`):** Evidencia digital, cadena de custodia, hash SHA-256, sentencias de la Sala Constitucional/Penal del TSJ, ISO 27037 y manual MP/CICPC 2017.
-* **⚖️ Derecho Digital (`legal_tech`):** Firmas electrónicas, mensajes de datos (G.O. 37.148), validez procesal y comercio electrónico.
-* **🛡️ Ciberseguridad (`cybersecurity`):** Ley Especial contra los Delitos Informáticos (G.O. 37.313), VenCERT, ISO 27001 e incidentes de seguridad.
-* **🤖 IA & Datos (`ai_ethics`):** Modelos generativos, gobernanza algorítmica, soberanía tecnológica e Infogobierno (G.O. 40.274).
-* **📡 Ciencia & Tech (`science_tech`):** Telecomunicaciones, computación en la nube e infraestructura crítica.
+1. En `/studio`, selecciona el proveedor local o uno de los proveedores cloud configurados en FastAPI.
+2. Elige generación, resumen, transformación o reversionado por URL; también puedes editar el Markdown y continuar en el chat.
+3. Revisa el borrador en la vista Revista, Editor Markdown o Vista CMS.
 
-### Paso 3: Calibrar los Parámetros Editoriales (Columna 1)
-* **Perfil de Voz / Tono:**
-  * 🎓 **Revista Científica Arbitrada (Derecho & Computación Forense — Nivel Universidad):** Autocalibra la extensión a 1.500 palabras y temperatura 0.2 con estructura doctoral de 12 bloques.
-  * ⚖️ **Abogado Venezuela:** Doctrinal (Forense/TSJ), Litigante (Rutas procesales), Explicativo (Divulgación).
-  * 🌐 **Corporativo y Divulgación:** Consultor Corporativo, Conversacional, Analítico, Didáctico, Ejecutivo.
-* **Extensión Objetivo:** Desde 600 palabras (Resumen Ejecutivo) hasta 2.000 palabras (Tratado Extenso). *Recomendado SEO: Pilar de 1.000 palabras*.
-* **Temperatura:** Predeterminada en `0.2` para máxima fidelidad fáctica.
+El reversionado por URL solo extrae contenido cuando se proporciona una URL. La selección de proveedor y el contenido de la solicitud se envían a FastAPI; si seleccionas un motor cloud, el contenido se envía al proveedor correspondiente.
 
-### Paso 4: Redacción en Vivo y Visualización (Columna 2)
-* Pulsa **`Redactar Artículo`** o presiona <kbd>Ctrl</kbd> + <kbd>Enter</kbd>.
-* Observa el streaming en tiempo real con indicador de palabras y sección activa.
-* Si necesitas cancelar, presiona <kbd>Escape</kbd> o el botón **Detener**.
-* Alterna entre las pestañas del visor:
-  * **Revista:** Diseño digital fluido con tipografía editorial, cajas de notas y callouts.
-  * **Markdown:** Vista de código fuente crudo listo para descargar.
-  * **WordPress:** Vista previa en iframe idéntica a cómo se verá en el editor Gutenberg.
-* Prueba el **Simulador Responsive** (🖥️ Escritorio 100%, 💻 Tablet 820px, 📱 Móvil 390px).
+### Temas y enfoques
 
-### Paso 5: Exportación e Impresión
-Despliega el botón **"Copiar ▾"**:
-* 📋 **Copiar:** Copia el HTML con estilos inline optimizado para pegar en WordPress Gutenberg o Classic Editor.
-* 🚀 **Copiar p/ Sitejet:** HTML higienizado sin `<script>` para el constructor Sitejet Builder.
-* 📦 **Kit SEO Sitejet:** Descarga un `.zip` con el HTML, Markdown, metadatos JSON y la cabecera procesada a PNG real (1200x675 px).
-* 🖨️ **Imprimir (Ctrl+P):** Activa el motor `@media print` para exportar a **PDF u oficio físico** con maquetación de revista universitaria (Georgia, texto justificado, sangría francesa APA y sin barras de navegación).
+En `/writer` se pueden seleccionar **Ciberseguridad**, **Derecho digital y LegalTech**, **Inteligencia artificial y datos**, **Ciencia y tecnología** y **Sentencia TSJ**. Sus perfiles de voz incluyen enfoques conversacionales, didácticos, analíticos y de análisis jurisprudencial o doctrinal.
 
-### Paso 6: Verificación en el Scorecard de Auditoría (Columna 3)
-La columna derecha audita simultáneamente:
-1. **Calidad SEO Estructural (0-100%):** H1 (8-12 palabras), meta descripción (145-160 caracteres), H2 rítmicos, FAQ, TOC y Schema.org.
-2. **Calidad Jurídica & GEO 2026 (0-100%):** Respuesta directa *Answer-First* para Google AI, descargo ético profesional, términos jurídicos del glosario y ausencia de promesas engañosas.
-3. **Auditoría Profunda:** Pulsa el botón para recibir un informe determinista generado por el backend.
+El Studio ofrece plantillas de informática forense/TSJ, delitos informáticos, firmas y mensajes de datos, IA/gobernanza y documento en blanco. La lista visible puede diferir entre interfaces.
 
----
+## Inicio local
 
-## 🏛️ 4. Especialidades Temáticas y Marco Jurídico Soportado
+### Requisitos
 
-El sistema cuenta con un índice RAG local precargado con **96 fuentes normativas y técnicas** organizadas en `Informacion_docling_rag/`:
-
-```text
-🇻🇪 REPÚBLICA BOLIVARIANA DE VENEZUELA:
-   • Constitución de la República Bolivariana de Venezuela (CRBV, Arts. 28, 60 y 110)
-   • Ley Especial contra los Delitos Informáticos (G.O. Nº 37.313, 2001)
-   • Decreto-Ley sobre Mensajes de Datos y Firmas Electrónicas (G.O. Nº 37.148, 2001)
-   • Ley de Infogobierno (G.O. Nº 40.274, 2013) y LOCTI
-   • Manual Único de Cadena de Custodia de Evidencias Físicas (MP / CICPC, Versión 2017)
-   • Centro Nacional de Informática Forense (CENIF, G.O. Nº 39.847) y SUSCERTE / VenCERT
-   • Línea Jurisprudencial TSJ: Sala Constitucional, Sala de Casación Penal y Civil
-
-🌐 ESTÁNDARES INTERNACIONALES FORENSES:
-   • ISO/IEC 27037:2012 (Directrices para la identificación, recolección, adquisición y preservación de evidencia digital)
-   • ISO/IEC 27042:2015 (Análisis e interpretación de evidencias digitales)
-   • RFC 3227 (Directrices para la recolección de evidencia en memoria volátil)
-   • NIST SP 800-86 (Integración de técnicas forenses en respuesta a incidentes)
-```
-
----
-
-## ⌨️ 5. Atajos de Teclado (Power Users)
-
-| Atajo | Acción |
+| Componente | Requisito |
 |---|---|
-| <kbd>Ctrl</kbd> + <kbd>Enter</kbd> | **Redactar / Iniciar Inferencia** |
-| <kbd>Escape</kbd> | **Detener Inferencia Inmediatamente** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>C</kbd> | **Copiar con Estilos para WordPress Gutenberg** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>H</kbd> | **Copiar Código HTML Puro y Autónomo (con Estilos Inline)** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>S</kbd> | **Copiar Higienizado para Sitejet Builder** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>K</kbd> | **Generar y Descargar Kit SEO Sitejet (.ZIP)** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>M</kbd> | **Copiar Código Markdown Crudo** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>P</kbd> o <kbd>Ctrl</kbd> + <kbd>P</kbd> | **Imprimir en Formato Oficio / Revista Física** |
-| <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>F</kbd> | **Seguir Flujo de Redacción (Scroll Automático)** |
-| <kbd>?</kbd> | **Abrir Modal de Ayuda de Atajos de Teclado** |
+| Python | 3.10 o superior |
+| Node.js | 22 o superior |
+| Ollama | Necesario para `/writer` y para el modo local del Studio |
+| npm | Incluido con Node.js; las dependencias de Astro se instalan desde `frontend/` |
 
----
+### Instalar
 
-## 💻 6. Requisitos del Sistema e Instalación
+Desde la raíz del repositorio, crea un entorno Python e instala las dependencias:
 
-### Requisitos del Sistema:
-| Componente | Requisito Recomendado | Requisito Mínimo |
-|---|---|---|
-| **Sistema Operativo** | Windows 10 / 11 (64-bit) | Windows 10 (64-bit) |
-| **Memoria RAM** | 16 GB (para `granite3.3:8b`) | 8 GB (usando `granite3.3:2b`) |
-| **Procesador (CPU)** | Intel Core i5/i7/Ryzen 5 o superior (4+ hilos) | 4 núcleos x64 |
-| **Almacenamiento** | ~6 GB libres (modelo + dependencias) | ~3 GB libres |
-| **Python** | Python 3.10, 3.11, 3.12 o 3.14 | Python 3.10 |
-| **Ollama** | Última versión instalada | v0.3.0+ |
-
----
-
-### Instalación Rápida Paso a Paso:
-
-#### 1. Instalar Ollama en Windows
-Descárgalo de [ollama.com/download/windows](https://ollama.com/download/windows) o ejecuta en PowerShell:
 ```powershell
-winget install Ollama.Ollama
-```
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+python -m pip install -r requirements.txt
 
-#### 2. Descargar el Modelo IBM Granite 3.3
-Abre PowerShell y ejecuta:
-```powershell
-ollama pull granite3.3:8b
-```
-*(Opcional: Si tu equipo tiene 8 GB de RAM o deseas máxima velocidad en CPU livianas, descarga `ollama pull granite3.3:2b`)*.
-
-#### 3. Instalar Dependencias de Python
-Requisitos: Python 3.10+, Node.js 22+ y npm. En la raíz del proyecto, ejecuta:
-```powershell
-pip install -r requirements.txt
-Set-Location blog
+Push-Location frontend
 npm ci --include=optional --workspaces=false
-Set-Location ..
+Pop-Location
 ```
-Las dependencias JavaScript y su `package-lock.json` están dentro de `blog/`; instala desde esa carpeta para respetar el lockfile y descargar las dependencias opcionales nativas que usa Astro.
 
-#### 4. Iniciar la Aplicación con 1 Clic
-Haz doble clic en **`start.bat`** o **`crear_articulo.bat`**. Ambos son simples *puentes* de Windows que únicamente localizan el intérprete de Python y delegan toda la lógica al orquestador **100% Python** (`run.py`):
-```bash
-python run.py                    # Astro + FastAPI y navegador (Astro :3000, API :8000)
-python run.py --cli              # Generador interactivo de artículos jurídico-científicos (equivale a crear_articulo.bat)
-python run.py --tui              # Interfaz TUI Textual canónica (v3.4.0): flujo editorial completo en terminal Python
-python run.py --file <ruta.md>   # CLI precargando un documento del corpus
-python run.py --port <puerto>    # Puerto TCP personalizado para FastAPI (por defecto 8000)
-python run.py --studio-port <puerto> # Puerto TCP personalizado para Astro (por defecto 3000)
-python run.py --no-bootstrap     # Omite el análisis de hardware y la auto-instalación (entornos controlados / CI)
-python run.py --test             # Suite completa de pruebas con pytest
-```
-El lanzador verificará el entorno, levantará Ollama si no está activo, ejecutará FastAPI y Astro y abrirá automáticamente el sitio en **`http://127.0.0.1:3000`**. La API sigue disponible en **`http://127.0.0.1:8000`**; accede a `/writer` para generar con el motor local o a `/studio` para el estudio editorial avanzado.
+Para desarrollo en macOS/Linux, activa el entorno con `source .venv/bin/activate`; ejecuta los comandos npm dentro de `frontend/`.
 
-#### Comandos de desarrollo y build Astro
-Desde la raíz, los scripts del workspace delegan en Astro dentro de `blog/`:
+Si usarás un proveedor local, instala y arranca Ollama, y asegúrate de que el modelo seleccionado esté disponible allí. Para configurar modelos cloud, consulta [Elegir un motor de IA](#elegir-un-motor-de-ia).
+
+`python run.py` ejecuta el bootstrap del proyecto, que comprueba las dependencias, Ollama y un modelo recomendado. Si prefieres instalar o descargar un modelo manualmente, sigue las instrucciones de [Ollama](https://ollama.com/download) y ejecuta `ollama pull <modelo>`; configura después `GRANITE_MODEL` para Writer o `OLLAMA_MODEL` para el Studio según corresponda.
+
+### Arrancar
+
 ```powershell
-npm run dev       # Servidor Astro de desarrollo
-npm run build     # Build SSR para producción
-npm run preview   # Previsualizar el build
-npm run lint      # TypeScript sin emitir archivos
-```
-El build genera el servidor Node en `blog/dist/`. Para publicar un artículo nuevo, usa **Preparar para Astro** en `/writer` y vuelve a ejecutar `npm run build` para regenerar las rutas prerenderizadas. En Docker, `docker compose -f docker/docker-compose.yml up --build` construye Astro y FastAPI; Nginx sirve Astro en la raíz y conserva `/api/` para FastAPI.
-
-#### Despliegue de Astro en Vercel
-Configura el proyecto Vercel con **Root Directory** `blog`, framework **Astro**, instalación `npm ci` y build `npm run build`. Astro selecciona `@astrojs/vercel` al compilar en Vercel y conserva `@astrojs/node` en modo standalone para los despliegues locales y Docker.
-
-Configura `PUBLIC_SITE_URL` con la URL pública del sitio y `BACKEND_API_URL` con la URL base accesible de una instancia FastAPI desplegada por separado (sin barra final). No uses `localhost`: las funciones de Vercel no pueden acceder a tu equipo ni a su Ollama local. Vercel aloja Astro, pero el motor FastAPI/Ollama y sus datos persistentes requieren un servidor externo; si falta `BACKEND_API_URL`, `/backend-api/` devuelve `503` con un mensaje de configuración.
-
-El aviso `npm warn Unknown env config "cache-dir"` no detiene por sí mismo el build. Si aparece, elimina la variable de entorno `NPM_CONFIG_CACHE_DIR` de la configuración de Vercel; no está definida en este repositorio.
-
----
-
-## 🧪 7. Protocolo de Verificación del Funcionamiento
-
-Para verificar que todos los subsistemas del proyecto funcionan al 100%, sigue estos sencillos pasos:
-
-### Paso 1: Ejecutar la Batería Automatizada de Pruebas (Pytest)
-Ejecuta desde la raíz del proyecto (100% Python):
-```bash
-python run.py --test        # o directamente: python -m pytest -v
-```
-**Resultado esperado:**
-* **120 pruebas pasando** (`pytest`: API, bootstrap, CLI, Docling, prompts, perfiles jurídicos, RAG, exportación/publicación Astro e integración).
-* Cobertura completa: endpoints de FastAPI, rechazo anti-SSRF, parseo de Docling, auto-instalador según hardware, perfiles jurídicos de Venezuela, perfil de revista científica arbitrada, tokens dark-only CSS y reglas de impresión.
-
-### Paso 2: Verificar Calidad Estática (Ruff + Mypy)
-```bash
-python -m ruff check backend/ run.py
-python -m mypy backend run.py
-npm run lint
-```
-En la última verificación de esta migración, `npm run lint` pasó y Ruff reportó siete hallazgos preexistentes en el backend y `run.py`; la suite Python no tuvo fallos. Mypy no formó parte de esa verificación.
-
-### Paso 3: Comprobar el Endpoint de Salud (Healthcheck)
-Ejecuta en tu terminal o abre en el navegador:
-```powershell
-curl http://127.0.0.1:8000/api/health
-```
-**Respuesta JSON esperada:**
-```json
-{
-  "status": "online",
-  "ollama_url": "http://localhost:11434",
-  "models": ["granite3.3:8b", "granite3.3:2b"],
-  "granite_installed": true,
-  "default_model": "granite3.3:2b",
-  "num_ctx": 8192,
-  "num_thread": 4,
-  "keep_alive": "30m",
-  "jurisdiction": "auto"
-}
+python run.py
 ```
 
-### Paso 4: Prueba de Generación en Vivo
-1. Abre `http://127.0.0.1:3000/writer`.
-2. Pega una fuente de más de 10 caracteres o carga un archivo `.md`, `.txt` o `.json`.
-3. Selecciona tema, voz editorial y extensión; presiona **Generar artículo**.
-4. Comprueba el streaming en el editor, guarda el artículo y usa **Preparar para Astro** para validarlo y añadirlo a la colección.
-5. Para servir la nueva ruta prerenderizada, ejecuta de nuevo `npm run build`.
+La interfaz web local se abre en `http://127.0.0.1:3000`; FastAPI escucha en `http://127.0.0.1:8000`. Las opciones de línea de comandos incluyen:
 
----
+| Comando | Uso |
+|---|---|
+| `python run.py --cli` | Generador interactivo en terminal |
+| `python run.py --tui` | Interfaz TUI |
+| `python run.py --file ruta\fuente.md` | Inicia el modo CLI con un archivo |
+| `python run.py --port 8001` | Cambia el puerto de FastAPI |
+| `python run.py --studio-port 3001` | Cambia el puerto de Astro |
+| `python run.py --no-bootstrap` | Omite el bootstrap automático |
+| `python run.py --test` | Ejecuta la suite de pruebas Python con pytest |
 
-## 📂 8. Arquitectura y Estructura del Código
+Para operar Astro directamente, ejecuta sus comandos desde `frontend/` (la API FastAPI debe estar levantada por separado):
 
-```text
-├── backend/                      # Servidor FastAPI y motores periciales
-│   ├── app.py                    # Endpoints FastAPI, CORS, streaming SSE y healthcheck
-│   ├── prompts.py                # Ensamblado de prompts, wireframe SEO y estructura doctoral
-│   ├── legal_profiles.py         # Perfiles de voz jurídica venezolana, revista científica y glosario forense
-│   ├── legal_validator.py        # Validador de calidad jurídica, calcos y ética profesional
-│   ├── seo_validator.py          # Validador determinista SEO, legibilidad y Schema.org
-│   ├── rag_manager.py            # Gestor RAG, recuperación ponderada e historial inmutable
-│   ├── docling_parser.py         # Parser y extractor limpio de Markdown/JSON de Docling
-│   ├── sentencia_extractor.py    # Extractor de metadatos de sentencias TSJ (expediente, sala, ratio)
-│   ├── scraper.py                # Extractor HTTPX seguro con validación estricta anti-SSRF
-│   ├── image_generator.py        # Generador de cabeceras vectoriales SVG 16:9
-│   ├── system_profiler.py        # Detección de recursos del equipo (CPU/RAM/SO) para calibrar el modelo
-│   ├── bootstrap.py              # Auto-instalación 100% Python: deps, Ollama y Granite según hardware
-│   ├── editorial_catalog.py      # Fuente única de verdad: temas, 12 tonos VE, jurisdicciones y modelos (CLI/TUI/Web/API)
-│   ├── cli_generator.py          # Asistente interactivo del .bat (espejo 1:1 de la GUI, Venezuela exclusivo)
-│   ├── tui_app.py                # Interfaz TUI Textual canónica (python run.py --tui), flujo editorial completo en Python
-│   ├── version.py                # Versión SemVer canónica (__version__ / get_tag())
-│   ├── logger_config.py          # Sistema de logs con rotación en logs/app.log
-│   └── data/
-│       └── legal_corpus_ve.json  # Corpus normativo venezolano estructurado
-├── blog/                         # Sitio Astro SSR: blog y aplicaciones editoriales
-│   ├── src/pages/                # Índice, artículos, tags, QA, Studio, redactor y proxy FastAPI
-│   ├── src/layouts/              # Layout compartido, metadatos y navegación
-│   ├── src/content/blog/         # Colección Markdown validada con Zod
-│   └── astro.config.mjs          # Adaptador Node y configuración de servidor
-│   ├── package.json              # Dependencias y scripts de Astro
-│   └── package-lock.json         # Lockfile npm reproducible para Astro
-├── package.json                  # Scripts raíz delegados al workspace blog/
-├── bun.lock                      # Lockfile del workspace Bun
-├── RAG/                          # Memoria persistente local
-│   ├── inputs/                   # Fuentes cargadas respaldadas con timestamp
-│   └── articulos/                # Artículos terminados archivados con YAML Frontmatter
-├── Informacion_docling_rag/      # 96 documentos normativos indexados (12 categorías jurídicas)
-├── notebooks/                    # Ejecutables guiados para Google Colab (GPU T4 / CPU)
-├── docker/                       # Compose, Nginx (SSE sin buffering) y systemd para Oracle Cloud
-├── deploy/                       # Guías y scripts de despliegue remoto
-├── tests/                        # Suite de 120 pruebas automatizadas (pytest)
-│   ├── test_api_endpoints.py     # Pruebas de API, SSRF, UI, tokens dark y print styles
-│   ├── test_legal_profiles.py    # Pruebas de perfiles jurídicos, revista científica y glosarios
-│   ├── test_prompts.py           # Pruebas de inyección de prompts y reglas GEO 2026
-│   ├── test_docling_parser.py    # Pruebas de extracción y limpieza Docling
-│   ├── test_rag_manager.py       # Pruebas de recuperación RAG y persistencia YAML
-│   ├── test_bootstrap.py         # Pruebas del auto-instalador (deps, Ollama, modelo según RAM)
-│   ├── test_cli_generator.py     # Pruebas del asistente interactivo CLI
-│   ├── test_sentencia_tsj.py     # Pruebas del extractor de metadatos de sentencias TSJ
-│   └── test_integration.py       # Flujos end-to-end con TestClient (degradación sin Ollama)
-├── logs/                         # Registro histórico de actividad
-├── requirements.txt              # Requerimientos de Python
-├── run.py                        # Orquestador 100% Python (web / CLI / tests)
-├── crear_articulo.bat            # Puente de 1 clic → python run.py --cli (sin lógica propia)
-└── start.bat                     # Puente de 1 clic → python run.py (sin lógica propia)
-```
+| Comando | Uso |
+|---|---|
+| `npm run dev` | Servidor de desarrollo Astro |
+| `npm run build` | Build de producción |
+| `npm run preview` | Previsualiza el build |
 
----
+## Elegir un motor de IA
 
-## 🧪 9. Laboratorio de Compatibilidad Sitejet Builder
+### Qué motor usa cada sección
 
-Para validar la perfecta renderización en **Sitejet Builder** (constructor de sitios web de cPanel / Namecheap), la aplicación incluye un laboratorio de pruebas visuales:
-* Abre en tu navegador: **`http://127.0.0.1:8000/sitejet-lab.html`**
-* Te permite probar en tiempo real:
-  * Preservación de cajas destacadas (*Callouts* de resumen, notas y advertencias).
-  * Tablas estilizadas con bordes sutiles y padding equilibrado.
-  * Jerarquía H1-H3 sin alteraciones por el reseteador CSS de Sitejet.
-  * Generación y descarga en vivo de Kits `.ZIP`.
+| Interfaz | Motores disponibles |
+|---|---|
+| `/writer` y endpoint principal de generación (`/api/generate-stream`) | Ollama local |
+| `/studio` — acciones y chat (`/api/ai-action`, `/api/ai-chat`) | Google Gemini, OpenAI Chat Completions, Anthropic Messages u Ollama local |
 
----
+Los adaptadores del Studio usan las APIs oficiales de esos proveedores cloud. No implican compatibilidad cloud para `/writer` ni para `/api/generate-stream`.
 
-## ☁️ 10. Despliegue en la Nube (Google Colab & Oracle Cloud)
+### Configuración del backend
 
-**JullEditor v3.4.0** está arquitecturado para funcionar con paridad 1:1 tanto en local como en la nube.
+Define las variables en el entorno de **FastAPI**, nunca en el frontend ni en variables `PUBLIC_*` de Astro:
 
-### 🚀 Opción A: Google Colab (Ejecución Instantánea con Aceleración GPU)
-Ideal para redacción de alta velocidad sin consumir recursos locales de tu máquina:
-1. Abre el notebook oficial: [`notebooks/granite_blog_colab.ipynb`](notebooks/granite_blog_colab.ipynb) en **Google Colab**.
-2. Selecciona **Entorno de ejecución > Cambiar tipo de entorno de ejecución > GPU T4** (o CPU estándar gratuita).
-3. Ejecuta secuencialmente las celdas guiadas:
-   * **Paso 1:** Instala y levanta el demonio de Ollama en background.
-   * **Paso 2:** Descarga `granite3.3:2b` (ultrarrápido) o `granite3.3:8b` (calidad pericial).
-   * **Paso 3:** Clona el repositorio e instala `requirements-colab.txt`.
-   * **Paso 4 & 5:** Configura variables de entorno y levanta el servidor web con puerto expuesto mediante túnel seguro de Google Colab o Ngrok.
+| Variable | Se usa para |
+|---|---|
+| `GEMINI_API_KEY` | Credencial de Google Gemini |
+| `GEMINI_MODEL` | ID de modelo de Gemini |
+| `OPENAI_API_KEY` | Credencial de OpenAI |
+| `OPENAI_MODEL` | ID de modelo de OpenAI |
+| `ANTHROPIC_API_KEY` | Credencial de Anthropic |
+| `ANTHROPIC_MODEL` | ID de modelo de Anthropic |
+| `OLLAMA_BASE_URL` | URL base de Ollama accesible desde FastAPI |
+| `OLLAMA_MODEL` | Modelo local seleccionado por el Studio |
 
-### 🏢 Opción B: Oracle Cloud Infrastructure (Always Free VM con Docker & Nginx)
-Para desplegar un centro pericial accesible 24/7 en una instancia gratuita de Oracle Cloud (Ubuntu 22.04/24.04 LTS en arquitectura x86_64 o ARM Ampere):
+Los proveedores cloud requieren que estén configurados tanto la clave como el modelo correspondiente. Para inferencia local, el Writer usa `GRANITE_MODEL`; el Studio usa `OLLAMA_MODEL` y puede recurrir a `GRANITE_MODEL`. Si FastAPI está en otro host o contenedor, `localhost` apunta a ese host/contenedor, no al equipo del navegador.
 
-```bash
-# 1. Clonar el repositorio en la instancia de Oracle Cloud
-git clone https://github.com/tu-usuario/Creador-de-Articulos-Blog-con-Granite.git /opt/granite-blog
-cd /opt/granite-blog
+El frontend envía la selección del proveedor y el contenido de la solicitud, pero no recoge ni guarda claves cloud. Si seleccionas Google, OpenAI o Anthropic, considera que el texto fuente y la conversación se transmiten al proveedor elegido y aplica sus condiciones de privacidad.
 
-# 2. Instalar dependencias e iniciar con el orquestador 100% Python
-pip install -r requirements.txt
-python run.py --port 8000
-```
+## Despliegues
 
-**Lo que realiza el script automáticamente:**
-* Instala **Docker Engine** y **Docker Compose Plugin**.
-* Abre los puertos necesarios en el cortafuegos `iptables` (**80, 443, 8000**).
-* Levanta el ecosistema contenerizado:
-  * **`granite-ollama`**: Motor de inferencia local persistente.
-  * **`granite-blog-app`**: Servidor FastAPI asíncrono con `requirements-cloud.txt`.
-  * **`granite-nginx`**: Reverse proxy con configuración especial para **Server-Sent Events (SSE) sin buffering**.
-* Descarga y precarga el modelo `granite3.3:8b`.
-* Habilita el servicio de inicio automático del sistema `granite-blog.service` para `systemd`.
+### Vercel
 
----
+Vercel aloja el frontend Astro y su proxy; **no aloja este backend FastAPI ni Ollama**. Configura un backend remoto accesible por HTTPS antes de habilitar `/studio` o `/writer` en producción.
 
-## ❓ 11. Preguntas Frecuentes (FAQ)
+1. En Vercel, establece **Root Directory** en `frontend`.
+2. Usa el framework **Astro**, el comando de instalación `npm ci --include=optional --workspaces=false` y el comando de build `npm run build`.
+3. No configures un directorio de salida personalizado.
+4. Define estas variables en **Project Settings → Environment Variables**:
 
-<details>
-<summary><strong>¿Puedo utilizar este sistema totalmente sin conexión a internet?</strong></summary>
-<strong>Sí, al 100%.</strong> IBM Granite 3.3 opera localmente en tu procesador a través de Ollama. Si utilizas la ingesta de archivos Docling (.MD/.JSON) o el pegado directo de texto, la aplicación no realiza ninguna solicitud a internet. Las fuentes tipográficas y los iconos están integrados localmente en la carpeta <code>frontend/fonts/</code>.
-</details>
-
-<details>
-<summary><strong>¿Qué diferencia hay entre "Copiar p/ WordPress" y "Copiar p/ Sitejet"?</strong></summary>
-<strong>WordPress (Gutenberg):</strong> Genera HTML enriquecido con estilos específicos que los bloques de párrafo, encabezado y tabla de Gutenberg reconocen de forma nativa manteniendo el diseño.  
-<strong>Sitejet Builder:</strong> Constructor visual estricto que requiere etiquetas HTML limpias con estilos inline directos y sin scripts, evitando que su motor de sanitización elimine componentes visuales.
-</details>
-
-<details>
-<summary><strong>¿Qué ventajas tiene el perfil "Revista Científica Arbitrada"?</strong></summary>
-Estructura el artículo conforme al estándar de publicaciones universitarias internacionales: genera un <strong>Abstract estructurado bilingüe</strong> (Objetivo, Metodología, Resultados, Conclusiones), cita directrices periciales internacionales (<strong>ISO/IEC 27037, RFC 3227</strong>), contrasta con el <strong>Manual Único de Cadena de Custodia de Venezuela (2017)</strong>, analiza jurisprudencia del <strong>TSJ</strong>, aplica referencias en formato <strong>APA 7ma edición</strong> y microdatos Schema.org <code>ScholarlyArticle</code>.
-</details>
-
-<details>
-<summary><strong>¿Cómo funciona la impresión en formato oficio (@media print)?</strong></summary>
-Al presionar <kbd>Ctrl</kbd> + <kbd>P</kbd> o seleccionar <em>Imprimir</em> en el menú, la hoja de estilos <code>@media print</code> oculta automáticamente todos los paneles de control, barras de navegación y botones, ajustando el contenido a tamaño carta/oficio con tipografía serifa académica (Georgia), texto justificado, control de saltos de página y sangría francesa en las referencias.
-</details>
-
-<details>
-<summary><strong>¿Por qué la temperatura recomendada es 0.2?</strong></summary>
-En áreas técnicas y jurídicas (YMYL), temperaturas mayores a 0.5 aumentan exponencialmente la probabilidad de que el modelo alucine normativas, confunda artículos de leyes o invente jurisprudencia. Con <strong>0.2 (Rigor Factual)</strong>, IBM Granite 3.3 se ciñe estrictamente al contexto suministrado y al corpus legal positivo verificado.
-</details>
-
-<details>
-<summary><strong>¿Qué modelo de Granite debo elegir (2B vs 8B)?</strong></summary>
-• <strong>granite3.3:8b (Recomendado):</strong> Mayor riqueza léxica, razonamiento dogmático superior y redacción pericial profunda. Requiere ~8-10 GB de RAM disponible.<br>
-• <strong>granite3.3:2b:</strong> Ultrarrápido, ideal para ordenadores portátiles o equipos con 8 GB de RAM total. Proporciona excelente síntesis técnica con un consumo inferior a 2.5 GB de RAM.
-</details>
-
----
-
-## 🏷️ 12. Versionado SemVer y Publicación de Releases
-
-Este proyecto adhiere estrictamente a [Semantic Versioning 2.0.0](https://semver.org/lang/es/): formato `MAJOR.MINOR.PATCH` (con sufijos opcionales `-PRERELEASE` y `+BUILD`). La versión canónica vive en `backend/version.py` (`__version__`) y se propaga automáticamente a FastAPI (`/api/health`, OpenAPI), banner CLI, marca de agua de artículos y `pyproject.toml`. El historial completo se mantiene en [`CHANGELOG.md`](CHANGELOG.md) bajo el formato [Keep a Changelog](https://keepachangelog.com/es-ES/1.0.0/).
-
-**GitHub muestra la versión actual en el panel derecho del repositorio leyendo las *Tags* y *Releases*.** Checklist de publicación:
-
-```bash
-# 1. Actualizar backend/version.py y pyproject.toml según SemVer:
-#    - MAJOR: cambios incompatibles de API/arquitectura
-#    - MINOR: funcionalidad retrocompatible (p.ej. TUI Textual → 3.4.0)
-#    - PATCH: correcciones retrocompatibles
-# 2. Documentar el cambio en CHANGELOG.md (sección nueva arriba)
-# 3. Verificar QA bloqueante antes de etiquetar:
-python run.py --test && python -m ruff check . && python -m mypy backend run.py
-# 4. Etiquetar (la tag debe empezar con "v" + la versión exacta) y subir a main:
-git commit -am "chore(release): v3.4.0"
-git tag -a v3.4.0 -m "JullEditor v3.4.0 — Auto-arranque inteligente bootstrap.py: instala Python, dependencias, Ollama y Granite según hardware; 79/79 tests, ruff/mypy verdes"
-git push origin main --follow-tags
-# 5. (Opcional) Crear la Release en GitHub desde esa tag para que aparezca
-#    como "Latest" en la página del repositorio.
-```
-
-| Versión | Fecha | Hitos principales |
+| Variable | Dónde se usa | Valor |
 |---|---|---|
-| **v3.4.0** *(actual)* | 2026-10-25 | Auto-arranque inteligente (`bootstrap.py`): analiza CPU/RAM/SO e instala Python, dependencias, Ollama y descarga `granite3.3:8b` o `:2b` según la RAM; TUI Textual canónica (`--tui`); suite ampliada a **79/79 tests**. |
-| v3.3.1 | 2026-10-25 | QA integral: ramas unificadas en `main`, `ruff`/`mypy` en verde, compatibilidad Python 3.10+, `.gitignore` endurecido. |
-| v3.3.0 | 2026-10-25 | `editorial_catalog.py` como fuente única de verdad (temas, 12 tonos VE, jurisdicciones y modelos) compartida por CLI, TUI, GUI web y API `/api/editorial-options`. |
-| v3.2.1 | — | Lenguaje unificado a Python: los `.bat` quedan como puentes de 1 clic sin lógica propia. |
-| v3.2.0 | — | Foco exclusivo en jurisdicción Venezuela (perfiles, corpus y glosario forense). |
-| v3.1.0 | — | Versionado SemVer centralizado en `backend/version.py` con propagación automática. |
+| `PUBLIC_SITE_URL` | Build de Astro | URL pública del sitio |
+| `BACKEND_API_URL` | Proxy server-side `/backend-api/` | URL HTTPS base de FastAPI, sin barra final |
 
-> El detalle línea por línea de cada versión está en [`CHANGELOG.md`](CHANGELOG.md).
+Configura ambas variables en los entornos Preview y Production que correspondan. Si falta `BACKEND_API_URL`, el proxy responde `503`. No uses `localhost` como URL de FastAPI en Vercel.
 
----
+Las claves `GEMINI_API_KEY`, `OPENAI_API_KEY` y `ANTHROPIC_API_KEY` van **solo en el entorno del host FastAPI**. FastAPI y Ollama deben poder comunicarse entre sí cuando se seleccione el motor local. El publicador guarda artículos en el disco del backend: usa almacenamiento persistente en ese host; el filesystem de Vercel no debe tratarse como almacenamiento duradero.
 
-<p align="center">
-  <strong>Desarrollado con arquitectura Cyber-Legal Blueprint · Cumplimiento de estándares periciales, SEO / GEO 2026 y accesibilidad WCAG 2.1 AAA</strong><br/>
-  <sub>JullEditor v3.4.0 — Estación editorial y pericial local, offline-first y libre de fuga de datos.</sub>
-</p>
+### Docker Compose
+
+El compose incluido inicia Ollama, la aplicación Astro/FastAPI y Nginx. Desde la raíz:
+
+```powershell
+docker compose -f docker/docker-compose.yml up --build
+```
+
+Nginx publica el sitio por el puerto 80; Compose también mapea los puertos 3000, 8000 y 11434. En un host expuesto a Internet, limita mediante firewall el acceso directo a FastAPI y Ollama y publica el sitio a través de un proxy HTTPS. Docker instala las dependencias del backend desde `requirements-cloud.txt`; `requirements.txt` corresponde al entorno local completo.
+
+### Oracle Cloud con Docker
+
+En una VM Linux con Docker Compose instalado, clona el repositorio en `/opt/granite-blog` (la ruta que espera el archivo systemd incluido) y arranca los servicios:
+
+```bash
+sudo git clone https://github.com/julljoll/JullEditor.git /opt/granite-blog
+cd /opt/granite-blog
+sudo docker compose -f docker/docker-compose.yml up --build -d
+```
+
+Opcionalmente, habilita la unidad systemd que inicia Compose al arrancar la VM:
+
+```bash
+sudo cp deploy/oracle/granite-blog.service /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now granite-blog.service
+```
+
+Antes de exponer el servicio, configura TLS y reglas de red en la VM y restringe los puertos de backend/modelo. Los artículos guardados deben estar en almacenamiento persistente del host.
+
+### Google Colab
+
+El repositorio conserva [`notebooks/granite_blog_colab.ipynb`](notebooks/granite_blog_colab.ipynb) como referencia experimental para iniciar Ollama y FastAPI en Colab. **No es una ruta de despliegue lista para usar**: el notebook aún contiene una URL de clonación de ejemplo y referencia `requirements-colab.txt`, que no existe en el repositorio. Además, levanta FastAPI, no el frontend Astro. Para una interfaz web integrada y mantenida, usa Vercel o el compose de Docker.
+
+## Exportar, publicar e imprimir
+
+| Acción | Dónde | Resultado |
+|---|---|---|
+| Guardar borrador | `/writer` | Archivo guardado en el backend |
+| Preparar para Astro | `/writer` | Valida y copia el Markdown a la colección `frontend/src/content/blog/`; luego hay que ejecutar el build para regenerar las rutas |
+| Copiar Markdown Astro | `/studio` | Markdown con metadatos editoriales |
+| Copiar HTML CMS | `/studio` | HTML para copiar y revisar en el CMS |
+| Descargar `.md` | `/studio` | Archivo Markdown del borrador |
+| Imprimir artículo | Página del artículo | Abre el diálogo de impresión del navegador; desde ahí se puede elegir una impresora o guardar como PDF |
+
+La pestaña **Vista CMS** del Studio se describe en la interfaz como simulación Gutenberg/Sitejet; no es una integración oficial ni garantiza una renderización idéntica en esos servicios.
+
+| Atajo | Comportamiento |
+|---|---|
+| `Enter` en el campo del chat de `/studio` | Envía el mensaje al proveedor seleccionado. |
+| `Ctrl+P` (Windows/Linux) o `Cmd+P` (macOS) | Atajo estándar del navegador para abrir el diálogo de impresión; también está disponible el botón **Imprimir Formato Oficio** en la página del artículo. |
+
+No hay otros atajos globales propios de la aplicación documentados actualmente.
+
+## Marco editorial y jurídico
+
+JullEditor está orientado a la producción editorial sobre informática forense, ciberseguridad, LegalTech y derecho venezolano. El repositorio incluye materiales locales sobre, entre otros:
+
+- Constitución de la República Bolivariana de Venezuela.
+- Ley Especial contra los Delitos Informáticos.
+- Ley sobre Mensajes de Datos y Firmas Electrónicas.
+- Ley de Infogobierno, Manual Único de Cadena de Custodia de Evidencias (2017), materiales de CENIF, normativas SUSCERTE y documentos de jurisprudencia del TSJ.
+- Referencias técnicas como ISO/IEC 27037, ISO/IEC 27042, RFC 3227 y NIST SP 800-86.
+
+El enfoque jurídico principal es Venezuela. La cobertura depende de las fuentes disponibles en el corpus y del flujo utilizado; la presencia de una fuente no sustituye la comprobación de su vigencia y aplicabilidad. El contenido generado es un borrador de apoyo: verifica las citas y el análisis antes de publicarlo o utilizarlo profesionalmente. El uso de un proveedor cloud también cambia dónde se procesa el texto fuente.
+
+## Preguntas frecuentes y versionado
+
+<details>
+<summary><strong>¿Se puede trabajar sin conexión?</strong></summary>
+El flujo de generación con Ollama puede trabajar con fuentes locales sin enviar el prompt a un proveedor cloud. La instalación, la descarga de modelos, la extracción de una URL y el uso de proveedores cloud sí requieren conexión; la interfaz Astro también necesita ejecutarse junto a FastAPI.
+</details>
+
+<details>
+<summary><strong>¿Las claves de API se guardan en el navegador?</strong></summary>
+No. El Studio no presenta un formulario de claves ni incluye credenciales en las solicitudes desde el frontend. Configúralas en el entorno privado de FastAPI. No pegues claves en el chat, el artículo ni los campos de texto.
+</details>
+
+<details>
+<summary><strong>¿El modo cloud está disponible en Writer?</strong></summary>
+No. Los adaptadores cloud actuales se usan en las acciones y el chat del Studio. `/writer` y `/api/generate-stream` continúan conectados a Ollama.
+</details>
+
+<details>
+<summary><strong>¿Qué pasa después de “Preparar para Astro”?</strong></summary>
+El artículo se valida y copia a la colección de contenido. Ejecuta nuevamente `npm run build` en `frontend/` para regenerar las rutas prerenderizadas del sitio.
+</details>
+
+<details>
+<summary><strong>¿El contenido generado constituye una opinión jurídica?</strong></summary>
+No. Es un borrador asistido por IA. La persona responsable debe revisar fuentes, vigencia normativa, citas, interpretación y atribución antes de publicarlo o utilizarlo en una actuación profesional.
+</details>
+
+Para comprobar la API local, abre `http://127.0.0.1:8000/api/health`; la documentación interactiva de FastAPI está en `http://127.0.0.1:8000/docs`.
+
+La versión de código se define en [`backend/version.py`](backend/version.py). El historial de cambios está en [`CHANGELOG.md`](CHANGELOG.md), y las versiones publicadas deben contrastarse con las etiquetas y releases de GitHub. El proyecto sigue [Semantic Versioning](https://semver.org/lang/es/): PATCH para correcciones compatibles, MINOR para funciones compatibles y MAJOR para cambios incompatibles.
+
+## Verificación
+
+### Frontend
+
+Desde `frontend/`:
+
+```powershell
+npm run build
+npx tsc --noEmit -p tsconfig.json
+```
+
+No hay un script `lint` definido en `frontend/package.json`; el chequeo TypeScript se ejecuta con el segundo comando.
+
+### Backend
+
+Con las dependencias de `requirements.txt` instaladas, agrega pytest al entorno de desarrollo y ejecuta desde la raíz:
+
+```powershell
+python -m pip install pytest
+python -m pytest tests/test_providers.py tests/test_studio_ai.py
+python run.py --test
+```
+
+Las pruebas de proveedor usan mocks; no requieren credenciales reales ni llamadas a Internet.
+
+## Estructura del repositorio
+
+| Ruta | Contenido |
+|---|---|
+| `backend/app.py` | FastAPI, endpoint principal de generación, publicación y healthcheck |
+| `backend/studio_ai.py` | Acciones y chat del Studio |
+| `backend/providers.py` | Contrato/adaptadores de Google, OpenAI, Anthropic y Ollama para Studio |
+| `backend/` | Otros módulos de generación, corpus/RAG, validaciones y exportación |
+| `frontend/src/pages/` | Páginas Astro del blog, Writer, Studio y proxy `/backend-api/` |
+| `frontend/src/content/blog/` | Colección de artículos Astro |
+| `Informacion_docling_rag/` | Fuentes jurídicas y técnicas locales |
+| `tests/` | Pruebas Python |
+| `docker/` | Dockerfile, Compose y configuración de Nginx |
+| `notebooks/` | Notebook experimental de Colab |
+| `deploy/oracle/` | Unidad systemd para iniciar Docker Compose en una VM Linux de Oracle Cloud |
+| `requirements.txt` | Dependencias Python para desarrollo local |
+| `requirements-cloud.txt` | Dependencias Python necesarias para Docker |
+| `.env.example` | Plantilla de variables de entorno |
+
+## Enlaces útiles
+
+- [Astro](https://astro.build/)
+- [FastAPI](https://fastapi.tiangolo.com/)
+- [Ollama](https://ollama.com/)
+- [API de Gemini](https://ai.google.dev/api/generate-content)
+- [API de OpenAI Chat Completions](https://platform.openai.com/docs/api-reference/chat/create)
+- [API de Anthropic Messages](https://docs.anthropic.com/en/api/messages)
+- [Semantic Versioning](https://semver.org/lang/es/)

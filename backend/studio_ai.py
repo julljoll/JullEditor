@@ -4,18 +4,21 @@ import os
 import re
 from datetime import datetime, timezone
 from typing import Any, Literal
-from urllib.parse import urlsplit
 
 import httpx
-from fastapi import APIRouter, Query
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
+from backend.providers import (
+    ProviderConfigurationError,
+    ProviderError,
+    get_provider,
+    validate_local_endpoint,
+)
 from backend.scraper import extract_article_from_url
 
 router = APIRouter()
-
-GEMINI_MODEL = "gemini-3.5-flash-lite"
 CHAT_SYSTEM_INSTRUCTION = """Eres el Agente Copiloto Editorial & Pericial de JullEditor para el laboratorio sha256.us.
 Tu misión es asistir interactivamente al autor en la redacción, revisión, pulido, ampliación y aseguramiento técnico de artículos de ciberseguridad forense, peritaje digital y doctrina jurídica según el derecho positivo de la República Bolivariana de Venezuela 🇻🇪.
 
@@ -215,7 +218,7 @@ Gabinete pericial especializado en recuperación de evidencias digitales, análi
 
 
 class StudioChatMessage(BaseModel):
-    role: Literal["user", "assistant", "system"]
+    role: Literal["user", "assistant"]
     content: str
 
 
@@ -223,15 +226,12 @@ class StudioChatRequest(BaseModel):
     messages: list[StudioChatMessage] = Field(default_factory=list)
     instruction: str | None = None
     current_article: str | None = None
-    provider: str = "gemini"
-    api_key: str | None = None
-    local_endpoint: str | None = None
-    phi_model: str | None = None
+    provider: str = "google"
 
 
 class StudioActionRequest(BaseModel):
     action: str = "generate"
-    provider: str = "gemini"
+    provider: str = "google"
     source_url: str | None = None
     source_text: str | None = None
     title: str | None = None
@@ -239,22 +239,11 @@ class StudioActionRequest(BaseModel):
     tone: str = "Revista Científica Arbitrada"
     target_words: int = 1500
     custom_instructions: str = ""
-    local_endpoint: str | None = None
-    phi_model: str | None = None
-    api_key: str | None = None
-
-
-def _validate_local_endpoint(endpoint: str) -> str:
-    endpoint = endpoint.rstrip("/")
-    parsed = urlsplit(endpoint)
-    if parsed.scheme not in {"http", "https"} or not parsed.hostname or parsed.username or parsed.password:
-        raise ValueError("El endpoint local debe ser una URL HTTP o HTTPS válida.")
-    return endpoint
 
 
 async def _check_local_phi_status(endpoint: str) -> dict[str, Any]:
     try:
-        clean_endpoint = _validate_local_endpoint(endpoint)
+        clean_endpoint = validate_local_endpoint(endpoint)
         is_v1 = clean_endpoint.endswith("/v1")
         status_url = f"{clean_endpoint}/models" if is_v1 else f"{clean_endpoint}/api/tags"
         async with httpx.AsyncClient(timeout=3.0) as client:
@@ -264,7 +253,7 @@ async def _check_local_phi_status(endpoint: str) -> dict[str, Any]:
             return {
                 "connected": False,
                 "models": [],
-                "message": f"Servidor local respondió con código HTTP {response.status_code}",
+                "message": f"Servidor local respondió con código HTTP {response.status_code}.",
             }
 
         data = response.json()
@@ -285,182 +274,62 @@ async def _check_local_phi_status(endpoint: str) -> dict[str, Any]:
             "connected": True,
             "models": model_names,
             "message": (
-                f"Conectado a Microsoft Phi local ({len(model_names)} modelos detectados)"
+                f"Conectado al servidor local ({len(model_names)} modelos detectados)"
                 if model_names
                 else "Conectado a servidor local (no se encontraron modelos descargados aún)"
             ),
         }
     except Exception:
-        clean_endpoint = endpoint.rstrip("/")
         return {
             "connected": False,
             "models": [],
-            "message": (
-                f"No se pudo conectar a {clean_endpoint}. "
-                "Inicia Ollama con 'ollama serve' o 'ollama run phi3'."
-            ),
+            "message": "No se pudo conectar al servidor local. Verifica OLLAMA_BASE_URL y que Ollama esté activo.",
         }
 
 
-async def _generate_with_phi(
+async def _generate_with_provider(
     prompt: str,
     system_instruction: str,
-    endpoint: str,
-    model: str,
+    provider: str,
     temperature: float,
     max_tokens: int,
 ) -> dict[str, str]:
-    endpoint = _validate_local_endpoint(endpoint)
-    payload: dict[str, Any]
-    request_url: str
-    timeout = httpx.Timeout(90.0)
-    if endpoint.endswith("/v1"):
-        request_url = f"{endpoint}/chat/completions"
-        timeout = httpx.Timeout(60.0)
-        payload = {
-            "model": model,
-            "messages": [
-                {"role": "system", "content": system_instruction},
-                {"role": "user", "content": prompt},
-            ],
-            "temperature": temperature,
-            "max_tokens": max_tokens,
-        }
-    else:
-        request_url = f"{endpoint}/api/generate"
-        payload = {
-            "model": model,
-            "system": system_instruction,
-            "prompt": prompt,
-            "stream": False,
-            "options": {"temperature": temperature, "num_predict": max_tokens},
-        }
-
-    try:
-        async with httpx.AsyncClient(timeout=timeout) as client:
-            response = await client.post(request_url, json=payload)
-        if not response.is_success:
-            error_text = response.text
-            if response.status_code == 404 and not endpoint.endswith("/v1"):
-                raise ValueError(
-                    f"El modelo '{model}' no está descargado en tu Ollama local. "
-                    f"Ejecuta en tu terminal: 'ollama pull {model}' o 'ollama run phi3'."
-                )
-            server = "servidor local Phi" if endpoint.endswith("/v1") else "Ollama"
-            raise ValueError(f"Error en {server} ({response.status_code}): {error_text}")
-        data = response.json()
-        text = (
-            data.get("choices", [{}])[0].get("message", {}).get("content", "")
-            if endpoint.endswith("/v1")
-            else data.get("response", "")
-        )
-        if not text:
-            raise ValueError("Microsoft Phi no retornó contenido en la respuesta.")
-        return {"text": text, "providerUsed": "phi", "modelName": model}
-    except httpx.TimeoutException as exc:
-        raise ValueError(f"Microsoft Phi ({model}) en {endpoint} excedió el tiempo límite.") from exc
-    except httpx.HTTPError as exc:
-        raise ValueError(
-            f"No se pudo comunicar con Microsoft Phi en {endpoint}. Detalle: {exc}. "
-            "Para usarlo en local ejecuta 'ollama run phi3'."
-        ) from exc
-
-
-def _gemini_key(client_key: str | None) -> str:
-    key = (client_key or "").strip()
-    if not key:
-        key = (os.getenv("GEMINI_API_KEY") or os.getenv("API_KEY") or "").strip()
-    if not key:
-        raise ValueError("Falta la API Key de Gemini. Ingresa tu clave en el campo de configuración del editor.")
-    return key
-
-
-async def _call_gemini(
-    contents: list[dict[str, Any]],
-    system_instruction: str,
-    api_key: str,
-    temperature: float,
-    max_tokens: int,
-) -> str:
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/{GEMINI_MODEL}:generateContent"
-    payload = {
-        "systemInstruction": {"parts": [{"text": system_instruction}]},
-        "contents": contents,
-        "generationConfig": {"temperature": temperature, "maxOutputTokens": max_tokens},
-    }
-    async with httpx.AsyncClient(timeout=90.0) as client:
-        response = await client.post(url, params={"key": api_key}, json=payload)
-    data = response.json()
-    if data.get("error"):
-        raise ValueError(f"Gemini API: {data['error'].get('message') or 'Error en Google Generative Language'}")
-    if not response.is_success:
-        raise ValueError(f"Gemini API: {data.get('error', {}).get('message') or response.text}")
-    text = data.get("candidates", [{}])[0].get("content", {}).get("parts", [{}])[0].get("text", "")
-    if not text:
-        raise ValueError("Gemini no devolvió contenido.")
-    return text
-
-
-async def _generate_with_gemini(
-    prompt: str,
-    system_instruction: str,
-    api_key: str | None,
-    temperature: float,
-    max_tokens: int,
-) -> dict[str, str]:
-    text = await _call_gemini(
-        [{"role": "user", "parts": [{"text": prompt}]}],
+    adapter = get_provider(provider)
+    result = await adapter.complete(
+        [{"role": "user", "content": prompt}],
         system_instruction,
-        _gemini_key(api_key),
         temperature,
         max_tokens,
     )
-    return {"text": text, "providerUsed": "gemini", "modelName": GEMINI_MODEL}
+    return {
+        "text": result.text,
+        "providerUsed": result.provider,
+        "modelName": result.model,
+    }
 
 
 async def _chat_with_model(
     messages: list[dict[str, str]],
     system_instruction: str,
     provider: str,
-    api_key: str | None,
-    local_endpoint: str,
-    phi_model: str,
 ) -> dict[str, str]:
-    if provider == "phi":
-        endpoint = _validate_local_endpoint(local_endpoint)
-        payload = {
-            "model": phi_model,
-            "messages": [{"role": "system", "content": system_instruction}, *messages],
-            "stream": False,
-            "options": {"temperature": 0.35},
-        }
-        try:
-            async with httpx.AsyncClient(timeout=60.0) as client:
-                response = await client.post(f"{endpoint}/api/chat", json=payload)
-            if not response.is_success:
-                raise ValueError(f"Error en servidor local Phi ({response.status_code}): {response.text}")
-            reply = response.json().get("message", {}).get("content", "")
-            return {"reply": reply, "providerUsed": "phi", "modelName": phi_model}
-        except httpx.HTTPError as exc:
-            raise ValueError(
-                f"Error comunicando con Microsoft Phi local: {exc}. "
-                "Para local, inicia 'ollama run phi3'."
-            ) from exc
+    adapter = get_provider(provider)
+    result = await adapter.complete(messages, system_instruction, 0.35, 4000)
+    return {
+        "reply": result.text,
+        "providerUsed": result.provider,
+        "modelName": result.model,
+    }
 
-    key = _gemini_key(api_key)
-    contents = [
-        {
-            "role": "model" if message["role"] == "assistant" else "user",
-            "parts": [{"text": message["content"]}],
-        }
-        for message in messages
-    ]
-    reply = await _call_gemini(contents, system_instruction, key, 0.35, 4000)
-    return {"reply": reply, "providerUsed": "gemini", "modelName": GEMINI_MODEL}
+
+def _provider_error_response(error: ProviderError) -> JSONResponse:
+    status_code = 503 if isinstance(error, ProviderConfigurationError) else 502
+    return JSONResponse({"error": str(error)}, status_code=status_code)
 
 
 @router.get("/api/ai-status")
-async def ai_status(endpoint: str = Query("http://localhost:11434")):
+async def ai_status():
+    endpoint = os.getenv("OLLAMA_BASE_URL", "").strip() or "http://localhost:11434"
     return await _check_local_phi_status(endpoint)
 
 
@@ -483,15 +352,11 @@ async def ai_chat(req: StudioChatRequest):
             f'"""\n{current_article[:8000]}\n"""\n'
             "Usa este contenido como referencia cuando el usuario solicite ajustes o adiciones."
         )
-    provider = "phi" if req.provider == "phi" else "gemini"
     try:
         result = await _chat_with_model(
             history,
             system_instruction,
-            provider,
-            req.api_key,
-            req.local_endpoint or "http://localhost:11434",
-            req.phi_model or "phi3",
+            req.provider,
         )
         reply = result["reply"]
         updated_article = None
@@ -505,8 +370,13 @@ async def ai_chat(req: StudioChatRequest):
             "providerUsed": result["providerUsed"],
             "modelName": result["modelName"],
         }
-    except Exception as exc:
-        return JSONResponse({"error": str(exc) or "Error al comunicarse con el agente de IA."}, status_code=500)
+    except ProviderError as exc:
+        return _provider_error_response(exc)
+    except Exception:
+        return JSONResponse(
+            {"error": "Error interno al comunicarse con el proveedor de IA."},
+            status_code=500,
+        )
 
 
 def _build_action_prompt(
@@ -607,7 +477,6 @@ Devuelve ÚNICAMENTE el Markdown comenzando con "---"."""
 @router.post("/api/ai-action")
 async def ai_action(req: StudioActionRequest):
     action = req.action or "generate"
-    provider = "phi" if req.provider == "phi" else "gemini"
     source_url = (req.source_url or "").strip()
     source_text = (req.source_text or "").strip()
     base_title = (req.title or "").strip()
@@ -655,17 +524,13 @@ async def ai_action(req: StudioActionRequest):
         today,
     )
     try:
-        if provider == "phi":
-            result = await _generate_with_phi(
-                prompt,
-                ACTION_SYSTEM_INSTRUCTION,
-                req.local_endpoint or "http://localhost:11434",
-                req.phi_model or "phi3",
-                0.25,
-                6500,
-            )
-        else:
-            result = await _generate_with_gemini(prompt, ACTION_SYSTEM_INSTRUCTION, req.api_key, 0.25, 6500)
+        result = await _generate_with_provider(
+            prompt,
+            ACTION_SYSTEM_INSTRUCTION,
+            req.provider,
+            0.25,
+            6500,
+        )
         response_text = re.sub(r"^```(?:markdown|md)?\s*\n", "", result["text"].strip(), count=1, flags=re.IGNORECASE)
         response_text = re.sub(r"\n```\s*$", "", response_text).strip()
         title_match = re.search(r"title:\s*[\"']([^\"']+)[\"']", response_text, re.IGNORECASE)
@@ -695,8 +560,10 @@ async def ai_action(req: StudioActionRequest):
             "readingTime": max(1, int(words / 200 + 0.5)),
             **({"sourceUrl": source_url} if source_url else {}),
         }
-    except Exception as exc:
+    except ProviderError as exc:
+        return _provider_error_response(exc)
+    except Exception:
         return JSONResponse(
-            {"error": str(exc) or "Error interno al procesar la solicitud con IA."},
+            {"error": "Error interno al procesar la solicitud con IA."},
             status_code=500,
         )
